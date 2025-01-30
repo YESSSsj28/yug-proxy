@@ -1,136 +1,68 @@
-import random
-import os
-import time
+import math
 
-# Game settings
-MAP_SIZE = 10
-PLAYER_HEALTH = 100
-SAFE_ZONE_RADIUS = 5
-SHRINK_SPEED = 0.5
-DAMAGE_OUTSIDE_ZONE = 5
+class Vector3:
+    """A simple 3D vector class to represent positions and directions."""
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
 
-# Player and game state
-player = {"x": 0, "y": 0, "health": PLAYER_HEALTH, "weapon": "Fists", "ammo": 0}
-bots = [{"x": random.randint(0, MAP_SIZE-1), "y": random.randint(0, MAP_SIZE-1), "health": 50} for _ in range(5)]
-loot = [{"x": random.randint(0, MAP_SIZE-1), "y": random.randint(0, MAP_SIZE-1), "type": random.choice(["Weapon", "Health", "Ammo"])} for _ in range(10)]
-safe_zone_center = {"x": MAP_SIZE // 2, "y": MAP_SIZE // 2}
-safe_zone_radius = SAFE_ZONE_RADIUS
+    def __add__(self, other):
+        return Vector3(self.x + other.x, self.y + other.y, self.z + other.z)
 
-def clear_screen():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    def __mul__(self, scalar):
+        return Vector3(self.x * scalar, self.y * scalar, self.z * scalar)
 
-def draw_map():
-    for y in range(MAP_SIZE):
-        for x in range(MAP_SIZE):
-            if x == player["x"] and y == player["y"]:
-                print("P", end=" ")
-            elif any(bot["x"] == x and bot["y"] == y for bot in bots):
-                print("B", end=" ")
-            elif any(item["x"] == x and item["y"] == y for item in loot):
-                print("L", end=" ")
-            elif (x - safe_zone_center["x"])**2 + (y - safe_zone_center["y"])**2 <= safe_zone_radius**2:
-                print(".", end=" ")
-            else:
-                print("#", end=" ")
-        print()
+    def __repr__(self):
+        return f"({self.x:.2f}, {self.y:.2f}, {self.z:.2f})"
 
-def move_player(dx, dy):
-    player["x"] = max(0, min(MAP_SIZE-1, player["x"] + dx))
-    player["y"] = max(0, min(MAP_SIZE-1, player["y"] + dy))
+class Bullet:
+    """Represents a bullet in 3D space."""
+    def __init__(self, position, direction, speed):
+        self.position = position
+        self.direction = direction
+        self.speed = speed
 
-def check_loot():
-    for item in loot[:]:
-        if item["x"] == player["x"] and item["y"] == player["y"]:
-            if item["type"] == "Weapon":
-                player["weapon"] = "Pistol"
-                player["ammo"] += 10
-                print("You found a Pistol and 10 ammo!")
-            elif item["type"] == "Health":
-                player["health"] = min(100, player["health"] + 20)
-                print("You found a Health pack and restored 20 HP!")
-            elif item["type"] == "Ammo":
-                player["ammo"] += 5
-                print("You found 5 ammo!")
-            loot.remove(item)
+    def update(self):
+        """Update the bullet's position based on its direction and speed."""
+        self.position += self.direction * self.speed
 
-def move_bots():
-    for bot in bots:
-        if random.random() < 0.5:
-            bot["x"] += random.choice([-1, 0, 1])
-            bot["x"] = max(0, min(MAP_SIZE-1, bot["x"]))
-        else:
-            bot["y"] += random.choice([-1, 0, 1])
-            bot["y"] = max(0, min(MAP_SIZE-1, bot["y"]))
+    def __repr__(self):
+        return f"Bullet at {self.position}"
 
-def check_combat():
-    for bot in bots[:]:
-        if bot["x"] == player["x"] and bot["y"] == player["y"]:
-            if player["weapon"] == "Pistol" and player["ammo"] > 0:
-                player["ammo"] -= 1
-                bot["health"] -= 20
-                print("You shot the bot for 20 damage!")
-            else:
-                player["health"] -= 10
-                print("The bot attacked you for 10 damage!")
-            if bot["health"] <= 0:
-                bots.remove(bot)
-                print("You defeated a bot!")
+class Gun:
+    """A simple 3D gun that shoots bullets."""
+    def __init__(self, position):
+        self.position = position
+        self.bullets = []
 
-def update_safe_zone():
-    global safe_zone_radius
-    safe_zone_radius -= SHRINK_SPEED
-    if safe_zone_radius < 1:
-        safe_zone_radius = 1
+    def shoot(self, target):
+        """Shoot a bullet towards a target."""
+        direction = Vector3(target.x - self.position.x,
+                            target.y - self.position.y,
+                            target.z - self.position.z)
+        distance = math.sqrt(direction.x**2 + direction.y**2 + direction.z**2)
+        direction = Vector3(direction.x / distance,
+                            direction.y / distance,
+                            direction.z / distance)  # Normalize direction
+        bullet = Bullet(self.position, direction, speed=1.0)
+        self.bullets.append(bullet)
+        print(f"Shot fired towards {target}!")
 
-def check_safe_zone():
-    distance_to_center = (player["x"] - safe_zone_center["x"])**2 + (player["y"] - safe_zone_center["y"])**2
-    if distance_to_center > safe_zone_radius**2:
-        player["health"] -= DAMAGE_OUTSIDE_ZONE
-        print(f"You took {DAMAGE_OUTSIDE_ZONE} damage from being outside the safe zone!")
+    def update(self):
+        """Update all bullets' positions."""
+        for bullet in self.bullets:
+            bullet.update()
+            print(bullet)
 
-def game_over():
-    if player["health"] <= 0:
-        print("You died! Game over.")
-        return True
-    if len(bots) == 0:
-        print("You defeated all the bots! You win!")
-        return True
-    return False
-
-def main():
-    while True:
-        clear_screen()
-        print(f"Health: {player['health']} | Weapon: {player['weapon']} | Ammo: {player['ammo']}")
-        print(f"Safe Zone Radius: {int(safe_zone_radius)}")
-        draw_map()
-
-        # Player input
-        move = input("Move (WASD): ").lower()
-        if move == "w":
-            move_player(0, -1)
-        elif move == "a":
-            move_player(-1, 0)
-        elif move == "s":
-            move_player(0, 1)
-        elif move == "d":
-            move_player(1, 0)
-        else:
-            print("Invalid move! Use WASD.")
-            time.sleep(1)
-            continue
-
-        # Game logic
-        check_loot()
-        move_bots()
-        check_combat()
-        update_safe_zone()
-        check_safe_zone()
-
-        # Check for game over
-        if game_over():
-            break
-
-        time.sleep(1)
-
+# Main program
 if __name__ == "__main__":
-    main()
+    gun = Gun(position=Vector3(0, 0, 0))  # Gun at the origin
+    target = Vector3(10, 5, 2)  # Target position
+
+    gun.shoot(target)  # Shoot towards the target
+
+    # Simulate bullet movement for 10 steps
+    for step in range(10):
+        print(f"\nStep {step + 1}:")
+        gun.update()
