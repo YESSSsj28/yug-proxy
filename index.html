@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mihailo Clicker</title>
+  <title>Mihailo & Bryce Clicker</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,6 +11,11 @@
       background-color: #f0f0f0;
       margin: 0;
       padding: 0;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    body.night-mode {
+      background-color: #1a1a1a;
+      color: #ffffff;
     }
     .container {
       margin-top: 50px;
@@ -18,15 +23,25 @@
     h1 {
       color: #333;
     }
-    #mihailo-img {
+    .night-mode h1 {
+      color: #ffffff;
+    }
+    #clicker-img {
       width: 200px;
       height: 200px;
       border-radius: 50%;
       cursor: pointer;
       border: 5px solid #333;
       margin: 20px 0;
+      transition: transform 0.1s;
     }
-    #mihailo-count {
+    .night-mode #clicker-img {
+      border-color: #ffffff;
+    }
+    #clicker-img:active {
+      transform: scale(0.95);
+    }
+    #clicker-count {
       font-size: 24px;
       font-weight: bold;
     }
@@ -38,134 +53,274 @@
       font-size: 16px;
       margin: 5px;
       cursor: pointer;
+      background-color: #333;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .night-mode button {
+      background-color: #555;
+    }
+    button:disabled {
+      background-color: #888;
+      cursor: not-allowed;
     }
     .upgrade-info {
       font-size: 14px;
       color: #555;
     }
+    .night-mode .upgrade-info {
+      color: #bbb;
+    }
+    .floating-text {
+      position: absolute;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      animation: floatDown 1s ease-out;
+    }
+    .night-mode .floating-text {
+      color: #ffffff;
+    }
+    @keyframes floatDown {
+      0% { top: 0; opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    #mode-toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+    }
+    #clicker-toggle {
+      position: fixed;
+      top: 50px;
+      right: 10px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Mihailo Clicker</h1>
-    <p id="mihailo-count">Mihailos: 0</p>
-    <img id="mihailo-img" src="https://github.com/YESSSsj28/yug-proxy/blob/main/Mihailo_Konjevic_0bb83a942afa46b5b1c773e59a1ac7fd.jpg?raw=true" alt="Mihailo's Face">
+    <h1 id="game-title">Mihailo Clicker</h1>
+    <p id="clicker-count">Mihailos: 0</p>
+    <img id="clicker-img" src="https://github.com/YESSSsj28/yug-proxy/blob/main/Mihailo_Konjevic_0bb83a942afa46b5b1c773e59a1ac7fd.jpg?raw=true" alt="Clicker Face">
     <div class="upgrades">
-      <button id="mihailo-farm-btn" disabled>Buy Mihailo Farm (Cost: 10 Mihailos)</button>
-      <p class="upgrade-info" id="mihailo-farm-info">Generates 1 Mihailo per second and 1 extra Mihailo per click.</p>
-      <button id="mihailo-factory-btn" disabled>Buy Mihailo Factory (Cost: 100 Mihailos)</button>
-      <p class="upgrade-info" id="mihailo-factory-info">Generates 5 Mihailos per second and 2 extra Mihailos per click.</p>
-      <button id="mihailo-mine-btn" disabled>Buy Mihailo Mine (Cost: 500 Mihailos)</button>
-      <p class="upgrade-info" id="mihailo-mine-info">Generates 10 Mihailos per second and 5 extra Mihailos per click.</p>
+      <button id="farm-btn" disabled>Buy Farm (Cost: 10)</button>
+      <p class="upgrade-info" id="farm-info">Generates 1 per second and 1 extra per click.</p>
+      <button id="factory-btn" disabled>Buy Factory (Cost: 100)</button>
+      <p class="upgrade-info" id="factory-info">Generates 5 per second and 2 extra per click.</p>
+      <button id="mine-btn" disabled>Buy Mine (Cost: 500)</button>
+      <p class="upgrade-info" id="mine-info">Generates 10 per second and 5 extra per click.</p>
+      <button id="temple-btn" disabled>Buy Temple (Cost: 1000)</button>
+      <p class="upgrade-info" id="temple-info">Generates 20 per second and 10 extra per click.</p>
+      <button id="kingdom-btn" disabled>Buy Kingdom (Cost: 5000)</button>
+      <p class="upgrade-info" id="kingdom-info">Generates 50 per second and 25 extra per click.</p>
     </div>
   </div>
 
+  <button id="mode-toggle">Toggle Night Mode</button>
+  <button id="clicker-toggle">Switch to Bryce Clicker</button>
+
   <script>
     // Game variables
-    let mihailos = 0;
-    let mihailoFarms = 0;
-    let mihailoFactories = 0;
-    let mihailoMines = 0;
+    let clickerCount = 0;
+    let farms = 0;
+    let factories = 0;
+    let mines = 0;
+    let temples = 0;
+    let kingdoms = 0;
 
     // Base upgrade costs
-    let mihailoFarmCost = 10;
-    let mihailoFactoryCost = 100;
-    let mihailoMineCost = 500;
+    let farmCost = 10;
+    let factoryCost = 100;
+    let mineCost = 500;
+    let templeCost = 1000;
+    let kingdomCost = 5000;
 
     // Upgrade cost multipliers
-    const mihailoFarmCostMultiplier = 1.5; // Price increases by 50% after each purchase
-    const mihailoFactoryCostMultiplier = 1.5;
-    const mihailoMineCostMultiplier = 1.5;
+    const costMultiplier = 1.5;
 
     // Upgrade effects
-    const mihailoFarmPerSecond = 1;
-    const mihailoFarmPerClick = 1;
-    const mihailoFactoryPerSecond = 5;
-    const mihailoFactoryPerClick = 2;
-    const mihailoMinePerSecond = 10;
-    const mihailoMinePerClick = 5;
+    const farmPerSecond = 1;
+    const farmPerClick = 1;
+    const factoryPerSecond = 5;
+    const factoryPerClick = 2;
+    const minePerSecond = 10;
+    const minePerClick = 5;
+    const templePerSecond = 20;
+    const templePerClick = 10;
+    const kingdomPerSecond = 50;
+    const kingdomPerClick = 25;
 
     // DOM elements
-    const mihailoCountElement = document.getElementById("mihailo-count");
-    const mihailoImgElement = document.getElementById("mihailo-img");
-    const mihailoFarmBtn = document.getElementById("mihailo-farm-btn");
-    const mihailoFactoryBtn = document.getElementById("mihailo-factory-btn");
-    const mihailoMineBtn = document.getElementById("mihailo-mine-btn");
+    const clickerCountElement = document.getElementById("clicker-count");
+    const clickerImgElement = document.getElementById("clicker-img");
+    const farmBtn = document.getElementById("farm-btn");
+    const factoryBtn = document.getElementById("factory-btn");
+    const mineBtn = document.getElementById("mine-btn");
+    const templeBtn = document.getElementById("temple-btn");
+    const kingdomBtn = document.getElementById("kingdom-btn");
+    const modeToggle = document.getElementById("mode-toggle");
+    const clickerToggle = document.getElementById("clicker-toggle");
+    const gameTitle = document.getElementById("game-title");
 
-    // Function to update the Mihailo count display
-    function updateMihailoCount() {
-      mihailoCountElement.textContent = `Mihailos: ${mihailos}`;
+    // Clicker mode (Mihailo or Bryce)
+    let isBryceMode = false;
+    const mihailoFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Mihailo_Konjevic_0bb83a942afa46b5b1c773e59a1ac7fd.jpg?raw=true";
+    const bryceFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/IMG_20250307_094354.jpg?raw=true";
+
+    // Click delay to prevent spam
+    let canClick = true;
+    const clickDelay = 100; // 100ms delay between clicks
+
+    // Load saved data
+    function loadGame() {
+      const savedData = JSON.parse(localStorage.getItem("clickerGame"));
+      if (savedData) {
+        clickerCount = savedData.clickerCount || 0;
+        farms = savedData.farms || 0;
+        factories = savedData.factories || 0;
+        mines = savedData.mines || 0;
+        temples = savedData.temples || 0;
+        kingdoms = savedData.kingdoms || 0;
+        farmCost = savedData.farmCost || 10;
+        factoryCost = savedData.factoryCost || 100;
+        mineCost = savedData.mineCost || 500;
+        templeCost = savedData.templeCost || 1000;
+        kingdomCost = savedData.kingdomCost || 5000;
+        isBryceMode = savedData.isBryceMode || false;
+        document.body.classList.toggle("night-mode", savedData.nightMode || false);
+        updateClickerMode();
+      }
+      updateClickerCount();
+    }
+
+    // Save game data
+    function saveGame() {
+      const gameData = {
+        clickerCount,
+        farms,
+        factories,
+        mines,
+        temples,
+        kingdoms,
+        farmCost,
+        factoryCost,
+        mineCost,
+        templeCost,
+        kingdomCost,
+        isBryceMode,
+        nightMode: document.body.classList.contains("night-mode"),
+      };
+      localStorage.setItem("clickerGame", JSON.stringify(gameData));
+    }
+
+    // Update clicker mode (Mihailo or Bryce)
+    function updateClickerMode() {
+      clickerImgElement.src = isBryceMode ? bryceFace : mihailoFace;
+      gameTitle.textContent = isBryceMode ? "Bryce Clicker" : "Mihailo Clicker";
+      updateClickerCount();
+    }
+
+    // Update the clicker count display
+    function updateClickerCount() {
+      clickerCountElement.textContent = `${isBryceMode ? "Bryces" : "Mihailos"}: ${clickerCount}`;
       checkUpgradeAvailability();
     }
 
-    // Function to handle clicking Mihailo's face
-    function clickMihailo() {
-      let mihailosPerClick = 1;
-      mihailosPerClick += mihailoFarms * mihailoFarmPerClick;
-      mihailosPerClick += mihailoFactories * mihailoFactoryPerClick;
-      mihailosPerClick += mihailoMines * mihailoMinePerClick;
-      mihailos += mihailosPerClick;
-      updateMihailoCount();
+    // Handle clicking the face
+    function clickFace() {
+      if (!canClick) return;
+      canClick = false;
+
+      let clickerPerClick = 1;
+      clickerPerClick += farms * farmPerClick;
+      clickerPerClick += factories * factoryPerClick;
+      clickerPerClick += mines * minePerClick;
+      clickerPerClick += temples * templePerClick;
+      clickerPerClick += kingdoms * kingdomPerClick;
+      clickerCount += clickerPerClick;
+      updateClickerCount();
+      showFloatingText(`+${clickerPerClick}`);
+
+      setTimeout(() => {
+        canClick = true;
+      }, clickDelay);
     }
 
-    // Function to buy a Mihailo Farm
-    function buyMihailoFarm() {
-      if (mihailos >= mihailoFarmCost) {
-        mihailos -= mihailoFarmCost;
-        mihailoFarms++;
-        mihailoFarmCost = Math.floor(mihailoFarmCost * mihailoFarmCostMultiplier); // Increase cost
-        updateMihailoCount();
-        mihailoFarmBtn.textContent = `Buy Mihailo Farm (Cost: ${mihailoFarmCost} Mihailos)`;
+    // Show floating text animation
+    function showFloatingText(text) {
+      const floatingText = document.createElement("div");
+      floatingText.className = "floating-text";
+      floatingText.textContent = text;
+      floatingText.style.left = `${Math.random() * 80 + 10}%`;
+      document.body.appendChild(floatingText);
+      setTimeout(() => {
+        floatingText.remove();
+      }, 1000);
+    }
+
+    // Buy upgrades
+    function buyUpgrade(cost, multiplier, type) {
+      if (clickerCount >= cost) {
+        clickerCount -= cost;
+        switch (type) {
+          case "farm": farms++; break;
+          case "factory": factories++; break;
+          case "mine": mines++; break;
+          case "temple": temples++; break;
+          case "kingdom": kingdoms++; break;
+        }
+        cost = Math.floor(cost * multiplier);
+        updateClickerCount();
+        saveGame();
       }
     }
 
-    // Function to buy a Mihailo Factory
-    function buyMihailoFactory() {
-      if (mihailos >= mihailoFactoryCost) {
-        mihailos -= mihailoFactoryCost;
-        mihailoFactories++;
-        mihailoFactoryCost = Math.floor(mihailoFactoryCost * mihailoFactoryCostMultiplier); // Increase cost
-        updateMihailoCount();
-        mihailoFactoryBtn.textContent = `Buy Mihailo Factory (Cost: ${mihailoFactoryCost} Mihailos)`;
-      }
-    }
-
-    // Function to buy a Mihailo Mine
-    function buyMihailoMine() {
-      if (mihailos >= mihailoMineCost) {
-        mihailos -= mihailoMineCost;
-        mihailoMines++;
-        mihailoMineCost = Math.floor(mihailoMineCost * mihailoMineCostMultiplier); // Increase cost
-        updateMihailoCount();
-        mihailoMineBtn.textContent = `Buy Mihailo Mine (Cost: ${mihailoMineCost} Mihailos)`;
-      }
-    }
-
-    // Function to check if upgrades are affordable
+    // Check if upgrades are affordable
     function checkUpgradeAvailability() {
-      mihailoFarmBtn.disabled = mihailos < mihailoFarmCost;
-      mihailoFactoryBtn.disabled = mihailos < mihailoFactoryCost;
-      mihailoMineBtn.disabled = mihailos < mihailoMineCost;
+      farmBtn.disabled = clickerCount < farmCost;
+      factoryBtn.disabled = clickerCount < factoryCost;
+      mineBtn.disabled = clickerCount < mineCost;
+      templeBtn.disabled = clickerCount < templeCost;
+      kingdomBtn.disabled = clickerCount < kingdomCost;
     }
 
-    // Function to generate Mihailos per second
-    function generateMihailosPerSecond() {
-      let mihailosPerSecond = 0;
-      mihailosPerSecond += mihailoFarms * mihailoFarmPerSecond;
-      mihailosPerSecond += mihailoFactories * mihailoFactoryPerSecond;
-      mihailosPerSecond += mihailoMines * mihailoMinePerSecond;
-      mihailos += mihailosPerSecond;
-      updateMihailoCount();
+    // Generate clickers per second
+    function generatePerSecond() {
+      let clickerPerSecond = 0;
+      clickerPerSecond += farms * farmPerSecond;
+      clickerPerSecond += factories * factoryPerSecond;
+      clickerPerSecond += mines * minePerSecond;
+      clickerPerSecond += temples * templePerSecond;
+      clickerPerSecond += kingdoms * kingdomPerSecond;
+      clickerCount += clickerPerSecond;
+      updateClickerCount();
+      saveGame();
     }
-
-    // Game loop to generate Mihailos every second
-    setInterval(generateMihailosPerSecond, 1000);
 
     // Event listeners
-    mihailoImgElement.addEventListener("click", clickMihailo);
-    mihailoFarmBtn.addEventListener("click", buyMihailoFarm);
-    mihailoFactoryBtn.addEventListener("click", buyMihailoFactory);
-    mihailoMineBtn.addEventListener("click", buyMihailoMine);
+    clickerImgElement.addEventListener("click", clickFace);
+    farmBtn.addEventListener("click", () => buyUpgrade(farmCost, costMultiplier, "farm"));
+    factoryBtn.addEventListener("click", () => buyUpgrade(factoryCost, costMultiplier, "factory"));
+    mineBtn.addEventListener("click", () => buyUpgrade(mineCost, costMultiplier, "mine"));
+    templeBtn.addEventListener("click", () => buyUpgrade(templeCost, costMultiplier, "temple"));
+    kingdomBtn.addEventListener("click", () => buyUpgrade(kingdomCost, costMultiplier, "kingdom"));
+    modeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("night-mode");
+      saveGame();
+    });
+    clickerToggle.addEventListener("click", () => {
+      isBryceMode = !isBryceMode;
+      updateClickerMode();
+      saveGame();
+    });
+
+    // Game loop
+    setInterval(generatePerSecond, 1000);
+
+    // Load game on start
+    loadGame();
   </script>
 </body>
 </html>
