@@ -92,12 +92,6 @@
       top: 10px;
       right: 10px;
     }
-    #clicker-toggle {
-      position: fixed;
-      top: 50px;
-      right: 10px;
-      display: none; /* Hidden until Bryce Clicker is unlocked */
-    }
     .error-message {
       color: red;
       font-weight: bold;
@@ -120,6 +114,11 @@
       background-color: rgba(0, 0, 0, 0.7);
       padding: 5px;
       border-radius: 5px;
+    }
+    #rebirth-count {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -149,12 +148,14 @@
       <p class="upgrade-info" id="universe-info">Generates 1000 per second and 500 extra per click.</p>
       <button id="bryce-clicker-btn" disabled>Unlock Bryce Clicker (Cost: 1000000)</button>
       <p class="upgrade-info" id="bryce-clicker-info">Unlocks Bryce Clicker mode. This is a rebirth.</p>
+      <button id="mason-rebirth-btn" disabled>Rebirth (Cost: 5000000)</button>
+      <p class="upgrade-info" id="mason-rebirth-info">Unlocks Mason Clicker mode. This is a rebirth.</p>
     </div>
+    <p id="rebirth-count">Rebirth: 0</p>
     <p id="error-message" class="error-message"></p>
   </div>
 
   <button id="mode-toggle">Toggle Night Mode</button>
-  <button id="clicker-toggle">Switch to Bryce Clicker</button>
   <input id="password-input" type="text" placeholder="Enter Password">
   <div id="free-coins-text">See Yug for 10k free coins</div>
 
@@ -171,8 +172,10 @@
     let galaxies = 0;
     let universes = 0;
     let isBryceMode = false;
+    let isMasonMode = false;
     let mihailoPasswordUsed = false;
     let brycePasswordUsed = false;
+    let rebirthCount = 0;
 
     // Base upgrade costs
     let farmCost = 10;
@@ -185,9 +188,10 @@
     let galaxyCost = 100000;
     let universeCost = 500000;
     let bryceClickerCost = 1000000;
+    let masonRebirthCost = 5000000;
 
     // Upgrade cost multipliers
-    const costMultiplier = 1.5;
+    const costMultiplier = 1.5; // Price increases by 1.5x after each purchase
 
     // Upgrade effects
     const farmPerSecond = 1;
@@ -222,15 +226,17 @@
     const galaxyBtn = document.getElementById("galaxy-btn");
     const universeBtn = document.getElementById("universe-btn");
     const bryceClickerBtn = document.getElementById("bryce-clicker-btn");
+    const masonRebirthBtn = document.getElementById("mason-rebirth-btn");
     const modeToggle = document.getElementById("mode-toggle");
-    const clickerToggle = document.getElementById("clicker-toggle");
     const passwordInput = document.getElementById("password-input");
     const errorMessage = document.getElementById("error-message");
     const gameTitle = document.getElementById("game-title");
+    const rebirthCountElement = document.getElementById("rebirth-count");
 
-    // Clicker mode (Mihailo or Bryce)
+    // Clicker mode (Mihailo, Bryce, or Mason)
     const mihailoFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Mihailo_Konjevic_0bb83a942afa46b5b1c773e59a1ac7fd.jpg?raw=true";
     const bryceFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/IMG_20250307_094354.jpg?raw=true";
+    const masonFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Screenshot%202025-03-07%2012.43.41%20PM.png?raw=true";
 
     // Click delay to prevent spam
     let canClick = true;
@@ -251,8 +257,10 @@
         galaxies = savedData.galaxies || 0;
         universes = savedData.universes || 0;
         isBryceMode = savedData.isBryceMode || false;
+        isMasonMode = savedData.isMasonMode || false;
         mihailoPasswordUsed = savedData.mihailoPasswordUsed || false;
         brycePasswordUsed = savedData.brycePasswordUsed || false;
+        rebirthCount = savedData.rebirthCount || 0;
         farmCost = savedData.farmCost || 10;
         factoryCost = savedData.factoryCost || 100;
         mineCost = savedData.mineCost || 500;
@@ -263,10 +271,12 @@
         galaxyCost = savedData.galaxyCost || 100000;
         universeCost = savedData.universeCost || 500000;
         bryceClickerCost = savedData.bryceClickerCost || 1000000;
+        masonRebirthCost = savedData.masonRebirthCost || 5000000;
         document.body.classList.toggle("night-mode", savedData.nightMode || false);
         updateClickerMode();
       }
       updateClickerCount();
+      updateRebirthCount();
     }
 
     // Save game data
@@ -283,8 +293,10 @@
         galaxies,
         universes,
         isBryceMode,
+        isMasonMode,
         mihailoPasswordUsed,
         brycePasswordUsed,
+        rebirthCount,
         farmCost,
         factoryCost,
         mineCost,
@@ -295,22 +307,39 @@
         galaxyCost,
         universeCost,
         bryceClickerCost,
+        masonRebirthCost,
         nightMode: document.body.classList.contains("night-mode"),
       };
       localStorage.setItem("clickerGame", JSON.stringify(gameData));
     }
 
-    // Update clicker mode (Mihailo or Bryce)
+    // Update clicker mode (Mihailo, Bryce, or Mason)
     function updateClickerMode() {
-      clickerImgElement.src = isBryceMode ? bryceFace : mihailoFace;
-      gameTitle.textContent = isBryceMode ? "Bryce Clicker" : "Mihailo Clicker";
+      if (isMasonMode) {
+        clickerImgElement.src = masonFace;
+        gameTitle.textContent = "Mason Clicker";
+      } else if (isBryceMode) {
+        clickerImgElement.src = bryceFace;
+        gameTitle.textContent = "Bryce Clicker";
+      } else {
+        clickerImgElement.src = mihailoFace;
+        gameTitle.textContent = "Mihailo Clicker";
+      }
       updateClickerCount();
     }
 
     // Update the clicker count display
     function updateClickerCount() {
-      clickerCountElement.textContent = `${isBryceMode ? "Bryces" : "Mihailos"}: ${clickerCount}`;
+      let clickerName = "Mihailos";
+      if (isBryceMode) clickerName = "Bryces";
+      if (isMasonMode) clickerName = "Masons";
+      clickerCountElement.textContent = `${clickerName}: ${clickerCount}`;
       checkUpgradeAvailability();
+    }
+
+    // Update rebirth count
+    function updateRebirthCount() {
+      rebirthCountElement.textContent = `Rebirth: ${rebirthCount}`;
     }
 
     // Handle clicking the face
@@ -354,30 +383,62 @@
       if (clickerCount >= cost) {
         clickerCount -= cost;
         switch (type) {
-          case "farm": farms++; break;
-          case "factory": factories++; break;
-          case "mine": mines++; break;
-          case "temple": temples++; break;
-          case "kingdom": kingdoms++; break;
-          case "empire": empires++; break;
-          case "megacorp": megacorps++; break;
-          case "galaxy": galaxies++; break;
-          case "universe": universes++; break;
+          case "farm":
+            farms++;
+            farmCost = Math.floor(farmCost * multiplier);
+            break;
+          case "factory":
+            factories++;
+            factoryCost = Math.floor(factoryCost * multiplier);
+            break;
+          case "mine":
+            mines++;
+            mineCost = Math.floor(mineCost * multiplier);
+            break;
+          case "temple":
+            temples++;
+            templeCost = Math.floor(templeCost * multiplier);
+            break;
+          case "kingdom":
+            kingdoms++;
+            kingdomCost = Math.floor(kingdomCost * multiplier);
+            break;
+          case "empire":
+            empires++;
+            empireCost = Math.floor(empireCost * multiplier);
+            break;
+          case "megacorp":
+            megacorps++;
+            megacorpCost = Math.floor(megacorpCost * multiplier);
+            break;
+          case "galaxy":
+            galaxies++;
+            galaxyCost = Math.floor(galaxyCost * multiplier);
+            break;
+          case "universe":
+            universes++;
+            universeCost = Math.floor(universeCost * multiplier);
+            break;
           case "bryce-clicker":
             isBryceMode = true;
-            clickerToggle.style.display = "block";
             bryceClickerBtn.style.display = "none";
             resetGame();
             alert("You have unlocked Bryce Clicker! This is a rebirth. All progress has been reset.");
             break;
+          case "mason-rebirth":
+            isMasonMode = true;
+            rebirthCount++;
+            resetGame();
+            alert("Show Yug you rebirthing 30 times for $10.");
+            updateRebirthCount();
+            break;
         }
-        cost = Math.floor(cost * multiplier);
         updateClickerCount();
         saveGame();
       }
     }
 
-    // Reset game for Bryce Clicker
+    // Reset game for Bryce or Mason Clicker
     function resetGame() {
       clickerCount = 0;
       farms = 0;
@@ -403,7 +464,8 @@
       megacorpBtn.disabled = clickerCount < megacorpCost;
       galaxyBtn.disabled = clickerCount < galaxyCost;
       universeBtn.disabled = clickerCount < universeCost;
-      bryceClickerBtn.disabled = clickerCount < bryceClickerCost;
+      bryceClickerBtn.disabled = clickerCount < bryceClickerCost || isBryceMode;
+      masonRebirthBtn.disabled = clickerCount < masonRebirthCost || !isBryceMode;
     }
 
     // Generate clickers per second
@@ -425,35 +487,44 @@
 
     // Password system
     passwordInput.addEventListener("keyup", (e) => {
-      if (e.key === "Enter" && passwordInput.value === "10k") {
-        if (isBryceMode) {
-          if (!brycePasswordUsed) {
-            clickerCount += 10000;
-            brycePasswordUsed = true;
-            alert("You received 10,000 Bryces!");
+      if (e.key === "Enter") {
+        if (passwordInput.value === "10k") {
+          if (isBryceMode) {
+            if (!brycePasswordUsed) {
+              clickerCount += 10000;
+              brycePasswordUsed = true;
+              alert("You received 10,000 Bryces!");
+            } else {
+              alert("You've already used the password in Bryce Clicker.");
+            }
+          } else if (isMasonMode) {
+            if (!mihailoPasswordUsed) {
+              clickerCount += 10000;
+              mihailoPasswordUsed = true;
+              alert("You received 10,000 Masons!");
+            } else {
+              alert("You've already used the password in Mason Clicker.");
+            }
           } else {
-            alert("You've already used the password in Bryce Clicker.");
+            if (!mihailoPasswordUsed) {
+              clickerCount += 10000;
+              mihailoPasswordUsed = true;
+              alert("You received 10,000 Mihailos!");
+            } else {
+              alert("You've already used the password in Mihailo Clicker.");
+            }
           }
-        } else {
-          if (!mihailoPasswordUsed) {
-            clickerCount += 10000;
-            mihailoPasswordUsed = true;
-            alert("You received 10,000 Mihailos!");
-          } else {
-            alert("You've already used the password in Mihailo Clicker.");
-          }
+          updateClickerCount();
+          saveGame();
+          passwordInput.value = "";
+        } else if (passwordInput.value === "Hiren611") {
+          clickerCount += 101901901;
+          alert("You received 101,901,901 coins!");
+          updateClickerCount();
+          saveGame();
+          passwordInput.value = "";
         }
-        updateClickerCount();
-        saveGame();
-        passwordInput.value = "";
       }
-    });
-
-    // Switch to Bryce Clicker
-    clickerToggle.addEventListener("click", () => {
-      isBryceMode = !isBryceMode;
-      updateClickerMode();
-      saveGame();
     });
 
     // Toggle night mode
@@ -479,6 +550,7 @@
     galaxyBtn.addEventListener("click", () => buyUpgrade(galaxyCost, costMultiplier, "galaxy"));
     universeBtn.addEventListener("click", () => buyUpgrade(universeCost, costMultiplier, "universe"));
     bryceClickerBtn.addEventListener("click", () => buyUpgrade(bryceClickerCost, costMultiplier, "bryce-clicker"));
+    masonRebirthBtn.addEventListener("click", () => buyUpgrade(masonRebirthCost, costMultiplier, "mason-rebirth"));
 
     // Game loop
     setInterval(generatePerSecond, 1000);
@@ -487,4 +559,4 @@
     loadGame();
   </script>
 </body>
-</html>
+</html> 
