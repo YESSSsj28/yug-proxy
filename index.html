@@ -1,53 +1,171 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>3D Gun Model</title>
-    <style>
-        body { margin: 0; }
-        canvas { display: block; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mihailo Clicker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      margin-top: 50px;
+    }
+    h1 {
+      color: #333;
+    }
+    #mihailo-img {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 5px solid #333;
+      margin: 20px 0;
+    }
+    #mihailo-count {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .upgrades {
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    .upgrade-info {
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
 </head>
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r146/three.min.js"></script>
-    <script src="https://threejs.org/examples/js/loaders/GLTFLoader.js"></script>
-    <script>
-        // Set up scene, camera, and renderer
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+  <div class="container">
+    <h1>Mihailo Clicker</h1>
+    <p id="mihailo-count">Mihailos: 0</p>
+    <img id="mihailo-img" src="https://github.com/YESSSsj28/yug-proxy/blob/main/Mihailo_Konjevic_0bb83a942afa46b5b1c773e59a1ac7fd.jpg?raw=true" alt="Mihailo's Face">
+    <div class="upgrades">
+      <button id="mihailo-farm-btn" disabled>Buy Mihailo Farm (Cost: 10 Mihailos)</button>
+      <p class="upgrade-info" id="mihailo-farm-info">Generates 1 Mihailo per second and 1 extra Mihailo per click.</p>
+      <button id="mihailo-factory-btn" disabled>Buy Mihailo Factory (Cost: 100 Mihailos)</button>
+      <p class="upgrade-info" id="mihailo-factory-info">Generates 5 Mihailos per second and 2 extra Mihailos per click.</p>
+      <button id="mihailo-mine-btn" disabled>Buy Mihailo Mine (Cost: 500 Mihailos)</button>
+      <p class="upgrade-info" id="mihailo-mine-info">Generates 10 Mihailos per second and 5 extra Mihailos per click.</p>
+    </div>
+  </div>
 
-        // Add lighting
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(1, 1, 1).normalize();
-        scene.add(light);
+  <script>
+    // Game variables
+    let mihailos = 0;
+    let mihailoFarms = 0;
+    let mihailoFactories = 0;
+    let mihailoMines = 0;
 
-        // Load the gun model
-        const loader = new THREE.GLTFLoader();
-        loader.load(
-            'path/to/your/gun.glb', // Replace with the path to your .glb file
-            function (gltf) {
-                const gun = gltf.scene;
-                scene.add(gun);
-            },
-            function (xhr) {
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-            },
-            function (error) {
-                console.error('An error happened:', error);
-            }
-        );
+    // Base upgrade costs
+    let mihailoFarmCost = 10;
+    let mihailoFactoryCost = 100;
+    let mihailoMineCost = 500;
 
-        // Position the camera
-        camera.position.z = 5;
+    // Upgrade cost multipliers
+    const mihailoFarmCostMultiplier = 1.5; // Price increases by 50% after each purchase
+    const mihailoFactoryCostMultiplier = 1.5;
+    const mihailoMineCostMultiplier = 1.5;
 
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
-        }
-        animate();
-    </script>
+    // Upgrade effects
+    const mihailoFarmPerSecond = 1;
+    const mihailoFarmPerClick = 1;
+    const mihailoFactoryPerSecond = 5;
+    const mihailoFactoryPerClick = 2;
+    const mihailoMinePerSecond = 10;
+    const mihailoMinePerClick = 5;
+
+    // DOM elements
+    const mihailoCountElement = document.getElementById("mihailo-count");
+    const mihailoImgElement = document.getElementById("mihailo-img");
+    const mihailoFarmBtn = document.getElementById("mihailo-farm-btn");
+    const mihailoFactoryBtn = document.getElementById("mihailo-factory-btn");
+    const mihailoMineBtn = document.getElementById("mihailo-mine-btn");
+
+    // Function to update the Mihailo count display
+    function updateMihailoCount() {
+      mihailoCountElement.textContent = `Mihailos: ${mihailos}`;
+      checkUpgradeAvailability();
+    }
+
+    // Function to handle clicking Mihailo's face
+    function clickMihailo() {
+      let mihailosPerClick = 1;
+      mihailosPerClick += mihailoFarms * mihailoFarmPerClick;
+      mihailosPerClick += mihailoFactories * mihailoFactoryPerClick;
+      mihailosPerClick += mihailoMines * mihailoMinePerClick;
+      mihailos += mihailosPerClick;
+      updateMihailoCount();
+    }
+
+    // Function to buy a Mihailo Farm
+    function buyMihailoFarm() {
+      if (mihailos >= mihailoFarmCost) {
+        mihailos -= mihailoFarmCost;
+        mihailoFarms++;
+        mihailoFarmCost = Math.floor(mihailoFarmCost * mihailoFarmCostMultiplier); // Increase cost
+        updateMihailoCount();
+        mihailoFarmBtn.textContent = `Buy Mihailo Farm (Cost: ${mihailoFarmCost} Mihailos)`;
+      }
+    }
+
+    // Function to buy a Mihailo Factory
+    function buyMihailoFactory() {
+      if (mihailos >= mihailoFactoryCost) {
+        mihailos -= mihailoFactoryCost;
+        mihailoFactories++;
+        mihailoFactoryCost = Math.floor(mihailoFactoryCost * mihailoFactoryCostMultiplier); // Increase cost
+        updateMihailoCount();
+        mihailoFactoryBtn.textContent = `Buy Mihailo Factory (Cost: ${mihailoFactoryCost} Mihailos)`;
+      }
+    }
+
+    // Function to buy a Mihailo Mine
+    function buyMihailoMine() {
+      if (mihailos >= mihailoMineCost) {
+        mihailos -= mihailoMineCost;
+        mihailoMines++;
+        mihailoMineCost = Math.floor(mihailoMineCost * mihailoMineCostMultiplier); // Increase cost
+        updateMihailoCount();
+        mihailoMineBtn.textContent = `Buy Mihailo Mine (Cost: ${mihailoMineCost} Mihailos)`;
+      }
+    }
+
+    // Function to check if upgrades are affordable
+    function checkUpgradeAvailability() {
+      mihailoFarmBtn.disabled = mihailos < mihailoFarmCost;
+      mihailoFactoryBtn.disabled = mihailos < mihailoFactoryCost;
+      mihailoMineBtn.disabled = mihailos < mihailoMineCost;
+    }
+
+    // Function to generate Mihailos per second
+    function generateMihailosPerSecond() {
+      let mihailosPerSecond = 0;
+      mihailosPerSecond += mihailoFarms * mihailoFarmPerSecond;
+      mihailosPerSecond += mihailoFactories * mihailoFactoryPerSecond;
+      mihailosPerSecond += mihailoMines * mihailoMinePerSecond;
+      mihailos += mihailosPerSecond;
+      updateMihailoCount();
+    }
+
+    // Game loop to generate Mihailos every second
+    setInterval(generateMihailosPerSecond, 1000);
+
+    // Event listeners
+    mihailoImgElement.addEventListener("click", clickMihailo);
+    mihailoFarmBtn.addEventListener("click", buyMihailoFarm);
+    mihailoFactoryBtn.addEventListener("click", buyMihailoFactory);
+    mihailoMineBtn.addEventListener("click", buyMihailoMine);
+  </script>
 </body>
 </html>
