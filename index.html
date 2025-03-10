@@ -526,3 +526,72 @@
 </html>
 
 
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatic Data Saving</title>
+</head>
+<body>
+    <h1>Automatic Data Saving</h1>
+
+    <p>Game Data:</p>
+    <pre id="gameData"></pre>
+
+    <script>
+        // Object to hold general game data
+        let gameData = {
+            count: 0,  // Example game data
+            progress: 0
+        };
+
+        // Function to save all game data
+        function autoSave() {
+            localStorage.setItem('gameData', JSON.stringify(gameData));  // Save entire game state
+        }
+
+        // Function to load game data when the page is loaded
+        function loadData() {
+            const savedGameData = localStorage.getItem('gameData');
+            if (savedGameData) {
+                gameData = JSON.parse(savedGameData);  // Load saved data
+            }
+            updateGameDataDisplay();
+        }
+
+        // Update the game data display on the page
+        function updateGameDataDisplay() {
+            document.getElementById('gameData').textContent = JSON.stringify(gameData, null, 2);
+        }
+
+        // Auto-increment count and progress as an example of game behavior
+        function gameLogic() {
+            gameData.count++;
+            gameData.progress += 5;  // Increment some value for progress
+            updateGameDataDisplay();  // Update UI immediately
+        }
+
+        // Save game data every 5 seconds
+        setInterval(() => {
+            autoSave();
+            console.log("Game data saved automatically");
+        }, 5000);  // Saves every 5 seconds
+
+        // Simulate some game logic, like progress or count incrementing every 1 second
+        setInterval(() => {
+            gameLogic();
+        }, 1000);  // Update game logic every 1 second
+
+        // Load data when the page loads
+        window.onload = loadData;
+    </script>
+</body>
+</html>
+
+
+
