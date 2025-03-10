@@ -8,7 +8,8 @@
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      background-color: #f0f0f0;
+      background-color: #1a1a1a; /* Start in night mode */
+      color: #ffffff; /* White text for night mode */
       margin: 0;
       padding: 0;
       transition: background-color 0.3s, color 0.3s;
@@ -21,7 +22,7 @@
       margin-top: 50px;
     }
     h1 {
-      color: #333;
+      color: #ffffff; /* White text for night mode */
     }
     .night-mode h1 {
       color: #ffffff;
@@ -31,7 +32,7 @@
       height: 200px;
       border-radius: 50%;
       cursor: pointer;
-      border: 5px solid #333;
+      border: 5px solid #ffffff; /* White border for night mode */
       margin: 20px 0;
       transition: transform 0.1s;
     }
@@ -45,6 +46,11 @@
       font-size: 24px;
       font-weight: bold;
     }
+    #currency-count {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
     .upgrades {
       margin-top: 20px;
     }
@@ -53,7 +59,7 @@
       font-size: 16px;
       margin: 5px;
       cursor: pointer;
-      background-color: #333;
+      background-color: #555; /* Darker button for night mode */
       color: #ffffff;
       border: none;
       border-radius: 5px;
@@ -68,7 +74,7 @@
     }
     .upgrade-info {
       font-size: 14px;
-      color: #555;
+      color: #bbb; /* Light gray for night mode */
     }
     .night-mode .upgrade-info {
       color: #bbb;
@@ -77,7 +83,7 @@
       position: absolute;
       font-size: 20px;
       font-weight: bold;
-      color: #333;
+      color: #ffffff; /* White text for night mode */
       animation: floatDown 1s ease-out;
     }
     .night-mode .floating-text {
@@ -115,43 +121,73 @@
       padding: 5px;
       border-radius: 5px;
     }
-    #rebirth-count {
-      font-size: 18px;
+    #update-text {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
       font-weight: bold;
-      margin-top: 20px;
+      color: red;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 1000;
+      animation: fadeOut 5s forwards;
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      100% { opacity: 0; display: none; }
+    }
+    #website-link {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 14px;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 5px;
+      border-radius: 5px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
+  <div id="update-text">Huge Update on Monday 10 AM</div>
+  <div id="website-link" onclick="window.location.href='https://clickerfromyug.netlify.app'">Go to https://clickerfromyug.netlify.app</div>
   <div class="container">
     <h1 id="game-title">Mihailo Clicker</h1>
     <p id="clicker-count">Mihailos: 0</p>
+    <p id="currency-count">Diamonds: 0</p>
     <img id="clicker-img" src="https://github.com/YESSSsj28/yug-proxy/blob/main/Mihailo_Konjevic_0bb83a942afa46b5b1c773e59a1ac7fd.jpg?raw=true" alt="Clicker Face">
     <div class="upgrades">
-      <button id="farm-btn" disabled>Buy Farm (Cost: 10)</button>
-      <p class="upgrade-info" id="farm-info">Generates 1 per second and 1 extra per click.</p>
-      <button id="factory-btn" disabled>Buy Factory (Cost: 100)</button>
-      <p class="upgrade-info" id="factory-info">Generates 5 per second and 2 extra per click.</p>
-      <button id="mine-btn" disabled>Buy Mine (Cost: 500)</button>
-      <p class="upgrade-info" id="mine-info">Generates 10 per second and 5 extra per click.</p>
-      <button id="temple-btn" disabled>Buy Temple (Cost: 1000)</button>
-      <p class="upgrade-info" id="temple-info">Generates 20 per second and 10 extra per click.</p>
-      <button id="kingdom-btn" disabled>Buy Kingdom (Cost: 5000)</button>
-      <p class="upgrade-info" id="kingdom-info">Generates 50 per second and 25 extra per click.</p>
-      <button id="empire-btn" disabled>Buy Empire (Cost: 10000)</button>
-      <p class="upgrade-info" id="empire-info">Generates 100 per second and 50 extra per click.</p>
-      <button id="megacorp-btn" disabled>Buy MegaCorp (Cost: 50000)</button>
-      <p class="upgrade-info" id="megacorp-info">Generates 200 per second and 100 extra per click.</p>
-      <button id="galaxy-btn" disabled>Buy Galaxy (Cost: 100000)</button>
-      <p class="upgrade-info" id="galaxy-info">Generates 500 per second and 250 extra per click.</p>
-      <button id="universe-btn" disabled>Buy Universe (Cost: 500000)</button>
-      <p class="upgrade-info" id="universe-info">Generates 1000 per second and 500 extra per click.</p>
-      <button id="bryce-clicker-btn" disabled>Unlock Bryce Clicker (Cost: 1000000)</button>
+      <button id="upgrade1-btn" disabled>Buy Farm (Cost: 10 Mihailos, 1 Diamonds)</button>
+      <p class="upgrade-info" id="upgrade1-info">Generates 1 per second and 1 extra per click.</p>
+      <button id="upgrade2-btn" disabled>Buy Factory (Cost: 100 Mihailos, 2 Diamonds)</button>
+      <p class="upgrade-info" id="upgrade2-info">Generates 5 per second and 2 extra per click.</p>
+      <button id="upgrade3-btn" disabled>Buy Mine (Cost: 500 Mihailos, 3 Diamonds)</button>
+      <p class="upgrade-info" id="upgrade3-info">Generates 10 per second and 5 extra per click.</p>
+      <button id="upgrade4-btn" disabled>Buy Temple (Cost: 1000 Mihailos, 4 Diamonds)</button>
+      <p class="upgrade-info" id="upgrade4-info">Generates 20 per second and 10 extra per click.</p>
+      <button id="upgrade5-btn" disabled>Buy Kingdom (Cost: 5000 Mihailos, 5 Diamonds)</button>
+      <p class="upgrade-info" id="upgrade5-info">Generates 50 per second and 25 extra per click.</p>
+      <button id="upgrade6-btn" disabled>Buy Empire (Cost: 10000 Mihailos, 6 Diamonds)</button>
+      <p class="upgrade-info" id="upgrade6-info">Generates 100 per second and 50 extra per click.</p>
+      <button id="upgrade7-btn" disabled>Buy MegaCorp (Cost: 50000 Mihailos, 7 Diamonds)</button>
+      <p class="upgrade-info" id="upgrade7-info">Generates 200 per second and 100 extra per click.</p>
+      <button id="upgrade8-btn" disabled>Buy Galaxy (Cost: 100000 Mihailos, 8 Diamonds)</button>
+      <p class="upgrade-info" id="upgrade8-info">Generates 500 per second and 250 extra per click.</p>
+      <button id="upgrade9-btn" disabled>Buy Universe (Cost: 500000 Mihailos, 9 Diamonds)</button>
+      <p class="upgrade-info" id="upgrade9-info">Generates 1000 per second and 500 extra per click.</p>
+      <button id="bryce-clicker-btn" disabled>Unlock Bryce Clicker (Cost: 1000000 Mihailos)</button>
       <p class="upgrade-info" id="bryce-clicker-info">Unlocks Bryce Clicker mode. This is a rebirth.</p>
-      <button id="mason-rebirth-btn" disabled>Rebirth (Cost: 5000000)</button>
-      <p class="upgrade-info" id="mason-rebirth-info">Unlocks Mason Clicker mode. This is a rebirth.</p>
+      <button id="mason-clicker-btn" disabled style="display: none;">Unlock Mason Clicker (Cost: 5000000 Bryces)</button>
+      <p class="upgrade-info" id="mason-clicker-info" style="display: none;">Unlocks Mason Clicker mode. This is a rebirth.</p>
+      <button id="isaac-clicker-btn" disabled style="display: none;">Unlock Isaac Clicker (Cost: 10000000 Masons)</button>
+      <p class="upgrade-info" id="isaac-clicker-info" style="display: none;">Unlocks Isaac Clicker mode. This is a rebirth.</p>
+      <button id="gunner-clicker-btn" disabled style="display: none;">Unlock Gunner Clicker (Cost: 20000000 Isaacs)</button>
+      <p class="upgrade-info" id="gunner-clicker-info" style="display: none;">Unlocks Gunner Clicker mode. This is a rebirth.</p>
     </div>
-    <p id="rebirth-count">Rebirth: 0</p>
     <p id="error-message" class="error-message"></p>
   </div>
 
@@ -162,184 +198,97 @@
   <script>
     // Game variables
     let clickerCount = 0;
-    let farms = 0;
-    let factories = 0;
-    let mines = 0;
-    let temples = 0;
-    let kingdoms = 0;
-    let empires = 0;
-    let megacorps = 0;
-    let galaxies = 0;
-    let universes = 0;
+    let currencyCount = 0; // New currency (Diamonds, Pasta, Chicken, Taco)
+    let upgrades = Array(9).fill(0); // Tracks the number of each upgrade
     let isBryceMode = false;
     let isMasonMode = false;
+    let isIsaacMode = false;
+    let isGunnerMode = false;
     let mihailoPasswordUsed = false;
     let brycePasswordUsed = false;
-    let rebirthCount = 0;
 
     // Base upgrade costs
-    let farmCost = 10;
-    let factoryCost = 100;
-    let mineCost = 500;
-    let templeCost = 1000;
-    let kingdomCost = 5000;
-    let empireCost = 10000;
-    let megacorpCost = 50000;
-    let galaxyCost = 100000;
-    let universeCost = 500000;
+    let upgradeCosts = [10, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000];
+    let upgradeCurrencyCosts = [1, 2, 3, 4, 5, 6, 7, 8, 9]; // New currency costs
     let bryceClickerCost = 1000000;
-    let masonRebirthCost = 5000000;
+    let masonClickerCost = 5000000;
+    let isaacClickerCost = 10000000;
+    let gunnerClickerCost = 20000000;
 
     // Upgrade cost multipliers
     const costMultiplier = 1.5; // Price increases by 1.5x after each purchase
 
     // Upgrade effects
-    const farmPerSecond = 1;
-    const farmPerClick = 1;
-    const factoryPerSecond = 5;
-    const factoryPerClick = 2;
-    const minePerSecond = 10;
-    const minePerClick = 5;
-    const templePerSecond = 20;
-    const templePerClick = 10;
-    const kingdomPerSecond = 50;
-    const kingdomPerClick = 25;
-    const empirePerSecond = 100;
-    const empirePerClick = 50;
-    const megacorpPerSecond = 200;
-    const megacorpPerClick = 100;
-    const galaxyPerSecond = 500;
-    const galaxyPerClick = 250;
-    const universePerSecond = 1000;
-    const universePerClick = 500;
+    const upgradePerSecond = [1, 5, 10, 20, 50, 100, 200, 500, 1000];
+    const upgradePerClick = [1, 2, 5, 10, 25, 50, 100, 250, 500];
 
     // DOM elements
     const clickerCountElement = document.getElementById("clicker-count");
+    const currencyCountElement = document.getElementById("currency-count");
     const clickerImgElement = document.getElementById("clicker-img");
-    const farmBtn = document.getElementById("farm-btn");
-    const factoryBtn = document.getElementById("factory-btn");
-    const mineBtn = document.getElementById("mine-btn");
-    const templeBtn = document.getElementById("temple-btn");
-    const kingdomBtn = document.getElementById("kingdom-btn");
-    const empireBtn = document.getElementById("empire-btn");
-    const megacorpBtn = document.getElementById("megacorp-btn");
-    const galaxyBtn = document.getElementById("galaxy-btn");
-    const universeBtn = document.getElementById("universe-btn");
+    const upgradeBtns = Array.from({ length: 9 }, (_, i) => document.getElementById(`upgrade${i + 1}-btn`));
+    const upgradeInfos = Array.from({ length: 9 }, (_, i) => document.getElementById(`upgrade${i + 1}-info`));
     const bryceClickerBtn = document.getElementById("bryce-clicker-btn");
-    const masonRebirthBtn = document.getElementById("mason-rebirth-btn");
+    const masonClickerBtn = document.getElementById("mason-clicker-btn");
+    const isaacClickerBtn = document.getElementById("isaac-clicker-btn");
+    const gunnerClickerBtn = document.getElementById("gunner-clicker-btn");
+    const masonClickerInfo = document.getElementById("mason-clicker-info");
+    const isaacClickerInfo = document.getElementById("isaac-clicker-info");
+    const gunnerClickerInfo = document.getElementById("gunner-clicker-info");
     const modeToggle = document.getElementById("mode-toggle");
     const passwordInput = document.getElementById("password-input");
     const errorMessage = document.getElementById("error-message");
     const gameTitle = document.getElementById("game-title");
-    const rebirthCountElement = document.getElementById("rebirth-count");
+    const updateText = document.getElementById("update-text");
 
-    // Clicker mode (Mihailo, Bryce, or Mason)
+    // Clicker mode (Mihailo, Bryce, Mason, Isaac, or Gunner)
     const mihailoFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Mihailo_Konjevic_0bb83a942afa46b5b1c773e59a1ac7fd.jpg?raw=true";
     const bryceFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/IMG_20250307_094354.jpg?raw=true";
     const masonFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Screenshot%202025-03-07%2012.43.41%20PM.png?raw=true";
+    const isaacFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Screenshot%202025-03-08%202.57.21%20PM.png?raw=true";
+    const gunnerFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Screenshot%202025-03-08%202.49.39%20PM.png?raw=true";
+
+    // Upgrade names for each mode
+    const upgradeNames = {
+      mihailo: ["Farm", "Factory", "Mine", "Temple", "Kingdom", "Empire", "MegaCorp", "Galaxy", "Universe"],
+      bryce: ["Bryce Farm", "Bryce Factory", "Bryce Mine", "Bryce Temple", "Bryce Kingdom", "Bryce Empire", "Bryce MegaCorp", "Bryce Galaxy", "Bryce Universe"],
+      mason: ["Mason Farm", "Mason Factory", "Mason Mine", "Mason Temple", "Mason Kingdom", "Mason Empire", "Mason MegaCorp", "Mason Galaxy", "Mason Universe"],
+      isaac: ["Isaac Farm", "Isaac Factory", "Isaac Mine", "Isaac Temple", "Isaac Kingdom", "Isaac Empire", "Isaac MegaCorp", "Isaac Galaxy", "Isaac Universe"],
+      gunner: ["Gunner Farm", "Gunner Factory", "Gunner Mine", "Gunner Temple", "Gunner Kingdom", "Gunner Empire", "Gunner MegaCorp", "Gunner Galaxy", "Gunner Universe"]
+    };
+
+    // New currency names for each mode
+    const currencyNames = {
+      mihailo: "Diamonds",
+      bryce: "Pasta",
+      mason: "Chicken",
+      isaac: "Taco",
+      gunner: "Chicken"
+    };
 
     // Click delay to prevent spam
     let canClick = true;
     const clickDelay = 100; // 100ms delay between clicks
-
-    // Load saved data
-    function loadGame() {
-      const savedData = JSON.parse(localStorage.getItem("clickerGame"));
-      if (savedData) {
-        clickerCount = savedData.clickerCount || 0;
-        farms = savedData.farms || 0;
-        factories = savedData.factories || 0;
-        mines = savedData.mines || 0;
-        temples = savedData.temples || 0;
-        kingdoms = savedData.kingdoms || 0;
-        empires = savedData.empires || 0;
-        megacorps = savedData.megacorps || 0;
-        galaxies = savedData.galaxies || 0;
-        universes = savedData.universes || 0;
-        isBryceMode = savedData.isBryceMode || false;
-        isMasonMode = savedData.isMasonMode || false;
-        mihailoPasswordUsed = savedData.mihailoPasswordUsed || false;
-        brycePasswordUsed = savedData.brycePasswordUsed || false;
-        rebirthCount = savedData.rebirthCount || 0;
-        farmCost = savedData.farmCost || 10;
-        factoryCost = savedData.factoryCost || 100;
-        mineCost = savedData.mineCost || 500;
-        templeCost = savedData.templeCost || 1000;
-        kingdomCost = savedData.kingdomCost || 5000;
-        empireCost = savedData.empireCost || 10000;
-        megacorpCost = savedData.megacorpCost || 50000;
-        galaxyCost = savedData.galaxyCost || 100000;
-        universeCost = savedData.universeCost || 500000;
-        bryceClickerCost = savedData.bryceClickerCost || 1000000;
-        masonRebirthCost = savedData.masonRebirthCost || 5000000;
-        document.body.classList.toggle("night-mode", savedData.nightMode || false);
-        updateClickerMode();
-      }
-      updateClickerCount();
-      updateRebirthCount();
-    }
-
-    // Save game data
-    function saveGame() {
-      const gameData = {
-        clickerCount,
-        farms,
-        factories,
-        mines,
-        temples,
-        kingdoms,
-        empires,
-        megacorps,
-        galaxies,
-        universes,
-        isBryceMode,
-        isMasonMode,
-        mihailoPasswordUsed,
-        brycePasswordUsed,
-        rebirthCount,
-        farmCost,
-        factoryCost,
-        mineCost,
-        templeCost,
-        kingdomCost,
-        empireCost,
-        megacorpCost,
-        galaxyCost,
-        universeCost,
-        bryceClickerCost,
-        masonRebirthCost,
-        nightMode: document.body.classList.contains("night-mode"),
-      };
-      localStorage.setItem("clickerGame", JSON.stringify(gameData));
-    }
-
-    // Update clicker mode (Mihailo, Bryce, or Mason)
-    function updateClickerMode() {
-      if (isMasonMode) {
-        clickerImgElement.src = masonFace;
-        gameTitle.textContent = "Mason Clicker";
-      } else if (isBryceMode) {
-        clickerImgElement.src = bryceFace;
-        gameTitle.textContent = "Bryce Clicker";
-      } else {
-        clickerImgElement.src = mihailoFace;
-        gameTitle.textContent = "Mihailo Clicker";
-      }
-      updateClickerCount();
-    }
 
     // Update the clicker count display
     function updateClickerCount() {
       let clickerName = "Mihailos";
       if (isBryceMode) clickerName = "Bryces";
       if (isMasonMode) clickerName = "Masons";
+      if (isIsaacMode) clickerName = "Isaacs";
+      if (isGunnerMode) clickerName = "Gunners";
       clickerCountElement.textContent = `${clickerName}: ${clickerCount}`;
+      currencyCountElement.textContent = `${currencyNames[getCurrentMode()]}: ${currencyCount}`;
       checkUpgradeAvailability();
     }
 
-    // Update rebirth count
-    function updateRebirthCount() {
-      rebirthCountElement.textContent = `Rebirth: ${rebirthCount}`;
+    // Get current mode
+    function getCurrentMode() {
+      if (isGunnerMode) return "gunner";
+      if (isIsaacMode) return "isaac";
+      if (isMasonMode) return "mason";
+      if (isBryceMode) return "bryce";
+      return "mihailo";
     }
 
     // Handle clicking the face
@@ -348,18 +297,18 @@
       canClick = false;
 
       let clickerPerClick = 1;
-      clickerPerClick += farms * farmPerClick;
-      clickerPerClick += factories * factoryPerClick;
-      clickerPerClick += mines * minePerClick;
-      clickerPerClick += temples * templePerClick;
-      clickerPerClick += kingdoms * kingdomPerClick;
-      clickerPerClick += empires * empirePerClick;
-      clickerPerClick += megacorps * megacorpPerClick;
-      clickerPerClick += galaxies * galaxyPerClick;
-      clickerPerClick += universes * universePerClick;
+      upgrades.forEach((count, i) => {
+        clickerPerClick += count * upgradePerClick[i];
+      });
       clickerCount += clickerPerClick;
       updateClickerCount();
       showFloatingText(`+${clickerPerClick}`);
+
+      // Randomly drop new currency every 1-150 clicks
+      if (Math.random() < 1 / 150) {
+        currencyCount++;
+        showFloatingText(`+1 ${currencyNames[getCurrentMode()]}`);
+      }
 
       setTimeout(() => {
         canClick = true;
@@ -379,110 +328,78 @@
     }
 
     // Buy upgrades
-    function buyUpgrade(cost, multiplier, type) {
-      if (clickerCount >= cost) {
-        clickerCount -= cost;
-        switch (type) {
-          case "farm":
-            farms++;
-            farmCost = Math.floor(farmCost * multiplier);
-            break;
-          case "factory":
-            factories++;
-            factoryCost = Math.floor(factoryCost * multiplier);
-            break;
-          case "mine":
-            mines++;
-            mineCost = Math.floor(mineCost * multiplier);
-            break;
-          case "temple":
-            temples++;
-            templeCost = Math.floor(templeCost * multiplier);
-            break;
-          case "kingdom":
-            kingdoms++;
-            kingdomCost = Math.floor(kingdomCost * multiplier);
-            break;
-          case "empire":
-            empires++;
-            empireCost = Math.floor(empireCost * multiplier);
-            break;
-          case "megacorp":
-            megacorps++;
-            megacorpCost = Math.floor(megacorpCost * multiplier);
-            break;
-          case "galaxy":
-            galaxies++;
-            galaxyCost = Math.floor(galaxyCost * multiplier);
-            break;
-          case "universe":
-            universes++;
-            universeCost = Math.floor(universeCost * multiplier);
-            break;
-          case "bryce-clicker":
-            isBryceMode = true;
-            bryceClickerBtn.style.display = "none";
-            resetGame();
-            alert("You have unlocked Bryce Clicker! This is a rebirth. All progress has been reset.");
-            break;
-          case "mason-rebirth":
-            isMasonMode = true;
-            rebirthCount++;
-            resetGame();
-            alert("Show Yug you rebirthing 30 times for $10.");
-            updateRebirthCount();
-            break;
-        }
+    function buyUpgrade(index) {
+      if (clickerCount >= upgradeCosts[index] && currencyCount >= upgradeCurrencyCosts[index]) {
+        clickerCount -= upgradeCosts[index];
+        currencyCount -= upgradeCurrencyCosts[index];
+        upgrades[index]++;
+        upgradeCosts[index] = Math.floor(upgradeCosts[index] * costMultiplier);
+        upgradeCurrencyCosts[index] = Math.floor(upgradeCurrencyCosts[index] * costMultiplier);
+        updateUpgradeButtons();
         updateClickerCount();
-        saveGame();
       }
     }
 
-    // Reset game for Bryce or Mason Clicker
+    // Update upgrade buttons and info
+    function updateUpgradeButtons() {
+      const mode = getCurrentMode();
+      upgradeBtns.forEach((btn, i) => {
+        btn.textContent = `Buy ${upgradeNames[mode][i]} (Cost: ${upgradeCosts[i]} ${mode === "mihailo" ? "Mihailos" : mode === "bryce" ? "Bryces" : mode === "mason" ? "Masons" : mode === "isaac" ? "Isaacs" : "Gunners"}, ${upgradeCurrencyCosts[i]} ${currencyNames[mode]})`;
+        btn.disabled = clickerCount < upgradeCosts[i] || currencyCount < upgradeCurrencyCosts[i];
+      });
+    }
+
+    // Reset game for Bryce, Mason, Isaac, or Gunner Clicker
     function resetGame() {
       clickerCount = 0;
-      farms = 0;
-      factories = 0;
-      mines = 0;
-      temples = 0;
-      kingdoms = 0;
-      empires = 0;
-      megacorps = 0;
-      galaxies = 0;
-      universes = 0;
+      currencyCount = 0;
+      upgrades = Array(9).fill(0);
+      upgradeCosts = [10, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000];
+      upgradeCurrencyCosts = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+      updateUpgradeButtons();
       updateClickerCount();
+    }
+
+    // Update clicker mode (Mihailo, Bryce, Mason, Isaac, or Gunner)
+    function updateClickerMode() {
+      if (isGunnerMode) {
+        clickerImgElement.src = gunnerFace;
+        gameTitle.textContent = "Gunner Clicker";
+      } else if (isIsaacMode) {
+        clickerImgElement.src = isaacFace;
+        gameTitle.textContent = "Isaac Clicker";
+      } else if (isMasonMode) {
+        clickerImgElement.src = masonFace;
+        gameTitle.textContent = "Mason Clicker";
+      } else if (isBryceMode) {
+        clickerImgElement.src = bryceFace;
+        gameTitle.textContent = "Bryce Clicker";
+      } else {
+        clickerImgElement.src = mihailoFace;
+        gameTitle.textContent = "Mihailo Clicker";
+      }
+      updateUpgradeButtons();
     }
 
     // Check if upgrades are affordable
     function checkUpgradeAvailability() {
-      farmBtn.disabled = clickerCount < farmCost;
-      factoryBtn.disabled = clickerCount < factoryCost;
-      mineBtn.disabled = clickerCount < mineCost;
-      templeBtn.disabled = clickerCount < templeCost;
-      kingdomBtn.disabled = clickerCount < kingdomCost;
-      empireBtn.disabled = clickerCount < empireCost;
-      megacorpBtn.disabled = clickerCount < megacorpCost;
-      galaxyBtn.disabled = clickerCount < galaxyCost;
-      universeBtn.disabled = clickerCount < universeCost;
+      upgradeBtns.forEach((btn, i) => {
+        btn.disabled = clickerCount < upgradeCosts[i] || currencyCount < upgradeCurrencyCosts[i];
+      });
       bryceClickerBtn.disabled = clickerCount < bryceClickerCost || isBryceMode;
-      masonRebirthBtn.disabled = clickerCount < masonRebirthCost || !isBryceMode;
+      masonClickerBtn.disabled = clickerCount < masonClickerCost || !isBryceMode;
+      isaacClickerBtn.disabled = clickerCount < isaacClickerCost || !isMasonMode;
+      gunnerClickerBtn.disabled = clickerCount < gunnerClickerCost || !isIsaacMode;
     }
 
     // Generate clickers per second
     function generatePerSecond() {
       let clickerPerSecond = 0;
-      clickerPerSecond += farms * farmPerSecond;
-      clickerPerSecond += factories * factoryPerSecond;
-      clickerPerSecond += mines * minePerSecond;
-      clickerPerSecond += temples * templePerSecond;
-      clickerPerSecond += kingdoms * kingdomPerSecond;
-      clickerPerSecond += empires * empirePerSecond;
-      clickerPerSecond += megacorps * megacorpPerSecond;
-      clickerPerSecond += galaxies * galaxyPerSecond;
-      clickerPerSecond += universes * universePerSecond;
+      upgrades.forEach((count, i) => {
+        clickerPerSecond += count * upgradePerSecond[i];
+      });
       clickerCount += clickerPerSecond;
       updateClickerCount();
-      saveGame();
     }
 
     // Password system
@@ -505,6 +422,22 @@
             } else {
               alert("You've already used the password in Mason Clicker.");
             }
+          } else if (isIsaacMode) {
+            if (!mihailoPasswordUsed) {
+              clickerCount += 10000;
+              mihailoPasswordUsed = true;
+              alert("You received 10,000 Isaacs!");
+            } else {
+              alert("You've already used the password in Isaac Clicker.");
+            }
+          } else if (isGunnerMode) {
+            if (!mihailoPasswordUsed) {
+              clickerCount += 10000;
+              mihailoPasswordUsed = true;
+              alert("You received 10,000 Gunners!");
+            } else {
+              alert("You've already used the password in Gunner Clicker.");
+            }
           } else {
             if (!mihailoPasswordUsed) {
               clickerCount += 10000;
@@ -515,13 +448,11 @@
             }
           }
           updateClickerCount();
-          saveGame();
           passwordInput.value = "";
         } else if (passwordInput.value === "Hiren611") {
           clickerCount += 101901901;
           alert("You received 101,901,901 coins!");
           updateClickerCount();
-          saveGame();
           passwordInput.value = "";
         }
       }
@@ -530,33 +461,106 @@
     // Toggle night mode
     modeToggle.addEventListener("click", () => {
       document.body.classList.toggle("night-mode");
-      saveGame();
     });
-
-    // Auto-refresh every 10 minutes
-    setInterval(() => {
-      location.reload();
-    }, 10 * 60 * 1000); // 10 minutes
 
     // Event listeners
     clickerImgElement.addEventListener("click", clickFace);
-    farmBtn.addEventListener("click", () => buyUpgrade(farmCost, costMultiplier, "farm"));
-    factoryBtn.addEventListener("click", () => buyUpgrade(factoryCost, costMultiplier, "factory"));
-    mineBtn.addEventListener("click", () => buyUpgrade(mineCost, costMultiplier, "mine"));
-    templeBtn.addEventListener("click", () => buyUpgrade(templeCost, costMultiplier, "temple"));
-    kingdomBtn.addEventListener("click", () => buyUpgrade(kingdomCost, costMultiplier, "kingdom"));
-    empireBtn.addEventListener("click", () => buyUpgrade(empireCost, costMultiplier, "empire"));
-    megacorpBtn.addEventListener("click", () => buyUpgrade(megacorpCost, costMultiplier, "megacorp"));
-    galaxyBtn.addEventListener("click", () => buyUpgrade(galaxyCost, costMultiplier, "galaxy"));
-    universeBtn.addEventListener("click", () => buyUpgrade(universeCost, costMultiplier, "universe"));
-    bryceClickerBtn.addEventListener("click", () => buyUpgrade(bryceClickerCost, costMultiplier, "bryce-clicker"));
-    masonRebirthBtn.addEventListener("click", () => buyUpgrade(masonRebirthCost, costMultiplier, "mason-rebirth"));
+    upgradeBtns.forEach((btn, i) => {
+      btn.addEventListener("click", () => buyUpgrade(i));
+    });
+    bryceClickerBtn.addEventListener("click", () => {
+      if (clickerCount >= bryceClickerCost) {
+        isBryceMode = true;
+        bryceClickerBtn.style.display = "none";
+        masonClickerBtn.style.display = "block";
+        masonClickerInfo.style.display = "block";
+        updateClickerMode();
+        resetGame();
+        alert("You have unlocked Bryce Clicker! This is a rebirth. All progress has been reset.");
+      }
+    });
+    masonClickerBtn.addEventListener("click", () => {
+      if (clickerCount >= masonClickerCost) {
+        isMasonMode = true;
+        masonClickerBtn.style.display = "none";
+        masonClickerInfo.style.display = "none";
+        isaacClickerBtn.style.display = "block";
+        isaacClickerInfo.style.display = "block";
+        updateClickerMode();
+        resetGame();
+        alert("You have unlocked Mason Clicker! This is a rebirth. All progress has been reset.");
+      }
+    });
+    isaacClickerBtn.addEventListener("click", () => {
+      if (clickerCount >= isaacClickerCost) {
+        isIsaacMode = true;
+        isaacClickerBtn.style.display = "none";
+        isaacClickerInfo.style.display = "none";
+        gunnerClickerBtn.style.display = "block";
+        gunnerClickerInfo.style.display = "block";
+        updateClickerMode();
+        resetGame();
+        alert("You have unlocked Isaac Clicker! This is a rebirth. All progress has been reset.");
+      }
+    });
+    gunnerClickerBtn.addEventListener("click", () => {
+      if (clickerCount >= gunnerClickerCost) {
+        isGunnerMode = true;
+        gunnerClickerBtn.style.display = "none";
+        gunnerClickerInfo.style.display = "none";
+        updateClickerMode();
+        resetGame();
+        alert("You have unlocked Gunner Clicker! This is a rebirth. All progress has been reset.");
+      }
+    });
 
     // Game loop
     setInterval(generatePerSecond, 1000);
 
-    // Load game on start
-    loadGame();
+    // Show update text once
+    setTimeout(() => {
+      updateText.style.display = "none";
+    }, 5000); // Hide after 5 seconds
   </script>
 </body>
-</html> 
+</html>
+
+
+
+
+<script>
+  // Load saved data from localStorage
+  function loadGame() {
+    clickerCount = parseInt(localStorage.getItem("clickerCount")) || 0;
+    currencyCount = parseInt(localStorage.getItem("currencyCount")) || 0;
+    upgrades = JSON.parse(localStorage.getItem("upgrades")) || Array(9).fill(0);
+    isBryceMode = JSON.parse(localStorage.getItem("isBryceMode")) || false;
+    isMasonMode = JSON.parse(localStorage.getItem("isMasonMode")) || false;
+    isIsaacMode = JSON.parse(localStorage.getItem("isIsaacMode")) || false;
+    isGunnerMode = JSON.parse(localStorage.getItem("isGunnerMode")) || false;
+    updateDisplay();
+  }
+
+  // Save game data to localStorage
+  function saveGame() {
+    localStorage.setItem("clickerCount", clickerCount);
+    localStorage.setItem("currencyCount", currencyCount);
+    localStorage.setItem("upgrades", JSON.stringify(upgrades));
+    localStorage.setItem("isBryceMode", JSON.stringify(isBryceMode));
+    localStorage.setItem("isMasonMode", JSON.stringify(isMasonMode));
+    localStorage.setItem("isIsaacMode", JSON.stringify(isIsaacMode));
+    localStorage.setItem("isGunnerMode", JSON.stringify(isGunnerMode));
+  }
+
+  // Update display with saved values
+  function updateDisplay() {
+    clickerCountElement.textContent = `Mihailos: ${clickerCount}`;
+    currencyCountElement.textContent = `Diamonds: ${currencyCount}`;
+  }
+
+  // Save game data every 5 seconds
+  setInterval(saveGame, 5000);
+  
+  // Load game on startup
+  window.onload = loadGame;
+</script>
