@@ -150,9 +150,48 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    #username-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 10000;
+      text-align: center;
+    }
+    #username-modal input {
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+    #username-modal button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      background-color: #00aaff;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #username-modal button:hover {
+      background-color: #0088cc;
+    }
   </style>
 </head>
 <body>
+  <!-- Username Modal -->
+  <div id="username-modal">
+    <h2>Enter Your Username</h2>
+    <input type="text" id="username-input" placeholder="Username" maxlength="20">
+    <button id="username-submit">Submit</button>
+    <p id="username-error" style="color: red; margin-top: 10px;"></p>
+  </div>
+
   <div id="update-text">Huge Update on Monday 10 AM</div>
   <div id="website-link" onclick="window.location.href='https://clickerfromyug.netlify.app'">Go to https://clickerfromyug.netlify.app</div>
   <div class="container">
@@ -207,6 +246,7 @@
     let mihailoPasswordUsed = false;
     let brycePasswordUsed = false;
     let clickCounter = 0; // Track total clicks for currency spawn
+    let username = ""; // Track the current username
 
     // Base upgrade costs
     let upgradeCosts = [10, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000];
@@ -241,6 +281,10 @@
     const errorMessage = document.getElementById("error-message");
     const gameTitle = document.getElementById("game-title");
     const updateText = document.getElementById("update-text");
+    const usernameModal = document.getElementById("username-modal");
+    const usernameInput = document.getElementById("username-input");
+    const usernameSubmit = document.getElementById("username-submit");
+    const usernameError = document.getElementById("username-error");
 
     // Clicker mode (Mihailo, Bryce, Mason, Isaac, or Gunner)
     const mihailoFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Mihailo_Konjevic_0bb83a942afa46b5b1c773e59a1ac7fd.jpg?raw=true";
@@ -287,12 +331,12 @@
         upgradeCurrencyCosts,
         clickCounter,
       };
-      localStorage.setItem("clickerGameState", JSON.stringify(gameState));
+      localStorage.setItem(`clickerGameState_${username}`, JSON.stringify(gameState));
     }
 
     // Load game state from localStorage
     function loadGame() {
-      const savedState = localStorage.getItem("clickerGameState");
+      const savedState = localStorage.getItem(`clickerGameState_${username}`);
       if (savedState) {
         const gameState = JSON.parse(savedState);
         clickerCount = gameState.clickerCount || 0;
@@ -568,8 +612,35 @@
       updateText.style.display = "none";
     }, 5000); // Hide after 5 seconds
 
+    // Username system
+    usernameSubmit.addEventListener("click", () => {
+      const inputUsername = usernameInput.value.trim();
+      if (!inputUsername) {
+        usernameError.textContent = "Username cannot be empty!";
+        return;
+      }
+
+      // Check if the username is already in use
+      const activeUsers = JSON.parse(localStorage.getItem("activeUsers")) || [];
+      if (activeUsers.includes(inputUsername)) {
+        usernameError.textContent = "Username is already in use!";
+        return;
+      }
+
+      // Add the username to active users
+      activeUsers.push(inputUsername);
+      localStorage.setItem("activeUsers", JSON.stringify(activeUsers));
+
+      // Set the username and hide the modal
+      username = inputUsername;
+      usernameModal.style.display = "none";
+      loadGame(); // Load the game state for this user
+    });
+
     // Load saved game state on page load
-    window.addEventListener("load", loadGame);
+    window.addEventListener("load", () => {
+      usernameModal.style.display = "block"; // Show the username modal
+    });
 
     // Save game state periodically (every 10 seconds)
     setInterval(saveGame, 10000);
