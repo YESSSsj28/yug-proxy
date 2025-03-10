@@ -181,6 +181,16 @@
     #username-modal button:hover {
       background-color: #0088cc;
     }
+    #username-display {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      color: white;
+      font-size: 14px;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 5px;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
@@ -192,6 +202,10 @@
     <p id="username-error" style="color: red; margin-top: 10px;"></p>
   </div>
 
+  <!-- Username Display -->
+  <div id="username-display"></div>
+
+  <!-- Rest of the HTML remains unchanged -->
   <div id="update-text">Huge Update on Monday 10 AM</div>
   <div id="website-link" onclick="window.location.href='https://clickerfromyug.netlify.app'">Go to https://clickerfromyug.netlify.app</div>
   <div class="container">
@@ -285,6 +299,7 @@
     const usernameInput = document.getElementById("username-input");
     const usernameSubmit = document.getElementById("username-submit");
     const usernameError = document.getElementById("username-error");
+    const usernameDisplay = document.getElementById("username-display");
 
     // Clicker mode (Mihailo, Bryce, Mason, Isaac, or Gunner)
     const mihailoFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Mihailo_Konjevic_0bb83a942afa46b5b1c773e59a1ac7fd.jpg?raw=true";
@@ -633,13 +648,23 @@
 
       // Set the username and hide the modal
       username = inputUsername;
+      localStorage.setItem("currentUsername", username); // Save username to localStorage
       usernameModal.style.display = "none";
+      usernameDisplay.textContent = `Username: ${username}`; // Update username display
       loadGame(); // Load the game state for this user
     });
 
     // Load saved game state on page load
     window.addEventListener("load", () => {
-      usernameModal.style.display = "block"; // Show the username modal
+      const savedUsername = localStorage.getItem("currentUsername");
+      if (savedUsername) {
+        username = savedUsername;
+        usernameModal.style.display = "none";
+        usernameDisplay.textContent = `Username: ${username}`; // Update username display
+        loadGame();
+      } else {
+        usernameModal.style.display = "block";
+      }
     });
 
     // Save game state periodically (every 10 seconds)
