@@ -206,6 +206,7 @@
     let isGunnerMode = false;
     let mihailoPasswordUsed = false;
     let brycePasswordUsed = false;
+    let clickCounter = 0; // Track total clicks for currency spawn
 
     // Base upgrade costs
     let upgradeCosts = [10, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000];
@@ -270,6 +271,48 @@
     let canClick = true;
     const clickDelay = 100; // 100ms delay between clicks
 
+    // Save game state to localStorage
+    function saveGame() {
+      const gameState = {
+        clickerCount,
+        currencyCount,
+        upgrades,
+        isBryceMode,
+        isMasonMode,
+        isIsaacMode,
+        isGunnerMode,
+        mihailoPasswordUsed,
+        brycePasswordUsed,
+        upgradeCosts,
+        upgradeCurrencyCosts,
+        clickCounter,
+      };
+      localStorage.setItem("clickerGameState", JSON.stringify(gameState));
+    }
+
+    // Load game state from localStorage
+    function loadGame() {
+      const savedState = localStorage.getItem("clickerGameState");
+      if (savedState) {
+        const gameState = JSON.parse(savedState);
+        clickerCount = gameState.clickerCount || 0;
+        currencyCount = gameState.currencyCount || 0;
+        upgrades = gameState.upgrades || Array(9).fill(0);
+        isBryceMode = gameState.isBryceMode || false;
+        isMasonMode = gameState.isMasonMode || false;
+        isIsaacMode = gameState.isIsaacMode || false;
+        isGunnerMode = gameState.isGunnerMode || false;
+        mihailoPasswordUsed = gameState.mihailoPasswordUsed || false;
+        brycePasswordUsed = gameState.brycePasswordUsed || false;
+        upgradeCosts = gameState.upgradeCosts || [10, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000];
+        upgradeCurrencyCosts = gameState.upgradeCurrencyCosts || [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        clickCounter = gameState.clickCounter || 0;
+        updateClickerMode();
+        updateClickerCount();
+        updateUpgradeButtons();
+      }
+    }
+
     // Update the clicker count display
     function updateClickerCount() {
       let clickerName = "Mihailos";
@@ -280,6 +323,7 @@
       clickerCountElement.textContent = `${clickerName}: ${clickerCount}`;
       currencyCountElement.textContent = `${currencyNames[getCurrentMode()]}: ${currencyCount}`;
       checkUpgradeAvailability();
+      saveGame(); // Save game state after every update
     }
 
     // Get current mode
@@ -301,14 +345,16 @@
         clickerPerClick += count * upgradePerClick[i];
       });
       clickerCount += clickerPerClick;
-      updateClickerCount();
-      showFloatingText(`+${clickerPerClick}`);
+      clickCounter++; // Increment click counter
 
-      // Randomly drop new currency every 1-150 clicks
-      if (Math.random() < 1 / 150) {
+      // Spawn currency every 35 clicks
+      if (clickCounter % 35 === 0) {
         currencyCount++;
         showFloatingText(`+1 ${currencyNames[getCurrentMode()]}`);
       }
+
+      updateClickerCount();
+      showFloatingText(`+${clickerPerClick}`);
 
       setTimeout(() => {
         canClick = true;
@@ -521,13 +567,12 @@
     setTimeout(() => {
       updateText.style.display = "none";
     }, 5000); // Hide after 5 seconds
+
+    // Load saved game state on page load
+    window.addEventListener("load", loadGame);
+
+    // Save game state periodically (every 10 seconds)
+    setInterval(saveGame, 10000);
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
