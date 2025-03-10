@@ -191,6 +191,48 @@
       padding: 5px;
       border-radius: 5px;
     }
+    /* Leaderboard styles */
+    #leaderboard {
+      position: fixed;
+      top: 150px; /* Adjusted to avoid overlapping with other elements */
+      right: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 10px;
+      color: white;
+      width: 250px;
+      max-height: calc(100vh - 200px); /* Prevent overflow */
+      overflow-y: auto;
+      border: 2px solid #ffffff;
+    }
+    #leaderboard h3 {
+      margin-top: 0;
+      text-align: center;
+      color: #00aaff;
+    }
+    .leaderboard-entry {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+      padding: 5px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+    }
+    .leaderboard-rank {
+      color: #00aaff;
+      font-weight: bold;
+    }
+    /* Pencil icon styles */
+    #username-edit {
+      cursor: pointer;
+      margin-left: 5px;
+      font-size: 14px;
+      color: #00aaff;
+    }
+    #username-edit.disabled {
+      color: #666;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -205,8 +247,14 @@
   <!-- Username Display -->
   <div id="username-display"></div>
 
+  <!-- Leaderboard -->
+  <div id="leaderboard">
+    <h3>Leaderboard</h3>
+    <div id="leaderboard-entries">Loading...</div>
+  </div>
+
   <!-- Rest of the HTML remains unchanged -->
-  <div id="update-text">Huge Update on Monday 10 AM</div>
+  <div id="update-text">Ik there is bugs with the leaderboard womp womp if I have time I will fix -yug</div>
   <div id="website-link" onclick="window.location.href='https://clickerfromyug.netlify.app'">Go to https://clickerfromyug.netlify.app</div>
   <div class="container">
     <h1 id="game-title">Mihailo Clicker</h1>
@@ -261,6 +309,7 @@
     let brycePasswordUsed = false;
     let clickCounter = 0; // Track total clicks for currency spawn
     let username = ""; // Track the current username
+    let usernameChanged = false; // Track if username has been changed
 
     // Base upgrade costs
     let upgradeCosts = [10, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000];
@@ -300,6 +349,7 @@
     const usernameSubmit = document.getElementById("username-submit");
     const usernameError = document.getElementById("username-error");
     const usernameDisplay = document.getElementById("username-display");
+    const leaderboardEntries = document.getElementById("leaderboard-entries");
 
     // Clicker mode (Mihailo, Bryce, Mason, Isaac, or Gunner)
     const mihailoFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Mihailo_Konjevic_0bb83a942afa46b5b1c773e59a1ac7fd.jpg?raw=true";
@@ -669,6 +719,108 @@
 
     // Save game state periodically (every 10 seconds)
     setInterval(saveGame, 10000);
+
+    // Leaderboard functionality
+    function updateLeaderboard() {
+      const allUsers = JSON.parse(localStorage.getItem("activeUsers")) || [];
+      const scores = allUsers.map(user => {
+        const state = JSON.parse(localStorage.getItem(`clickerGameState_${user}`)) || {};
+        return {
+          username: user,
+          score: state.clickerCount || 0,
+          mode: getModeFromState(state)
+        };
+      });
+
+      // Sort by score descending
+      scores.sort((a, b) => b.score - a.score);
+
+      // Only show top 5
+      const topScores = scores.slice(0, 5);
+
+      // Update leaderboard display
+      leaderboardEntries.innerHTML = topScores
+        .map((entry, index) => `
+          <div class="leaderboard-entry">
+            <span class="leaderboard-rank">${index + 1}.</span>
+            <span>${entry.username}</span>
+            <span>${entry.mode}</span>
+          </div>
+        `)
+        .join('');
+
+      // If there are less than 5 players, fill remaining spots
+      if (topScores.length < 5) {
+        for (let i = topScores.length; i < 5; i++) {
+          leaderboardEntries.innerHTML += `
+            <div class="leaderboard-entry">
+              <span class="leaderboard-rank">${i + 1}.</span>
+              <span>---</span>
+              <span>---</span>
+            </div>`;
+        }
+      }
+    }
+
+    function getModeFromState(state) {
+      if (state.isGunnerMode) return "Gunner";
+      if (state.isIsaacMode) return "Isaac";
+      if (state.isMasonMode) return "Mason";
+      if (state.isBryceMode) return "Bryce";
+      return "Mihailo";
+    }
+
+    // Update leaderboard every 5 seconds
+    setInterval(updateLeaderboard, 5000);
+
+    // Spacebar click functionality
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault(); // Prevent default spacebar behavior (scrolling)
+        clickFace();
+      }
+    });
+
+    // Username edit functionality
+    function updateUsernameDisplay() {
+      usernameDisplay.innerHTML = `Username: ${username} <span id="username-edit" title="Change username" class="${usernameChanged ? 'disabled' : ''}">✏️</span>`;
+      
+      const editButton = document.getElementById('username-edit');
+      if (editButton) {
+        editButton.addEventListener('click', () => {
+          if (!usernameChanged) {
+            usernameModal.style.display = 'block';
+            usernameChanged = true;
+            editButton.classList.add('disabled');
+          } else {
+            alert('You can only change your username once!');
+          }
+        });
+      }
+    }
+
+    // Update username display when username is set
+    usernameSubmit.addEventListener('click', () => {
+      setTimeout(() => {
+        updateUsernameDisplay();
+        updateLeaderboard();
+      }, 100);
+    });
+
+    // If username is already set, update display on load
+    window.addEventListener('load', () => {
+      if (username) {
+        updateUsernameDisplay();
+        updateLeaderboard();
+      }
+    });
+
+    // Update the leaderboard immediately when the game state changes
+    const originalSaveGame = saveGame;
+    saveGame = function() {
+      originalSaveGame();
+      updateLeaderboard();
+    };
   </script>
 </body>
 </html>
