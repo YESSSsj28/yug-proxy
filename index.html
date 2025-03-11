@@ -5,89 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mihailo & Bryce Clicker</title>
   <style>
+    /* Modern Design */
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
-      background-color: #1a1a1a; /* Start in night mode */
-      color: #ffffff; /* White text for night mode */
+      background-color: #1a1a1a;
+      color: #ffffff;
       margin: 0;
       padding: 0;
       transition: background-color 0.3s, color 0.3s;
     }
-    body.night-mode {
-      background-color: #1a1a1a;
-      color: #ffffff;
-    }
     .container {
       margin-top: 50px;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 15px;
+      display: inline-block;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
     h1 {
-      color: #ffffff; /* White text for night mode */
-    }
-    .night-mode h1 {
-      color: #ffffff;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #00aaff;
     }
     #clicker-img {
-      width: 200px;
-      height: 200px;
+      width: 150px;
+      height: 150px;
       border-radius: 50%;
       cursor: pointer;
-      border: 5px solid #ffffff; /* White border for night mode */
+      border: 5px solid #00aaff;
       margin: 20px 0;
       transition: transform 0.1s;
-    }
-    .night-mode #clicker-img {
-      border-color: #ffffff;
     }
     #clicker-img:active {
       transform: scale(0.95);
     }
-    #clicker-count {
-      font-size: 24px;
+    #clicker-count, #currency-count {
+      font-size: 1.5rem;
       font-weight: bold;
-    }
-    #currency-count {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 10px;
+      margin: 10px 0;
     }
     .upgrades {
       margin-top: 20px;
     }
     button {
       padding: 10px 20px;
-      font-size: 16px;
+      font-size: 1rem;
       margin: 5px;
       cursor: pointer;
-      background-color: #555; /* Darker button for night mode */
-      color: #ffffff;
+      background-color: #00aaff;
+      color: #000;
       border: none;
       border-radius: 5px;
       transition: background-color 0.3s;
     }
-    .night-mode button {
-      background-color: #555;
-    }
     button:disabled {
-      background-color: #888;
+      background-color: #666;
       cursor: not-allowed;
     }
     .upgrade-info {
-      font-size: 14px;
-      color: #bbb; /* Light gray for night mode */
-    }
-    .night-mode .upgrade-info {
+      font-size: 0.9rem;
       color: #bbb;
+      margin-bottom: 10px;
     }
     .floating-text {
       position: absolute;
-      font-size: 20px;
+      font-size: 1.2rem;
       font-weight: bold;
-      color: #ffffff; /* White text for night mode */
+      color: #00aaff;
       animation: floatDown 1s ease-out;
-    }
-    .night-mode .floating-text {
-      color: #ffffff;
     }
     @keyframes floatDown {
       0% { top: 0; opacity: 1; }
@@ -97,26 +83,15 @@
       position: fixed;
       top: 10px;
       right: 10px;
-    }
-    .error-message {
-      color: red;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-    #password-input {
-      position: fixed;
-      top: 90px;
-      right: 10px;
-      width: 100px;
-      padding: 5px;
-      font-size: 12px;
+      background-color: #00aaff;
+      color: #000;
     }
     #free-coins-text {
       position: fixed;
       bottom: 10px;
       left: 10px;
       color: white;
-      font-size: 14px;
+      font-size: 0.9rem;
       background-color: rgba(0, 0, 0, 0.7);
       padding: 5px;
       border-radius: 5px;
@@ -126,7 +101,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 32px;
+      font-size: 1.5rem;
       font-weight: bold;
       color: red;
       background-color: rgba(255, 255, 255, 0.9);
@@ -144,7 +119,7 @@
       top: 10px;
       left: 10px;
       color: white;
-      font-size: 14px;
+      font-size: 0.9rem;
       background-color: rgba(0, 0, 0, 0.7);
       padding: 5px;
       border-radius: 5px;
@@ -163,14 +138,14 @@
     }
     #username-modal input {
       padding: 10px;
-      font-size: 16px;
+      font-size: 1rem;
       margin-top: 10px;
       border-radius: 5px;
       border: none;
     }
     #username-modal button {
       padding: 10px 20px;
-      font-size: 16px;
+      font-size: 1rem;
       margin-top: 10px;
       background-color: #00aaff;
       color: black;
@@ -186,7 +161,7 @@
       bottom: 10px;
       right: 10px;
       color: white;
-      font-size: 14px;
+      font-size: 0.9rem;
       background-color: rgba(0, 0, 0, 0.7);
       padding: 5px;
       border-radius: 5px;
@@ -194,16 +169,16 @@
     /* Leaderboard styles */
     #leaderboard {
       position: fixed;
-      top: 150px; /* Adjusted to avoid overlapping with other elements */
+      top: 150px;
       right: 20px;
       background-color: rgba(0, 0, 0, 0.8);
       padding: 15px;
       border-radius: 10px;
       color: white;
       width: 250px;
-      max-height: calc(100vh - 200px); /* Prevent overflow */
+      max-height: calc(100vh - 200px);
       overflow-y: auto;
-      border: 2px solid #ffffff;
+      border: 2px solid #00aaff;
     }
     #leaderboard h3 {
       margin-top: 0;
@@ -226,12 +201,19 @@
     #username-edit {
       cursor: pointer;
       margin-left: 5px;
-      font-size: 14px;
+      font-size: 0.9rem;
       color: #00aaff;
     }
     #username-edit.disabled {
       color: #666;
       cursor: not-allowed;
+    }
+    /* Item images */
+    .item-image {
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      animation: floatDown 1s ease-out;
     }
   </style>
 </head>
@@ -309,28 +291,28 @@
   <script>
     // Game variables
     let clickerCount = 0;
-    let currencyCount = 0; // New currency (Diamonds, Pasta, Chicken, Taco)
-    let upgrades = Array(9).fill(0); // Tracks the number of each upgrade
+    let currencyCount = 0;
+    let upgrades = Array(9).fill(0);
     let isBryceMode = false;
     let isMasonMode = false;
     let isIsaacMode = false;
     let isGunnerMode = false;
     let mihailoPasswordUsed = false;
     let brycePasswordUsed = false;
-    let clickCounter = 0; // Track total clicks for currency spawn
-    let username = ""; // Track the current username
-    let usernameChanged = false; // Track if username has been changed
+    let clickCounter = 0;
+    let username = "";
+    let usernameChanged = false;
 
     // Base upgrade costs
     let upgradeCosts = [10, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000];
-    let upgradeCurrencyCosts = [1, 2, 3, 4, 5, 6, 7, 8, 9]; // New currency costs
+    let upgradeCurrencyCosts = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     let bryceClickerCost = 1000000;
     let masonClickerCost = 5000000;
     let isaacClickerCost = 10000000;
     let gunnerClickerCost = 20000000;
 
     // Upgrade cost multipliers
-    const costMultiplier = 1.5; // Price increases by 1.5x after each purchase
+    const costMultiplier = 1.5;
 
     // Upgrade effects
     const upgradePerSecond = [1, 5, 10, 20, 50, 100, 200, 500, 1000];
@@ -368,6 +350,15 @@
     const isaacFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Screenshot%202025-03-08%202.57.21%20PM.png?raw=true";
     const gunnerFace = "https://github.com/YESSSsj28/yug-proxy/blob/main/Screenshot%202025-03-08%202.49.39%20PM.png?raw=true";
 
+    // New currency images
+    const currencyImages = {
+      mihailo: "https://github.com/YESSSsj28/yug-proxy/blob/main/pngtree-3d-blue-diamond-icon-png-image_1866785-Photoroom.png?raw=true",
+      bryce: "https://github.com/YESSSsj28/yug-proxy/blob/main/download-Photoroom.png?raw=true",
+      mason: "https://github.com/YESSSsj28/yug-proxy/blob/main/images-Photoroom.png?raw=true",
+      isaac: "https://github.com/YESSSsj28/yug-proxy/blob/main/337526-Photoroom.png?raw=true",
+      gunner: "https://github.com/YESSSsj28/yug-proxy/blob/main/images-Photoroom.png?raw=true"
+    };
+
     // Upgrade names for each mode
     const upgradeNames = {
       mihailo: ["Farm", "Factory", "Mine", "Temple", "Kingdom", "Empire", "MegaCorp", "Galaxy", "Universe"],
@@ -388,7 +379,7 @@
 
     // Click delay to prevent spam
     let canClick = true;
-    const clickDelay = 100; // 100ms delay between clicks
+    const clickDelay = 100;
 
     // Save game state to localStorage
     function saveGame() {
@@ -442,7 +433,7 @@
       clickerCountElement.textContent = `${clickerName}: ${clickerCount}`;
       currencyCountElement.textContent = `${currencyNames[getCurrentMode()]}: ${currencyCount}`;
       checkUpgradeAvailability();
-      saveGame(); // Save game state after every update
+      saveGame();
     }
 
     // Get current mode
@@ -464,11 +455,12 @@
         clickerPerClick += count * upgradePerClick[i];
       });
       clickerCount += clickerPerClick;
-      clickCounter++; // Increment click counter
+      clickCounter++;
 
       // Spawn currency every 35 clicks
       if (clickCounter % 35 === 0) {
         currencyCount++;
+        spawnCurrencyImage();
         showFloatingText(`+1 ${currencyNames[getCurrentMode()]}`);
       }
 
@@ -478,6 +470,18 @@
       setTimeout(() => {
         canClick = true;
       }, clickDelay);
+    }
+
+    // Spawn currency image
+    function spawnCurrencyImage() {
+      const currencyImage = document.createElement("img");
+      currencyImage.src = currencyImages[getCurrentMode()];
+      currencyImage.className = "item-image";
+      currencyImage.style.left = `${Math.random() * 80 + 10}%`;
+      document.body.appendChild(currencyImage);
+      setTimeout(() => {
+        currencyImage.remove();
+      }, 1000);
     }
 
     // Show floating text animation
@@ -515,24 +519,24 @@
 
       // Update mode-specific buttons
       if (isBryceMode) {
-        bryceClickerBtn.style.display = "none"; // Hide Bryce Clicker button
-        masonClickerBtn.style.display = "block"; // Show Mason Clicker button
+        bryceClickerBtn.style.display = "none";
+        masonClickerBtn.style.display = "block";
         masonClickerBtn.textContent = `Unlock Mason Clicker (Cost: ${masonClickerCost} Bryces)`;
         masonClickerBtn.disabled = clickerCount < masonClickerCost;
       } else if (isMasonMode) {
-        masonClickerBtn.style.display = "none"; // Hide Mason Clicker button
-        isaacClickerBtn.style.display = "block"; // Show Isaac Clicker button
+        masonClickerBtn.style.display = "none";
+        isaacClickerBtn.style.display = "block";
         isaacClickerBtn.textContent = `Unlock Isaac Clicker (Cost: ${isaacClickerCost} Masons)`;
         isaacClickerBtn.disabled = clickerCount < isaacClickerCost;
       } else if (isIsaacMode) {
-        isaacClickerBtn.style.display = "none"; // Hide Isaac Clicker button
-        gunnerClickerBtn.style.display = "block"; // Show Gunner Clicker button
+        isaacClickerBtn.style.display = "none";
+        gunnerClickerBtn.style.display = "block";
         gunnerClickerBtn.textContent = `Unlock Gunner Clicker (Cost: ${gunnerClickerCost} Isaacs)`;
         gunnerClickerBtn.disabled = clickerCount < gunnerClickerCost;
       } else if (isGunnerMode) {
-        gunnerClickerBtn.style.display = "none"; // Hide Gunner Clicker button
+        gunnerClickerBtn.style.display = "none";
       } else {
-        bryceClickerBtn.style.display = "block"; // Show Bryce Clicker button
+        bryceClickerBtn.style.display = "block";
         bryceClickerBtn.textContent = `Unlock Bryce Clicker (Cost: ${bryceClickerCost} Mihailos)`;
         bryceClickerBtn.disabled = clickerCount < bryceClickerCost;
       }
@@ -709,7 +713,7 @@
     // Show update text once
     setTimeout(() => {
       updateText.style.display = "none";
-    }, 5000); // Hide after 5 seconds
+    }, 5000);
 
     // Username system
     usernameSubmit.addEventListener("click", () => {
@@ -732,10 +736,10 @@
 
       // Set the username and hide the modal
       username = inputUsername;
-      localStorage.setItem("currentUsername", username); // Save username to localStorage
+      localStorage.setItem("currentUsername", username);
       usernameModal.style.display = "none";
-      usernameDisplay.textContent = `Username: ${username}`; // Update username display
-      loadGame(); // Load the game state for this user
+      usernameDisplay.textContent = `Username: ${username}`;
+      loadGame();
     });
 
     // Load saved game state on page load
@@ -744,7 +748,7 @@
       if (savedUsername) {
         username = savedUsername;
         usernameModal.style.display = "none";
-        usernameDisplay.textContent = `Username: ${username}`; // Update username display
+        usernameDisplay.textContent = `Username: ${username}`;
         loadGame();
       } else {
         usernameModal.style.display = "block";
@@ -808,10 +812,19 @@
     setInterval(updateLeaderboard, 5000);
 
     // Spacebar click functionality
+    let isSpacePressed = false;
+
     document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') {
-        e.preventDefault(); // Prevent default spacebar behavior (scrolling)
+      if (e.code === 'Space' && !isSpacePressed) {
+        e.preventDefault();
+        isSpacePressed = true;
         clickFace();
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.code === 'Space') {
+        isSpacePressed = false;
       }
     });
 
@@ -855,6 +868,11 @@
       originalSaveGame();
       updateLeaderboard();
     };
+
+    // Auto-refresh every 10 minutes
+    setInterval(() => {
+      window.location.reload();
+    }, 600000); // 10 minutes in milliseconds
   </script>
 </body>
 </html>
