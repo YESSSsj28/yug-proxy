@@ -254,7 +254,7 @@
   </div>
 
   <!-- Rest of the HTML remains unchanged -->
-  <div id="update-text">Activally fixing the bug the leaderboard will be done by today (hopefully)-yug</div>
+  <div id="update-text">I know there might be bugs with the new updates like the leaderboard and the space bar working as a clicker also make sure to refreah every 10 minutes to see a new update. -Yug</div>
   <div id="website-link" onclick="window.location.href='https://clickerfromyug.netlify.app'">Go to https://clickerfromyug.netlify.app</div>
   <div class="container">
     <h1 id="game-title">Mihailo Clicker</h1>
@@ -502,6 +502,30 @@
         btn.textContent = `Buy ${upgradeNames[mode][i]} (Cost: ${upgradeCosts[i]} ${mode === "mihailo" ? "Mihailos" : mode === "bryce" ? "Bryces" : mode === "mason" ? "Masons" : mode === "isaac" ? "Isaacs" : "Gunners"}, ${upgradeCurrencyCosts[i]} ${currencyNames[mode]})`;
         btn.disabled = clickerCount < upgradeCosts[i] || currencyCount < upgradeCurrencyCosts[i];
       });
+
+      // Update mode-specific buttons
+      if (isBryceMode) {
+        bryceClickerBtn.style.display = "none"; // Hide Bryce Clicker button
+        masonClickerBtn.style.display = "block"; // Show Mason Clicker button
+        masonClickerBtn.textContent = `Unlock Mason Clicker (Cost: ${masonClickerCost} Bryces)`;
+        masonClickerBtn.disabled = clickerCount < masonClickerCost;
+      } else if (isMasonMode) {
+        masonClickerBtn.style.display = "none"; // Hide Mason Clicker button
+        isaacClickerBtn.style.display = "block"; // Show Isaac Clicker button
+        isaacClickerBtn.textContent = `Unlock Isaac Clicker (Cost: ${isaacClickerCost} Masons)`;
+        isaacClickerBtn.disabled = clickerCount < isaacClickerCost;
+      } else if (isIsaacMode) {
+        isaacClickerBtn.style.display = "none"; // Hide Isaac Clicker button
+        gunnerClickerBtn.style.display = "block"; // Show Gunner Clicker button
+        gunnerClickerBtn.textContent = `Unlock Gunner Clicker (Cost: ${gunnerClickerCost} Isaacs)`;
+        gunnerClickerBtn.disabled = clickerCount < gunnerClickerCost;
+      } else if (isGunnerMode) {
+        gunnerClickerBtn.style.display = "none"; // Hide Gunner Clicker button
+      } else {
+        bryceClickerBtn.style.display = "block"; // Show Bryce Clicker button
+        bryceClickerBtn.textContent = `Unlock Bryce Clicker (Cost: ${bryceClickerCost} Mihailos)`;
+        bryceClickerBtn.disabled = clickerCount < bryceClickerCost;
+      }
     }
 
     // Reset game for Bryce, Mason, Isaac, or Gunner Clicker
