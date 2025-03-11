@@ -397,47 +397,54 @@ const db = firebase.firestore(); // Initialize Firestore
     let canClick = true;
     const clickDelay = 100;
 
-    // Save game state to localStorage
     function saveGame() {
-      const gameState = {
-        clickerCount,
-        currencyCount,
-        upgrades,
-        isBryceMode,
-        isMasonMode,
-        isIsaacMode,
-        isGunnerMode,
-        mihailoPasswordUsed,
-        brycePasswordUsed,
-        upgradeCosts,
-        upgradeCurrencyCosts,
-        clickCounter,
-      };
+  const gameState = {
+    clickerCount,
+    currencyCount,
+    upgrades,
+    isBryceMode,
+    isMasonMode,
+    isIsaacMode,
+    isGunnerMode,
+    mihailoPasswordUsed,
+    brycePasswordUsed,
+    upgradeCosts,
+    upgradeCurrencyCosts,
+    clickCounter,
+  };
+  localStorage.setItem(`clickerGameState_${username}`, JSON.stringify(gameState));
+
+  // Save score to Firestore
+  saveScoreToLeaderboard();
+}
       localStorage.setItem(`clickerGameState_${username}`, JSON.stringify(gameState));
     }
 
     // Load game state from localStorage
     function loadGame() {
-      const savedState = localStorage.getItem(`clickerGameState_${username}`);
-      if (savedState) {
-        const gameState = JSON.parse(savedState);
-        clickerCount = gameState.clickerCount || 0;
-        currencyCount = gameState.currencyCount || 0;
-        upgrades = gameState.upgrades || Array(9).fill(0);
-        isBryceMode = gameState.isBryceMode || false;
-        isMasonMode = gameState.isMasonMode || false;
-        isIsaacMode = gameState.isIsaacMode || false;
-        isGunnerMode = gameState.isGunnerMode || false;
-        mihailoPasswordUsed = gameState.mihailoPasswordUsed || false;
-        brycePasswordUsed = gameState.brycePasswordUsed || false;
-        upgradeCosts = gameState.upgradeCosts || [10, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000];
-        upgradeCurrencyCosts = gameState.upgradeCurrencyCosts || [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        clickCounter = gameState.clickCounter || 0;
-        updateClickerMode();
-        updateClickerCount();
-        updateUpgradeButtons();
-      }
-    }
+  const savedState = localStorage.getItem(`clickerGameState_${username}`);
+  if (savedState) {
+    const gameState = JSON.parse(savedState);
+    clickerCount = gameState.clickerCount || 0;
+    currencyCount = gameState.currencyCount || 0;
+    upgrades = gameState.upgrades || Array(9).fill(0);
+    isBryceMode = gameState.isBryceMode || false;
+    isMasonMode = gameState.isMasonMode || false;
+    isIsaacMode = gameState.isIsaacMode || false;
+    isGunnerMode = gameState.isGunnerMode || false;
+    mihailoPasswordUsed = gameState.mihailoPasswordUsed || false;
+    brycePasswordUsed = gameState.brycePasswordUsed || false;
+    upgradeCosts = gameState.upgradeCosts || [10, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000];
+    upgradeCurrencyCosts = gameState.upgradeCurrencyCosts || [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    clickCounter = gameState.clickCounter || 0;
+    updateClickerMode();
+    updateClickerCount();
+    updateUpgradeButtons();
+  }
+
+  // Load leaderboard data
+  updateLeaderboard();
+}
 
     // Update the clicker count display
     function updateClickerCount() {
@@ -893,5 +900,64 @@ const db = firebase.firestore(); // Initialize Firestore
     <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+
+  // Function to save a score to Firestore
+async function saveScoreToLeaderboard() {
+  if (!username) return;
+
+  // Add or update the player's score in Firestore
+  await db.collection("leaderboard").doc(username).set({
+    username: username,
+    score: clickerCount,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  // Update the leaderboard display
+  updateLeaderboard();
+}
+
+// Call this function whenever the score changes
+saveScoreToLeaderboard();
+
+// Function to get the top 5 scores
+async function updateLeaderboard() {
+  const leaderboardEntries = document.getElementById("leaderboard-entries");
+
+  // Get leaderboard data from Firestore
+  const snapshot = await db.collection("leaderboard").orderBy("score", "desc").limit(5).get();
+  const entries = snapshot.docs.map((doc, index) => {
+    const data = doc.data();
+    return `
+      <div class="leaderboard-entry">
+        <span class="leaderboard-rank">${index + 1}.</span>
+        <span>${data.username}</span>
+        <span>${data.score}</span>
+      </div>
+    `;
+  });
+
+  // Update the leaderboard display
+  leaderboardEntries.innerHTML = entries.join("");
+
+  // If there are less than 5 entries, fill remaining spots
+  if (entries.length < 5) {
+    for (let i = entries.length; i < 5; i++) {
+      leaderboardEntries.innerHTML += `
+        <div class="leaderboard-entry">
+          <span class="leaderboard-rank">${i + 1}.</span>
+          <span>---</span>
+          <span>---</span>
+        </div>`;
+    }
+  }
+}
+
+// Update leaderboard every 5 seconds
+setInterval(updateLeaderboard, 5000);
+
+      
+
+
+      
 </body>
 </html>
