@@ -239,7 +239,7 @@
   <div id="update-text">Auto-refresh every 10 minutes.
 
 Leaderboard will be broken I am probally not going to make but might and focus on a new game that will drop soon way different from this botty game .. -Yug</div>
-  <div id="website-link" onclick="window.location.href='https://docs.google.com/forms/d/e/1FAIpQLSeDJBHJwYH35l78hU2lDK0ERmHHcMvt1Ej8lTEppNW5Br88VA/viewform'">Click this for surprise</div>
+  <div id="website-link" onclick="window.location.href='https://clickerfromyug.netlify.app'">Go to https://clickerfromyug.netlify.app</div>
   <div class="container">
     <h1 id="game-title">Mihailo Clicker</h1>
     <p id="clicker-count">Mihailos: 0</p>
@@ -869,12 +869,12 @@ Leaderboard will be broken I am probally not going to make but might and focus o
 
 
 
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Popup Message</title>
+    <title>Important Announcement</title>
     <style>
         body {
             margin: 0;
@@ -883,20 +883,48 @@ Leaderboard will be broken I am probally not going to make but might and focus o
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: #0a0a0a; /* Dark background */
             font-family: Arial, sans-serif;
+            color: #00bfff; /* Light blue text */
         }
 
-        #popup {
-            background-color: white;
+        #announcement-box {
+            background-color: #1a1a1a; /* Dark gray background */
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
             text-align: center;
-            color: #00bfff; /* Light blue text */
-            font-size: 18px;
-            position: relative;
-            max-width: 300px;
+            max-width: 400px;
+            border: 1px solid #00bfff; /* Light blue border */
+            position: relative; /* Needed for positioning the X button */
+        }
+
+        h1 {
+            margin: 0 0 15px 0;
+            font-size: 24px;
+            color: #00bfff; /* Light blue heading */
+        }
+
+        p {
+            margin: 0 0 20px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        #form-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #00bfff; /* Light blue background */
+            color: #0a0a0a; /* Dark text */
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #form-link:hover {
+            background-color: #009acd; /* Darker blue on hover */
         }
 
         #close-btn {
@@ -905,51 +933,49 @@ Leaderboard will be broken I am probally not going to make but might and focus o
             right: 10px;
             background: none;
             border: none;
-            font-size: 20px;
+            font-size: 28px; /* Bigger X button */
             cursor: pointer;
-            color: black; /* Black X button */
+            color: #00ffff; /* Cyan color */
+            transition: color 0.3s ease;
         }
 
         #close-btn:hover {
-            color: #555; /* Slightly darker on hover */
-        }
-
-        #website-link {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #00bfff; /* Light blue background */
-            color: white; /* White text */
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        #website-link:hover {
-            background-color: #009acd; /* Darker blue on hover */
+            color: #00bfff; /* Light blue on hover */
         }
     </style>
 </head>
 <body>
-    <div id="popup">
+    <div id="announcement-box">
+        <!-- Close button (X) -->
         <button id="close-btn">X</button>
-        <p>If you did this, thank you, bye!</p>
-        <p>If you didn't, I opened a website. Do it for a surprise! (The surprise is on the website.)</p>
-        <a id="website-link" target="_blank"> copy this and do and show me for the inf money code dont give to anyone only i can give  leaking code= I will change it https://docs.google.com/forms/d/e/1FAIpQLSeDJBHJwYH35l78hU2lDK0ERmHHcMvt1Ej8lTEppNW5Br88VA/viewform </a>
+
+        <!-- Announcement content -->
+        <h1>Important Announcement</h1>
+        <p>
+            I am quitting making this game and making a different one. Go to 
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSeDJBHJwYH35l78hU2lDK0ERmHHcMvt1Ej8lTEppNW5Br88VA/viewform" target="_blank" style="color: #00bfff; text-decoration: underline;">this link</a> 
+            and submit it. After doing so, show me, and I'll give you the inf money code. -yug
+        </p>
+        <a id="form-link" href="https://docs.google.com/forms/d/e/1FAIpQLSeDJBHJwYH35l78hU2lDK0ERmHHcMvt1Ej8lTEppNW5Br88VA/viewform" target="_blank">
+            Go to Form
+        </a>
     </div>
-
-    <script>
-        // Set the link to open the Google Form
-        const websiteLink = document.getElementById('website-link');
-        websiteLink.href = 'https://docs.google.com/forms/d/e/1FAIpQLSeDJBHJwYH35l78hU2lDK0ERmHHcMvt1Ej8lTEppNW5Br88VA/viewform';
-
-        // Close the popup when the X button is clicked
+     <script>
+        // Close the announcement box when the X button is clicked
         document.getElementById('close-btn').addEventListener('click', () => {
-            document.getElementById('popup').style.display = 'none';
+            document.getElementById('announcement-box').style.display = 'none';
         });
     </script>
 </body>
 </html>
 
+
+
+
+
+
+
+
+
+</body>
+</html>  
