@@ -969,6 +969,113 @@ Leaderboard will be broken I am probally not going to make but might and focus o
   </style>
 </head>
 <body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polling System</title>
+  <style>
+    /* Modern Modal Styles */
+    #update-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    #update-modal.active {
+      display: flex;
+      opacity: 1;
+    }
+    .modal-content {
+      background-color: #1a1a1a;
+      padding: 25px;
+      border-radius: 15px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      position: relative;
+      border: 1px solid #00aaff;
+    }
+    .close-modal {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    .close-modal:hover {
+      color: #00aaff;
+    }
+    h2 {
+      color: #00aaff;
+      margin-bottom: 15px;
+    }
+    p {
+      color: #ccc;
+      line-height: 1.5;
+    }
+    .poll-option {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      font-size: 16px;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .poll-option:hover {
+      background-color: #444;
+      transform: scale(1.02);
+    }
+    .poll-option:disabled {
+      background-color: #555;
+      color: #888;
+      cursor: not-allowed;
+    }
+    #poll-results {
+      margin-top: 20px;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    #poll-results.visible {
+      display: block;
+      opacity: 1;
+    }
+    #results-list {
+      list-style: none;
+      padding: 0;
+    }
+    #results-list li {
+      background-color: #222;
+      color: #fff;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border-left: 4px solid #00aaff;
+    }
+    #results-list li span {
+      color: #00aaff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
   <!-- Announcement Modal -->
   <div id="update-modal" class="modern-modal active">
     <div class="modal-content">
@@ -1016,17 +1123,46 @@ Leaderboard will be broken I am probally not going to make but might and focus o
       const pollResults = document.getElementById("poll-results");
       const resultsList = document.getElementById("results-list");
 
-      pollOptions.forEach(option => {
-        option.addEventListener("click", async () => {
-          const selectedOption = option.getAttribute("data-option");
+      // Check if the user has already voted
+      const hasVoted = localStorage.getItem("hasVoted");
 
-          // Save vote to GitHub Gist
-          await saveVote(selectedOption);
+      if (hasVoted) {
+        // If the user has already voted, show the results immediately
+        showResults();
+        pollResults.classList.add("visible");
+        disablePollOptions();
+      } else {
+        // If the user hasn't voted, enable the poll options
+        pollOptions.forEach(option => {
+          option.addEventListener("click", async () => {
+            const selectedOption = option.getAttribute("data-option");
 
-          // Show results
-          await showResults();
+            // Save vote to GitHub Gist
+            await saveVote(selectedOption);
+
+            // Mark the user as having voted
+            localStorage.setItem("hasVoted", true);
+
+            // Disable the poll options
+            disablePollOptions();
+
+            // Show results
+            await showResults();
+
+            // Hide the modal after 5 seconds
+            setTimeout(() => {
+              updateModal.classList.remove("active");
+            }, 5000);
+          });
         });
-      });
+      }
+
+      // Function to disable poll options
+      function disablePollOptions() {
+        pollOptions.forEach(option => {
+          option.disabled = true;
+        });
+      }
 
       // Function to save a vote to GitHub Gist
       async function saveVote(option) {
@@ -1077,6 +1213,13 @@ Leaderboard will be broken I am probally not going to make but might and focus o
 
         pollResults.classList.add("visible");
       }
+
+      // Real-time updates: Fetch votes every 5 seconds
+      setInterval(async () => {
+        if (localStorage.getItem("hasVoted")) {
+          await showResults();
+        }
+      }, 5000);
     });
   </script>
 </body>
