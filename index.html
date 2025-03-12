@@ -866,9 +866,8 @@ Leaderboard will be broken I am probally not going to make but might and focus o
       window.location.reload();
     }, 600000); // 10 minutes in milliseconds
   </script>
-
-
-  <!-- Announcement Modal -->
+  
+<!-- Announcement Modal -->
 <div id="update-modal" class="modern-modal active">
   <div class="modal-content">
     <span id="close-modal" class="close-modal">&times;</span>
@@ -920,9 +919,20 @@ Leaderboard will be broken I am probally not going to make but might and focus o
 </style>
 
 <script>
-  // Close modal functionality
-  document.getElementById("close-modal").addEventListener("click", () => {
-    document.getElementById("update-modal").classList.remove("active");
+  // Ensure the modal loads when the website opens
+  window.addEventListener('load', () => {
+    const updateModal = document.getElementById("update-modal");
+    if (updateModal) {
+      updateModal.classList.add("active");
+    }
+
+    // Close modal functionality
+    const closeModal = document.getElementById("close-modal");
+    if (closeModal) {
+      closeModal.addEventListener("click", () => {
+        updateModal.classList.remove("active");
+      });
+    }
   });
 </script>
 </body>
