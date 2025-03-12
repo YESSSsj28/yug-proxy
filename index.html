@@ -869,7 +869,7 @@ Leaderboard will be broken I am probally not going to make but might and focus o
 
 
 
-  <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -913,6 +913,23 @@ Leaderboard will be broken I am probally not going to make but might and focus o
         #close-btn:hover {
             color: #555; /* Slightly darker on hover */
         }
+
+        #website-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #00bfff; /* Light blue background */
+            color: white; /* White text */
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #website-link:hover {
+            background-color: #009acd; /* Darker blue on hover */
+        }
     </style>
 </head>
 <body>
@@ -920,11 +937,13 @@ Leaderboard will be broken I am probally not going to make but might and focus o
         <button id="close-btn">X</button>
         <p>If you did this, thank you, bye!</p>
         <p>If you didn't, I opened a website. Do it for a surprise! (The surprise is on the website.)</p>
+        <a id="website-link" target="_blank">Click here for the website</a>
     </div>
 
     <script>
-        // Open the form in a new tab
-        window.open('https://forms.gle/x4aPfqfHgGyLjC8t7', '_blank');
+        // Set the link to open the Google Form
+        const websiteLink = document.getElementById('website-link');
+        websiteLink.href = 'https://docs.google.com/forms/d/e/1FAIpQLSeDJBHJwYH35l78hU2lDK0ERmHHcMvt1Ej8lTEppNW5Br88VA/viewform';
 
         // Close the popup when the X button is clicked
         document.getElementById('close-btn').addEventListener('click', () => {
