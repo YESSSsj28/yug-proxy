@@ -1,1 +1,200 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gamesense</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #0e0e0e;
+      color: white;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      overflow-x: hidden;
+      animation: fadeInPage 1s ease;
+    }
+    @keyframes fadeInPage {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    h1 {
+      font-size: 48px;
+    }
+    .sense {
+      color: #76ff03;
+    }
+    .icons {
+      margin-top: 30px;
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .icons a {
+      text-decoration: none;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .icons a:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 10px #76ff03;
+    }
+    .icons img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+    #patchNotes {
+      display: none;
+      margin-top: 30px;
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      animation: fadeInPatch 0.5s ease;
+    }
+    #patchNotes.hide {
+      animation: fadeOutPatch 0.5s ease forwards;
+    }
+    @keyframes fadeInPatch {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeOutPatch {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+    .button-like {
+      cursor: pointer;
+      font-size: 20px;
+      padding: 10px 20px;
+      background: #76ff03;
+      color: #0e0e0e;
+      border: none;
+      border-radius: 10px;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .button-like:hover {
+      background: #64dd17;
+      transform: scale(1.05);
+    }
+    #welcomePopup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #1a1a1a;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #76ff03;
+      z-index: 9999;
+      animation: fadeIn 0.5s ease;
+    }
+    #welcomePopup.hide {
+      animation: fadeOut 0.5s ease forwards;
+    }
+    #welcomePopup button {
+      margin-top: 20px;
+      background: #76ff03;
+      color: #0e0e0e;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    #welcomePopup button:hover {
+      background: #64dd17;
+      transform: scale(1.05);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; transform: translate(-50%, -60%); }
+    }
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 32px;
+      }
+      .icons img {
+        width: 40px;
+        height: 40px;
+      }
+      .button-like {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>game<span class="sense">sense</span></h1>
+  <div class="icons">
+    <a href="https://discord.gg/rbxfanclub" target="_blank">
+      <img src="https://github.com/YESSSsj28/yug-proxy/blob/main/images__4_-removebg-preview.png?raw=true" alt="Discord">
+    </a>
+    <a href="https://youtube.com/@gamesenserbx" target="_blank">
+      <img src="https://github.com/YESSSsj28/yug-proxy/blob/main/images__3_-removebg-preview.png?raw=true" alt="YouTube">
+    </a>
+    <button class="button-like" onclick="togglePatchNotes()">Updates</button>
+  </div>
+
+  <div id="patchNotes">
+    <h2>Patch Notes</h2>
+    <p>- Added new icons.<br>
+       - Improved UI/UX.<br>
+       - Responsive design.<br>
+       - Cool hover effects!<br>
+       - Patch notes toggle system.
+    </p>
+  </div>
+
+  <div id="welcomePopup">
+    <h2>Welcome to our website, proudly made by the GameSense Roblox Team!</h2>
+    <p>Stay tuned for updates, new features, and exciting releases. 🎉</p>
+    <button onclick="closeWelcome()">Close</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    function togglePatchNotes() {
+      const patchNotes = document.getElementById('patchNotes');
+      if (patchNotes.style.display === 'block') {
+        patchNotes.classList.add('hide');
+        setTimeout(() => patchNotes.style.display = 'none', 500);
+      } else {
+        patchNotes.classList.remove('hide');
+        patchNotes.style.display = 'block';
+      }
+    }
+
+    function closeWelcome() {
+      const popup = document.getElementById('welcomePopup');
+      popup.classList.add('hide');
+      setTimeout(() => popup.style.display = 'none', 500);
+      localStorage.setItem('welcomeShown', 'true');
+    }
+
+    window.addEventListener('load', () => {
+      if (!localStorage.getItem('welcomeShown')) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } else {
+        document.getElementById('welcomePopup').style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
