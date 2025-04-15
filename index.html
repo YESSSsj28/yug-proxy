@@ -1,145 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Rivals Arena Clone</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1v1.lol Embed</title>
     <style>
-      body { margin: 0; overflow: hidden; background: #111; color: white; }
-      canvas { display: block; }
-      #info {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: rgba(0,0,0,0.6);
-        padding: 10px;
-        font-family: monospace;
-      }
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            overflow: hidden; /* Prevents scrollbars on the main page */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center content horizontally */
+            font-family: sans-serif;
+            background-color: #f0f0f0; /* Light background for the page */
+        }
+        h1 {
+            margin: 20px 0;
+        }
+        .game-container {
+            /* Adjust width and height as needed */
+            width: 90%; 
+            max-width: 1000px; /* Maximum width */
+            height: 75vh; /* Use viewport height for responsiveness */
+            border: 1px solid #ccc; 
+            background-color: #fff; /* Background for the container */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Optional shadow */
+        }
+        iframe {
+            display: block; /* Removes potential bottom space */
+            width: 100%;
+            height: 100%;
+            border: none; /* Removes iframe border */
+        }
+        .note {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #555;
+            text-align: center;
+            padding: 0 10px;
+        }
+        a {
+             color: #007bff;
+             text-decoration: none;
+        }
+        a:hover {
+             text-decoration: underline;
+        }
     </style>
-  </head>
-  <body>
-    <div id="info">Weapon: None</div>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/controls/PointerLockControls.js"></script>
-    <script>
-      let scene = new THREE.Scene();
-      let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-      let renderer = new THREE.WebGLRenderer();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.shadowMap.enabled = true;
-      document.body.appendChild(renderer.domElement);
+</head>
+<body>
 
-      const info = document.getElementById('info');
+    <h1>Play 1v1.lol</h1>
 
-      // Light
-      let light = new THREE.DirectionalLight(0xffffff, 1);
-      light.position.set(10, 20, 10);
-      light.castShadow = true;
-      scene.add(light);
+    <div class="game-container">
+        <iframe src="https://1v1.lol/" 
+                allowfullscreen
+                title="1v1.lol Game">
+            Your browser does not support iframes. Please visit <a href="https://1v1.lol/">1v1.lol</a> directly to play.
+        </iframe>
+    </div>
 
-      scene.add(new THREE.AmbientLight(0x404040));
+    <p class="note">
+        <strong>Disclaimer:</strong> This code uses the official URL `https://1v1.lol/`. However, successful embedding depends entirely on whether `1v1.lol` allows its site to be loaded in an iframe on external pages. If they block it, this embed will not work. The best way to know is to save this code as an HTML file and test it in your browser. For the guaranteed experience, please visit the <a href="https://1v1.lol/">official 1v1.lol website</a> directly.
+    </p>
 
-      // Floor
-      let floorGeo = new THREE.BoxGeometry(50, 1, 50);
-      let floorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-      let floor = new THREE.Mesh(floorGeo, floorMat);
-      floor.receiveShadow = true;
-      floor.position.y = -1;
-      scene.add(floor);
-
-      // Platforms
-      function addPlatform(x, y, z) {
-        let plat = new THREE.Mesh(new THREE.BoxGeometry(10, 1, 10), new THREE.MeshStandardMaterial({ color: 0x4444ff }));
-        plat.position.set(x, y, z);
-        plat.castShadow = true;
-        plat.receiveShadow = true;
-        scene.add(plat);
-      }
-      addPlatform(-15, 4, -10);
-      addPlatform(15, 8, 5);
-      addPlatform(0, 12, 0);
-
-      // Guns
-      const weapons = [];
-
-      function createWeapon(name, color, pos) {
-        let geo = new THREE.BoxGeometry(1, 0.5, 2);
-        let mat = new THREE.MeshStandardMaterial({ color });
-        let mesh = new THREE.Mesh(geo, mat);
-        mesh.position.copy(pos);
-        mesh.name = name;
-        weapons.push(mesh);
-        scene.add(mesh);
-      }
-
-      createWeapon("Gun", 0xff0000, new THREE.Vector3(0, 0, 5));
-      createWeapon("Sword", 0x00ff00, new THREE.Vector3(-10, 5, -5));
-
-      // Controls
-      let controls = new THREE.PointerLockControls(camera, document.body);
-      document.body.addEventListener("click", () => controls.lock());
-      scene.add(controls.getObject());
-
-      let velocity = new THREE.Vector3();
-      let direction = new THREE.Vector3();
-      let canJump = false;
-
-      const keys = {};
-      document.addEventListener("keydown", (e) => keys[e.code] = true);
-      document.addEventListener("keyup", (e) => keys[e.code] = false);
-
-      // Raycaster for weapon pickup
-      let raycaster = new THREE.Raycaster();
-      let pickedWeapon = "None";
-
-      camera.position.y = 2;
-
-      // Game Loop
-      function animate() {
-        requestAnimationFrame(animate);
-
-        const delta = 0.05;
-        velocity.x -= velocity.x * 10.0 * delta;
-        velocity.z -= velocity.z * 10.0 * delta;
-        velocity.y -= 9.8 * 5.0 * delta;
-
-        direction.z = Number(keys["KeyW"]) - Number(keys["KeyS"]);
-        direction.x = Number(keys["KeyD"]) - Number(keys["KeyA"]);
-        direction.normalize();
-
-        if (keys["Space"] && canJump) {
-          velocity.y += 8;
-          canJump = false;
-        }
-
-        if (direction.length() > 0) {
-          velocity.x -= direction.x * 400.0 * delta;
-          velocity.z -= direction.z * 400.0 * delta;
-        }
-
-        controls.moveRight(-velocity.x * delta);
-        controls.moveForward(-velocity.z * delta);
-        controls.getObject().position.y += velocity.y * delta;
-
-        // Ground collision
-        if (controls.getObject().position.y < 2) {
-          velocity.y = 0;
-          controls.getObject().position.y = 2;
-          canJump = true;
-        }
-
-        // Weapon Pickup
-        raycaster.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
-        for (let w of weapons) {
-          if (controls.getObject().position.distanceTo(w.position) < 2) {
-            pickedWeapon = w.name;
-            info.innerText = `Weapon: ${pickedWeapon}`;
-          }
-        }
-
-        renderer.render(scene, camera);
-      }
-
-      animate();
-    </script>
-  </body>
+</body>
 </html>
