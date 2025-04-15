@@ -3,75 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veridian Shard - Interactive 2D Map</title>
+    <title>Veridian Shard - Interactive 2D Map (Improved Fog)</title>
     <style>
         body {
             font-family: sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #e0e0e0;
+            background-color: #333; /* Darker page background */
+            color: #eee; /* Lighter text for dark background */
             margin: 0;
             padding: 20px;
-            overflow: hidden; /* Prevent scrollbars from movement */
+            overflow: hidden;
         }
         h1, p {
-            color: #333;
             text-align: center;
         }
         #map-container {
-            position: relative; /* Needed for absolute positioning if used later */
-            border: 1px solid #333;
+            position: relative;
+            border: 1px solid #555; /* Slightly lighter border */
         }
         svg {
-            display: block; /* Prevent extra space below SVG */
-            background-color: #555; /* Darker background for fog effect */
+            display: block;
+            background-color: #1a1a1a; /* Very dark map background */
         }
 
         /* --- Map Element Styles --- */
         .map-element {
-            opacity: 0.15; /* Initially hidden/fogged */
-            transition: opacity 0.5s ease-in-out; /* Smooth reveal */
+            /* Start completely hidden */
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out, visibility 0s linear 0.4s; /* Delay visibility change until fade out */
         }
         .map-element.visible {
-            opacity: 1; /* Fully visible */
+            /* Become visible */
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.4s ease-in-out; /* Fade in */
         }
         .label { font-family: sans-serif; font-size: 14px; fill: #FFF; text-anchor: middle; pointer-events: none; }
         .poi-label { font-family: sans-serif; font-size: 10px; fill: #DDD; text-anchor: middle; pointer-events: none; }
 
         /* Player */
         #player {
-            fill: #ff0000; /* Bright red player */
+            fill: #ff0000;
             stroke: #ffffff;
             stroke-width: 2;
         }
 
-        /* Specific Biome Colors (will be revealed from fog) */
-        #canopy path { fill: #55a630; stroke: #386641; stroke-width: 2; }
-        #ravine-network path { fill: none; stroke: #6c757d; }
+        /* Specific Biome Colors (revealed) */
+        #canopy path { fill: #4a8c30; stroke: #386641; stroke-width: 2; } /* Slightly darker green */
+        #ravine-network path { fill: none; stroke: #5a6268; } /* Darker grey */
         #impact-heart ellipse { fill: #ade8f4; stroke: #0077b6; stroke-width: 2; }
-        #crystal-caves path { fill: #ffc8dd; stroke: #e07a5f; stroke-width: 1; }
+        #crystal-caves path { fill: #ffc8dd; stroke: #e07a5f; stroke-width: 1; opacity: 0.9; } /* Keep slight transparency */
         .outpost rect { fill: #fca311; stroke: #e85d04; stroke-width: 1.5; }
         .crystal-cluster circle { fill: #72efdd; stroke: #1d3557; stroke-width: 0.5;}
         #reactor rect { fill: #6c757d; stroke: #343a40; stroke-width: 1.5;}
-        #reactor circle { fill: #b5e48c; stroke: #76c893; stroke-width: 1;} /* Reactor Core */
+        #reactor circle { fill: #b5e48c; stroke: #76c893; stroke-width: 1;}
         #sky-bridge line { stroke: #adb5bd; stroke-width: 8; stroke-dasharray: 15 5;}
         #apex-shard path { fill: #fff3b0; stroke: #ffaa00; stroke-width: 1;}
         #grotto circle { fill: #d0f4de; stroke: #588157; stroke-width: 1;}
         .outpost-poi circle { fill: #ffffff; stroke: #333333; stroke-width: 1;}
+        #ruined-shrine path { fill: #bca0dc; stroke: #8064a2; stroke-width: 1;}
 
     </style>
 </head>
 <body>
 
     <h1>Veridian Shard - Interactive 2D Map</h1>
-    <p>Use Arrow Keys to move the red circle and reveal the map.</p>
+    <p>Use Arrow Keys to move the red circle. Only the area around you is visible.</p>
 
     <div id="map-container">
         <svg id="map-svg" width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
 
-            <title>Veridian Shard - Interactive 2D Map</title>
-            <desc>Use arrow keys to move player (red circle) and reveal map areas.</desc>
+            <title>Veridian Shard - Interactive 2D Map (Improved Fog)</title>
+            <desc>Arrow keys move player (red circle), revealing nearby map areas.</desc>
 
             <g id="map-elements">
                 <g id="canopy" class="map-element">
@@ -97,7 +103,7 @@
                 </g>
 
                 <g id="crystal-caves" class="map-element">
-                    <path d="M 350,230 Q 280,200 250,250 T 300, 350 Q 330, 400 380, 380" opacity="0.8"/>
+                    <path d="M 350,230 Q 280,200 250,250 T 300, 350 Q 330, 400 380, 380"/>
                     <text x="280" y="230" class="label">Crystal Caves</text>
                      <g id="grotto">
                         <circle cx="270" cy="280" r="15"/>
@@ -126,11 +132,12 @@
 
                 <g id="reactor" class="map-element">
                     <rect x="50" y="480" width="70" height="70" />
-                    <circle cx="85" cy="515" r="15" /> <line x1="75" y1="470" x2="80" y2="480" stroke="#386641" stroke-width="3"/>
-                    <line x1="100" y1="475" x2="95" y2="480" stroke="#386641" stroke-width="4"/>
-                    <line x1="125" y1="500" x2="120" y2="505" stroke="#386641" stroke-width="3"/>
-                    <line x1="130" y1="530" x2="120" y2="525" stroke="#386641" stroke-width="4"/>
-                    <line x1="70" y1="555" x2="75" y2="550" stroke="#386641" stroke-width="3"/>
+                    <circle cx="85" cy="515" r="15" />
+                    <line x1="75" y1="470" x2="80" y2="480" stroke="#4a8c30" stroke-width="3"/>
+                    <line x1="100" y1="475" x2="95" y2="480" stroke="#4a8c30" stroke-width="4"/>
+                    <line x1="125" y1="500" x2="120" y2="505" stroke="#4a8c30" stroke-width="3"/>
+                    <line x1="130" y1="530" x2="120" y2="525" stroke="#4a8c30" stroke-width="4"/>
+                    <line x1="70" y1="555" x2="75" y2="550" stroke="#4a8c30" stroke-width="3"/>
                     <text x="85" y="475" class="poi-label">Root-Bound Reactor</text>
                 </g>
 
@@ -144,11 +151,21 @@
                  <g class="map-element crystal-cluster">
                      <circle cx="680" cy="280" r="8"/><circle cx="695" cy="290" r="6"/><circle cx="675" cy="295" r="7"/>
                  </g>
+                 <g class="map-element crystal-cluster"> {/* New Cluster */}
+                     <circle cx="480" cy="80" r="4"/><circle cx="495" cy="85" r="6"/><circle cx="485" cy="95" r="5"/>
+                 </g>
+
 
                  <g id="sky-bridge" class="map-element">
                      <line x1="300" y1="330" x2="500" y2="370"/>
                      <text x="400" y="345" class="poi-label">The Sky-Bridge</text>
                  </g>
+
+                 <g id="ruined-shrine" class="map-element">
+                    <path d="M 650 70 L 660 60 L 670 70 L 665 70 L 665 90 L 675 95 L 675 105 L 645 105 L 645 95 L 655 90 L 655 70 Z" />
+                    <text x="660" y="55" class="poi-label">Ruined Shrine</text>
+                 </g>
+
             </g>
 
             <circle id="player" cx="400" cy="300" r="10"/>
@@ -157,86 +174,66 @@
     </div>
 
     <script>
-        // --- JavaScript for Interactivity ---
-
         const player = document.getElementById('player');
-        const mapElements = document.querySelectorAll('#map-elements > .map-element'); // Select direct children of the main group
+        const mapElements = document.querySelectorAll('#map-elements > .map-element');
         const svg = document.getElementById('map-svg');
         const viewBox = svg.viewBox.baseVal;
 
         let playerX = parseFloat(player.getAttribute('cx'));
         let playerY = parseFloat(player.getAttribute('cy'));
-        const playerSpeed = 15; // How many units the player moves per key press
-        const visibilityRadius = 150; // How far the player can "see"
+        const playerSpeed = 10; // Adjusted speed slightly
+        const visibilityRadius = 120; // Slightly smaller radius for tighter view
 
-        // Function to update map visibility based on player position
         function updateVisibility() {
             mapElements.forEach(element => {
-                // Get bounding box of the element (approximate position and size)
-                // Note: getBBox() can be performance intensive if called very often on many complex elements
                 try {
                     const bbox = element.getBBox();
+                    // Calculate distance from player center to element center
                     const elementCenterX = bbox.x + bbox.width / 2;
                     const elementCenterY = bbox.y + bbox.height / 2;
-
-                    // Calculate distance between player and element center
                     const dx = playerX - elementCenterX;
                     const dy = playerY - elementCenterY;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    // Check if the element center is within the visibility radius
-                    // A more accurate check would consider the element's corners/edges vs the radius
-                    if (distance < visibilityRadius + Math.max(bbox.width, bbox.height) / 2) { // Add rough element size to radius
+                    // Check if element's *bounding box* is roughly within radius.
+                    // This is an approximation. Closer distance check helps reveal smaller things inside larger bounding boxes.
+                    // A simple threshold check:
+                    const revealThreshold = visibilityRadius + Math.max(bbox.width, bbox.height) / 3; // Adjust sensitivity
+
+                    if (distance < revealThreshold) {
                         element.classList.add('visible');
                     } else {
-                        // Optional: Fade out elements that leave the radius
-                         // element.classList.remove('visible');
-                         // Currently, once revealed, it stays revealed. Remove the line above to keep it revealed.
+                        // **** This is the change: Remove 'visible' if outside radius ****
+                        element.classList.remove('visible');
                     }
                 } catch (e) {
-                    // getBBox can fail for hidden or non-rendered elements, ignore errors
-                     console.warn("Could not get BBox for element:", element.id, e);
+                     // Ignore errors for elements that might not have a BBox yet or are hidden
+                     // console.warn("Could not get BBox or update visibility for element:", element.id);
                 }
             });
         }
 
-        // Handle Keyboard Input
         document.addEventListener('keydown', (event) => {
             let moved = false;
             switch (event.key) {
-                case 'ArrowUp':
-                    playerY -= playerSpeed;
-                    moved = true;
-                    break;
-                case 'ArrowDown':
-                    playerY += playerSpeed;
-                    moved = true;
-                    break;
-                case 'ArrowLeft':
-                    playerX -= playerSpeed;
-                    moved = true;
-                    break;
-                case 'ArrowRight':
-                    playerX += playerSpeed;
-                    moved = true;
-                    break;
+                case 'ArrowUp': playerY -= playerSpeed; moved = true; break;
+                case 'ArrowDown': playerY += playerSpeed; moved = true; break;
+                case 'ArrowLeft': playerX -= playerSpeed; moved = true; break;
+                case 'ArrowRight': playerX += playerSpeed; moved = true; break;
             }
 
             if (moved) {
-                // Keep player within SVG bounds (approx)
-                playerX = Math.max(10, Math.min(viewBox.width - 10, playerX));
-                playerY = Math.max(10, Math.min(viewBox.height - 10, playerY));
+                // Clamp player position to stay within viewbox bounds
+                playerX = Math.max(viewBox.x + 10, Math.min(viewBox.x + viewBox.width - 10, playerX));
+                playerY = Math.max(viewBox.y + 10, Math.min(viewBox.y + viewBox.height - 10, playerY));
 
-                // Update player circle position
                 player.setAttribute('cx', playerX);
                 player.setAttribute('cy', playerY);
-
-                // Update map visibility
-                updateVisibility();
+                updateVisibility(); // Update visibility after every move
             }
         });
 
-        // Initial visibility update when the page loads
+        // Initial visibility update
         updateVisibility();
 
     </script>
