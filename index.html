@@ -1,242 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veridian Shard - Interactive 2D Map (Improved Fog)</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rivals Arena Clone</title>
     <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #333; /* Darker page background */
-            color: #eee; /* Lighter text for dark background */
-            margin: 0;
-            padding: 20px;
-            overflow: hidden;
-        }
-        h1, p {
-            text-align: center;
-        }
-        #map-container {
-            position: relative;
-            border: 1px solid #555; /* Slightly lighter border */
-        }
-        svg {
-            display: block;
-            background-color: #1a1a1a; /* Very dark map background */
-        }
-
-        /* --- Map Element Styles --- */
-        .map-element {
-            /* Start completely hidden */
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.4s ease-in-out, visibility 0s linear 0.4s; /* Delay visibility change until fade out */
-        }
-        .map-element.visible {
-            /* Become visible */
-            visibility: visible;
-            opacity: 1;
-            transition: opacity 0.4s ease-in-out; /* Fade in */
-        }
-        .label { font-family: sans-serif; font-size: 14px; fill: #FFF; text-anchor: middle; pointer-events: none; }
-        .poi-label { font-family: sans-serif; font-size: 10px; fill: #DDD; text-anchor: middle; pointer-events: none; }
-
-        /* Player */
-        #player {
-            fill: #ff0000;
-            stroke: #ffffff;
-            stroke-width: 2;
-        }
-
-        /* Specific Biome Colors (revealed) */
-        #canopy path { fill: #4a8c30; stroke: #386641; stroke-width: 2; } /* Slightly darker green */
-        #ravine-network path { fill: none; stroke: #5a6268; } /* Darker grey */
-        #impact-heart ellipse { fill: #ade8f4; stroke: #0077b6; stroke-width: 2; }
-        #crystal-caves path { fill: #ffc8dd; stroke: #e07a5f; stroke-width: 1; opacity: 0.9; } /* Keep slight transparency */
-        .outpost rect { fill: #fca311; stroke: #e85d04; stroke-width: 1.5; }
-        .crystal-cluster circle { fill: #72efdd; stroke: #1d3557; stroke-width: 0.5;}
-        #reactor rect { fill: #6c757d; stroke: #343a40; stroke-width: 1.5;}
-        #reactor circle { fill: #b5e48c; stroke: #76c893; stroke-width: 1;}
-        #sky-bridge line { stroke: #adb5bd; stroke-width: 8; stroke-dasharray: 15 5;}
-        #apex-shard path { fill: #fff3b0; stroke: #ffaa00; stroke-width: 1;}
-        #grotto circle { fill: #d0f4de; stroke: #588157; stroke-width: 1;}
-        .outpost-poi circle { fill: #ffffff; stroke: #333333; stroke-width: 1;}
-        #ruined-shrine path { fill: #bca0dc; stroke: #8064a2; stroke-width: 1;}
-
+      body { margin: 0; overflow: hidden; background: #111; color: white; }
+      canvas { display: block; }
+      #info {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0,0,0,0.6);
+        padding: 10px;
+        font-family: monospace;
+      }
     </style>
-</head>
-<body>
-
-    <h1>Veridian Shard - Interactive 2D Map</h1>
-    <p>Use Arrow Keys to move the red circle. Only the area around you is visible.</p>
-
-    <div id="map-container">
-        <svg id="map-svg" width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-
-            <title>Veridian Shard - Interactive 2D Map (Improved Fog)</title>
-            <desc>Arrow keys move player (red circle), revealing nearby map areas.</desc>
-
-            <g id="map-elements">
-                <g id="canopy" class="map-element">
-                    <path d="M 0,0 L 800,0 L 800,600 L 0,600 Z" />
-                    <text x="150" y="80" class="label">Overgrown Canopy</text>
-                    <text x="650" y="520" class="label">Overgrown Canopy</text>
-                </g>
-
-                <g id="ravine-network" class="map-element">
-                    <path d="M 100,600 Q 250,300 400,350 T 700,50" stroke-width="15"/>
-                    <path d="M 800,450 Q 500,400 450,200 T 0,150" stroke-width="12"/>
-                    <text x="200" y="450" class="label" transform="rotate(-20 200,450)">Ravine Network</text>
-                    <text x="600" y="200" class="label" transform="rotate(30 600,200)">Ravine Network</text>
-                </g>
-
-                <g id="impact-heart" class="map-element">
-                     <ellipse cx="400" cy="300" rx="120" ry="90"/>
-                     <text x="400" y="305" class="label">Impact Heart</text>
-                     <g id="apex-shard">
-                         <path d="M400,240 L410,265 L435,265 L415,280 L425,305 L400,290 L375,305 L385,280 L365,265 L390,265 Z"/>
-                         <text x="400" y="235" class="poi-label">Apex Shard</text>
-                     </g>
-                </g>
-
-                <g id="crystal-caves" class="map-element">
-                    <path d="M 350,230 Q 280,200 250,250 T 300, 350 Q 330, 400 380, 380"/>
-                    <text x="280" y="230" class="label">Crystal Caves</text>
-                     <g id="grotto">
-                        <circle cx="270" cy="280" r="15"/>
-                        <text x="270" y="305" class="poi-label">Bioluminescent Grotto</text>
-                     </g>
-                </g>
-
-                <g id="outpost1" class="map-element outpost">
-                    <rect x="600" y="400" width="80" height="60" transform="rotate(15 640,430)"/>
-                    <text x="640" y="435" class="label">Research</text>
-                    <text x="640" y="450" class="label">Outpost</text>
-                </g>
-                 <g id="outpost2" class="map-element outpost">
-                    <rect x="120" y="130" width="100" height="70" transform="rotate(-10 170,165)"/>
-                    <text x="170" y="170" class="label">Research</text>
-                    <text x="170" y="185" class="label">Outpost</text>
-                    <g id="lab-delta-poi" class="outpost-poi">
-                        <circle cx="170" cy="150" r="8"/>
-                        <text x="170" y="138" class="poi-label">Hydroponics Lab Delta</text>
-                    </g>
-                </g>
-                 <g id="outpost3" class="map-element outpost">
-                    <rect x="450" y="480" width="90" height="50" transform="rotate(-5 495,505)"/>
-                    <text x="495" y="510" class="label">Outpost Gamma</text>
-                 </g>
-
-                <g id="reactor" class="map-element">
-                    <rect x="50" y="480" width="70" height="70" />
-                    <circle cx="85" cy="515" r="15" />
-                    <line x1="75" y1="470" x2="80" y2="480" stroke="#4a8c30" stroke-width="3"/>
-                    <line x1="100" y1="475" x2="95" y2="480" stroke="#4a8c30" stroke-width="4"/>
-                    <line x1="125" y1="500" x2="120" y2="505" stroke="#4a8c30" stroke-width="3"/>
-                    <line x1="130" y1="530" x2="120" y2="525" stroke="#4a8c30" stroke-width="4"/>
-                    <line x1="70" y1="555" x2="75" y2="550" stroke="#4a8c30" stroke-width="3"/>
-                    <text x="85" y="475" class="poi-label">Root-Bound Reactor</text>
-                </g>
-
-                <g class="map-element crystal-cluster">
-                    <circle cx="550" cy="120" r="5"/><circle cx="560" cy="130" r="7"/><circle cx="545" cy="135" r="6"/>
-                    <text x="550" y="115" class="poi-label">Crystal Cluster</text>
-                 </g>
-                 <g class="map-element crystal-cluster">
-                    <circle cx="100" cy="350" r="6"/><circle cx="112" cy="345" r="4"/><circle cx="105" cy="360" r="5"/>
-                 </g>
-                 <g class="map-element crystal-cluster">
-                     <circle cx="680" cy="280" r="8"/><circle cx="695" cy="290" r="6"/><circle cx="675" cy="295" r="7"/>
-                 </g>
-                 <g class="map-element crystal-cluster"> {/* New Cluster */}
-                     <circle cx="480" cy="80" r="4"/><circle cx="495" cy="85" r="6"/><circle cx="485" cy="95" r="5"/>
-                 </g>
-
-
-                 <g id="sky-bridge" class="map-element">
-                     <line x1="300" y1="330" x2="500" y2="370"/>
-                     <text x="400" y="345" class="poi-label">The Sky-Bridge</text>
-                 </g>
-
-                 <g id="ruined-shrine" class="map-element">
-                    <path d="M 650 70 L 660 60 L 670 70 L 665 70 L 665 90 L 675 95 L 675 105 L 645 105 L 645 95 L 655 90 L 655 70 Z" />
-                    <text x="660" y="55" class="poi-label">Ruined Shrine</text>
-                 </g>
-
-            </g>
-
-            <circle id="player" cx="400" cy="300" r="10"/>
-
-        </svg>
-    </div>
-
+  </head>
+  <body>
+    <div id="info">Weapon: None</div>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/controls/PointerLockControls.js"></script>
     <script>
-        const player = document.getElementById('player');
-        const mapElements = document.querySelectorAll('#map-elements > .map-element');
-        const svg = document.getElementById('map-svg');
-        const viewBox = svg.viewBox.baseVal;
+      let scene = new THREE.Scene();
+      let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      let renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true;
+      document.body.appendChild(renderer.domElement);
 
-        let playerX = parseFloat(player.getAttribute('cx'));
-        let playerY = parseFloat(player.getAttribute('cy'));
-        const playerSpeed = 10; // Adjusted speed slightly
-        const visibilityRadius = 120; // Slightly smaller radius for tighter view
+      const info = document.getElementById('info');
 
-        function updateVisibility() {
-            mapElements.forEach(element => {
-                try {
-                    const bbox = element.getBBox();
-                    // Calculate distance from player center to element center
-                    const elementCenterX = bbox.x + bbox.width / 2;
-                    const elementCenterY = bbox.y + bbox.height / 2;
-                    const dx = playerX - elementCenterX;
-                    const dy = playerY - elementCenterY;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+      // Light
+      let light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(10, 20, 10);
+      light.castShadow = true;
+      scene.add(light);
 
-                    // Check if element's *bounding box* is roughly within radius.
-                    // This is an approximation. Closer distance check helps reveal smaller things inside larger bounding boxes.
-                    // A simple threshold check:
-                    const revealThreshold = visibilityRadius + Math.max(bbox.width, bbox.height) / 3; // Adjust sensitivity
+      scene.add(new THREE.AmbientLight(0x404040));
 
-                    if (distance < revealThreshold) {
-                        element.classList.add('visible');
-                    } else {
-                        // **** This is the change: Remove 'visible' if outside radius ****
-                        element.classList.remove('visible');
-                    }
-                } catch (e) {
-                     // Ignore errors for elements that might not have a BBox yet or are hidden
-                     // console.warn("Could not get BBox or update visibility for element:", element.id);
-                }
-            });
+      // Floor
+      let floorGeo = new THREE.BoxGeometry(50, 1, 50);
+      let floorMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+      let floor = new THREE.Mesh(floorGeo, floorMat);
+      floor.receiveShadow = true;
+      floor.position.y = -1;
+      scene.add(floor);
+
+      // Platforms
+      function addPlatform(x, y, z) {
+        let plat = new THREE.Mesh(new THREE.BoxGeometry(10, 1, 10), new THREE.MeshStandardMaterial({ color: 0x4444ff }));
+        plat.position.set(x, y, z);
+        plat.castShadow = true;
+        plat.receiveShadow = true;
+        scene.add(plat);
+      }
+      addPlatform(-15, 4, -10);
+      addPlatform(15, 8, 5);
+      addPlatform(0, 12, 0);
+
+      // Guns
+      const weapons = [];
+
+      function createWeapon(name, color, pos) {
+        let geo = new THREE.BoxGeometry(1, 0.5, 2);
+        let mat = new THREE.MeshStandardMaterial({ color });
+        let mesh = new THREE.Mesh(geo, mat);
+        mesh.position.copy(pos);
+        mesh.name = name;
+        weapons.push(mesh);
+        scene.add(mesh);
+      }
+
+      createWeapon("Gun", 0xff0000, new THREE.Vector3(0, 0, 5));
+      createWeapon("Sword", 0x00ff00, new THREE.Vector3(-10, 5, -5));
+
+      // Controls
+      let controls = new THREE.PointerLockControls(camera, document.body);
+      document.body.addEventListener("click", () => controls.lock());
+      scene.add(controls.getObject());
+
+      let velocity = new THREE.Vector3();
+      let direction = new THREE.Vector3();
+      let canJump = false;
+
+      const keys = {};
+      document.addEventListener("keydown", (e) => keys[e.code] = true);
+      document.addEventListener("keyup", (e) => keys[e.code] = false);
+
+      // Raycaster for weapon pickup
+      let raycaster = new THREE.Raycaster();
+      let pickedWeapon = "None";
+
+      camera.position.y = 2;
+
+      // Game Loop
+      function animate() {
+        requestAnimationFrame(animate);
+
+        const delta = 0.05;
+        velocity.x -= velocity.x * 10.0 * delta;
+        velocity.z -= velocity.z * 10.0 * delta;
+        velocity.y -= 9.8 * 5.0 * delta;
+
+        direction.z = Number(keys["KeyW"]) - Number(keys["KeyS"]);
+        direction.x = Number(keys["KeyD"]) - Number(keys["KeyA"]);
+        direction.normalize();
+
+        if (keys["Space"] && canJump) {
+          velocity.y += 8;
+          canJump = false;
         }
 
-        document.addEventListener('keydown', (event) => {
-            let moved = false;
-            switch (event.key) {
-                case 'ArrowUp': playerY -= playerSpeed; moved = true; break;
-                case 'ArrowDown': playerY += playerSpeed; moved = true; break;
-                case 'ArrowLeft': playerX -= playerSpeed; moved = true; break;
-                case 'ArrowRight': playerX += playerSpeed; moved = true; break;
-            }
+        if (direction.length() > 0) {
+          velocity.x -= direction.x * 400.0 * delta;
+          velocity.z -= direction.z * 400.0 * delta;
+        }
 
-            if (moved) {
-                // Clamp player position to stay within viewbox bounds
-                playerX = Math.max(viewBox.x + 10, Math.min(viewBox.x + viewBox.width - 10, playerX));
-                playerY = Math.max(viewBox.y + 10, Math.min(viewBox.y + viewBox.height - 10, playerY));
+        controls.moveRight(-velocity.x * delta);
+        controls.moveForward(-velocity.z * delta);
+        controls.getObject().position.y += velocity.y * delta;
 
-                player.setAttribute('cx', playerX);
-                player.setAttribute('cy', playerY);
-                updateVisibility(); // Update visibility after every move
-            }
-        });
+        // Ground collision
+        if (controls.getObject().position.y < 2) {
+          velocity.y = 0;
+          controls.getObject().position.y = 2;
+          canJump = true;
+        }
 
-        // Initial visibility update
-        updateVisibility();
+        // Weapon Pickup
+        raycaster.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
+        for (let w of weapons) {
+          if (controls.getObject().position.distanceTo(w.position) < 2) {
+            pickedWeapon = w.name;
+            info.innerText = `Weapon: ${pickedWeapon}`;
+          }
+        }
 
+        renderer.render(scene, camera);
+      }
+
+      animate();
     </script>
-
-</body>
+  </body>
 </html>
