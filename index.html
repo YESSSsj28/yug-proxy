@@ -1,264 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>gamesense</title>
-  <style>
-    body {
-      margin: 0;
-      background-color: #0e0e0e;
-      color: white;
-      font-family: 'Arial', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      text-align: center;
-      overflow-x: hidden;
-      animation: fadeInPage 1s ease;
-    }
-    @keyframes fadeInPage {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    h1 {
-      font-size: 48px;
-    }
-    .sense {
-      color: #76ff03;
-    }
-    .icons {
-      margin-top: 30px;
-      display: flex;
-      gap: 30px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .icons a, .icons button {
-      text-decoration: none;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .icons a:hover, .icons button:hover {
-      transform: scale(1.2);
-      box-shadow: 0 0 10px #76ff03;
-    }
-    .icons img {
-      width: 50px;
-      height: 50px;
-      object-fit: contain;
-    }
-    .button-like {
-      cursor: pointer;
-      font-size: 20px;
-      padding: 10px 20px;
-      background: #76ff03;
-      color: #0e0e0e;
-      border: none;
-      border-radius: 10px;
-      transition: background 0.3s ease, transform 0.3s ease;
-    }
-    .button-like:hover {
-      background: #64dd17;
-      transform: scale(1.05);
-    }
-
-    /* Patch Notes */
-    #patchNotes, #mediaSection {
-      display: none;
-      margin-top: 30px;
-      background: #1a1a1a;
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 600px;
-      animation: fadeInPatch 0.5s ease;
-    }
-    @keyframes fadeInPatch {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Welcome popup */
-    #welcomePopup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #1a1a1a;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px #76ff03;
-      z-index: 9999;
-      animation: fadeIn 0.5s ease;
-    }
-    #welcomePopup.hide {
-      animation: fadeOut 0.5s ease forwards;
-    }
-    #welcomePopup button {
-      margin-top: 20px;
-      background: #76ff03;
-      color: #0e0e0e;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.3s;
-    }
-    #welcomePopup button:hover {
-      background: #64dd17;
-      transform: scale(1.05);
-    }
-
-    /* Top Bar */
-    #topBar {
-      width: 100%;
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 1000;
-    }
-    body.loaded #topBar {
-      display: block;
-    }
-    #topBar a {
-      color: white;
-      text-decoration: none;
-      margin-left: 15px;
-      transition: color 0.3s;
-    }
-    #topBar a:hover {
-      color: #76ff03;
-    }
-
-    #mediaSection img {
-      max-width: 100%;
-      border-radius: 10px;
-      margin-top: 15px;
-    }
-
-    .close-btn {
-      margin-top: 15px;
-      background: #ff1744;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .close-btn:hover {
-      background: #d50000;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; transform: translate(-50%, -60%); }
-    }
-
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 32px;
-      }
-      .icons img {
-        width: 40px;
-        height: 40px;
-      }
-      .button-like {
-        font-size: 16px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veridian Shard - 2D Map</title>
+    <style>
+        /* Basic styling for the page */
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column; /* Stack title and SVG vertically */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Ensure content centers vertically */
+            background-color: #e0e0e0; /* Light grey page background */
+            margin: 20px; /* Add some margin around the content */
+            padding: 0;
+        }
+        h1 {
+            margin-bottom: 20px; /* Space between title and map */
+            color: #333;
+        }
+        /* Style the SVG container */
+        svg {
+            border: 1px solid #333; /* Add a border around the SVG */
+            background-color: #f0f0f0; /* Background color set inside SVG, but can be fallback */
+            max-width: 100%; /* Ensure SVG scales down on smaller screens */
+            height: auto; /* Maintain aspect ratio when scaling */
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Top Bar -->
-  <div id="topBar">
-    <div style="background-color: #1a1a1a; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; font-size: 14px;">
-      <div><strong style="color: #76ff03;">game</strong>sense</div>
-      <div>
-        <a href="#" onclick="goHome()">Home</a>
-        <a href="#" onclick="showPatchNotes()">Updates</a>
-        <a href="https://discord.gg/rbxfanclub" target="_blank">Purchase</a>
-        <a href="#" onclick="showMedia()">Media</a>
-      </div>
-    </div>
-  </div>
+    <h1>Veridian Shard - 2D Conceptual Map</h1>
 
-  <h1 style="margin-top: 80px;">game<span class="sense">sense</span></h1>
+    <svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
 
-  <div class="icons">
-    <a href="https://discord.gg/rbxfanclub" target="_blank">
-      <img src="https://github.com/YESSSsj28/yug-proxy/blob/main/images__4_-removebg-preview.png?raw=true" alt="Discord" />
-    </a>
-    <a href="https://youtube.com/@gamesenserbx" target="_blank">
-      <img src="https://github.com/YESSSsj28/yug-proxy/blob/main/images__3_-removebg-preview.png?raw=true" alt="YouTube" />
-    </a>
-    <button class="button-like" onclick="showPatchNotes()">Updates</button>
-  </div>
+        <title>Veridian Shard - 2D Conceptual Map Layout</title>
+        <desc>A schematic 2D representation of the Veridian Shard Battle Royale map concept.</desc>
 
-  <div id="patchNotes">
-    <h2>Patch Notes</h2>
-    <p>- Added new icons.<br>
-       - Improved UI/UX.<br>
-       - Responsive design.<br>
-       - Cool hover effects!<br>
-       - Patch notes toggle system.
-    </p>
-  </div>
+        <defs>
+            <style type="text/css"><![CDATA[
+                .label { font-family: sans-serif; font-size: 14px; fill: black; text-anchor: middle; }
+                .poi-label { font-family: sans-serif; font-size: 10px; fill: #333333; text-anchor: middle; }
+                /* Removed title-label class as we have an H1 now */
+            ]]></style>
+        </defs>
 
-  <div id="mediaSection">
-    <h2>Here's the UI of our script!</h2>
-    <p>More leaks coming here 👀</p>
-    <img src="https://github.com/YESSSsj28/yug-proxy/blob/main/Screenshot%202025-04-08%205.43.30%20PM.png?raw=true" alt="UI Screenshot" />
-    <button class="close-btn" onclick="goHome()">❌</button>
-  </div>
+        <path d="M 50,50 L 750,50 L 750,550 L 50,550 Z"
+              fill="#55a630" stroke="#386641" stroke-width="2"
+              id="canopy"/>
+        <text x="150" y="80" class="label">Overgrown Canopy</text>
+         <text x="650" y="520" class="label">Overgrown Canopy</text>
 
-  <div id="welcomePopup">
-    <h2>Welcome to our website, proudly made by the GameSense Roblox Team!</h2>
-    <p>Stay tuned for updates, new features, and exciting releases. 🎉</p>
-    <button onclick="closeWelcome()">Close</button>
-  </div>
+        <path d="M 100,550 Q 250,300 400,350 T 700,100"
+              fill="none" stroke="#6c757d" stroke-width="15"
+              id="ravine1"/>
+        <path d="M 750,450 Q 500,400 450,200 T 50,150"
+              fill="none" stroke="#6c757d" stroke-width="12"
+              id="ravine2"/>
+         <text x="200" y="450" class="label" transform="rotate(-20 200,450)">Ravine Network</text>
+         <text x="600" y="200" class="label" transform="rotate(30 600,200)">Ravine Network</text>
 
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-  <script>
-    function closeWelcome() {
-      document.getElementById('welcomePopup').classList.add('hide');
-      setTimeout(() => {
-        document.getElementById('welcomePopup').style.display = 'none';
-        document.body.classList.add('loaded');
-      }, 500);
-      localStorage.setItem('welcomeShown', 'true');
-    }
+        <ellipse cx="400" cy="300" rx="120" ry="90"
+                 fill="#ade8f4" stroke="#0077b6" stroke-width="2"
+                 id="impact-heart"/>
+        <text x="400" y="305" class="label">Impact Heart</text>
 
-    function showPatchNotes() {
-      document.getElementById('patchNotes').style.display = 'block';
-      document.getElementById('mediaSection').style.display = 'none';
-    }
+        <path d="M 350,230 Q 280,200 250,250 T 300, 350 Q 330, 400 380, 380"
+              fill="#ffc8dd" stroke="#e07a5f" stroke-width="1" opacity="0.8"
+              id="crystal-caves"/>
+        <text x="280" y="230" class="label">Crystal Caves</text>
 
-    function showMedia() {
-      document.getElementById('mediaSection').style.display = 'block';
-      document.getElementById('patchNotes').style.display = 'none';
-    }
+        <rect x="600" y="400" width="80" height="60"
+              fill="#fca311" stroke="#e85d04" stroke-width="1.5"
+              id="outpost1" transform="rotate(15 640,430)"/>
+        <text x="640" y="435" class="label">Research</text>
+        <text x="640" y="450" class="label">Outpost</text>
 
-    function goHome() {
-      document.getElementById('patchNotes').style.display = 'none';
-      document.getElementById('mediaSection').style.display = 'none';
-    }
+        <rect x="120" y="130" width="100" height="70"
+              fill="#fca311" stroke="#e85d04" stroke-width="1.5"
+              id="outpost2" transform="rotate(-10 170,165)"/>
+        <text x="170" y="170" class="label">Research</text>
+         <text x="170" y="185" class="label">Outpost</text>
 
-    window.addEventListener('load', () => {
-      if (!localStorage.getItem('welcomeShown')) {
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-      } else {
-        document.getElementById('welcomePopup').style.display = 'none';
-        document.body.classList.add('loaded');
-      }
-    });
-  </script>
-</body>
+
+        <path d="M400,240 L410,265 L435,265 L415,280 L425,305 L400,290 L375,305 L385,280 L365,265 L390,265 Z"
+              fill="#fff3b0" stroke="#ffaa00" stroke-width="1"/>
+        <text x="400" y="235" class="poi-label">Apex Shard</text>
+
+        <circle cx="270" cy="280" r="15" fill="#d0f4de" stroke="#588157" stroke-width="1"/>
+        <text x="270" y="305" class="poi-label">Bioluminescent Grotto</text>
+
+        <circle cx="170" cy="150" r="8" fill="#ffffff" stroke="#333333" stroke-width="1"/>
+         <text x="170" y="138" class="poi-label">Hydroponics Lab Delta</text>
+
+         <line x1="300" y1="330" x2="500" y2="370" stroke="#adb5bd" stroke-width="8" stroke-dasharray="15 5"/>
+         <text x="400" y="345" class="poi-label">The Sky-Bridge</text>
+
+    </svg>
+    </body>
 </html>
