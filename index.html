@@ -3,101 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veridian Shard - 2D Map</title>
+    <title>Veridian Shard - Interactive 2D Map</title>
     <style>
-        /* Basic styling for the page */
         body {
             font-family: sans-serif;
             display: flex;
-            flex-direction: column; /* Stack title and SVG vertically */
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            min-height: 100vh; /* Ensure content centers vertically */
-            background-color: #e0e0e0; /* Light grey page background */
-            margin: 20px; /* Add some margin around the content */
-            padding: 0;
+            background-color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden; /* Prevent scrollbars from movement */
         }
-        h1 {
-            margin-bottom: 20px; /* Space between title and map */
+        h1, p {
             color: #333;
+            text-align: center;
         }
-        /* Style the SVG container */
+        #map-container {
+            position: relative; /* Needed for absolute positioning if used later */
+            border: 1px solid #333;
+        }
         svg {
-            border: 1px solid #333; /* Add a border around the SVG */
-            background-color: #f0f0f0; /* Background color set inside SVG, but can be fallback */
-            max-width: 100%; /* Ensure SVG scales down on smaller screens */
-            height: auto; /* Maintain aspect ratio when scaling */
+            display: block; /* Prevent extra space below SVG */
+            background-color: #555; /* Darker background for fog effect */
         }
+
+        /* --- Map Element Styles --- */
+        .map-element {
+            opacity: 0.15; /* Initially hidden/fogged */
+            transition: opacity 0.5s ease-in-out; /* Smooth reveal */
+        }
+        .map-element.visible {
+            opacity: 1; /* Fully visible */
+        }
+        .label { font-family: sans-serif; font-size: 14px; fill: #FFF; text-anchor: middle; pointer-events: none; }
+        .poi-label { font-family: sans-serif; font-size: 10px; fill: #DDD; text-anchor: middle; pointer-events: none; }
+
+        /* Player */
+        #player {
+            fill: #ff0000; /* Bright red player */
+            stroke: #ffffff;
+            stroke-width: 2;
+        }
+
+        /* Specific Biome Colors (will be revealed from fog) */
+        #canopy path { fill: #55a630; stroke: #386641; stroke-width: 2; }
+        #ravine-network path { fill: none; stroke: #6c757d; }
+        #impact-heart ellipse { fill: #ade8f4; stroke: #0077b6; stroke-width: 2; }
+        #crystal-caves path { fill: #ffc8dd; stroke: #e07a5f; stroke-width: 1; }
+        .outpost rect { fill: #fca311; stroke: #e85d04; stroke-width: 1.5; }
+        .crystal-cluster circle { fill: #72efdd; stroke: #1d3557; stroke-width: 0.5;}
+        #reactor rect { fill: #6c757d; stroke: #343a40; stroke-width: 1.5;}
+        #reactor circle { fill: #b5e48c; stroke: #76c893; stroke-width: 1;} /* Reactor Core */
+        #sky-bridge line { stroke: #adb5bd; stroke-width: 8; stroke-dasharray: 15 5;}
+        #apex-shard path { fill: #fff3b0; stroke: #ffaa00; stroke-width: 1;}
+        #grotto circle { fill: #d0f4de; stroke: #588157; stroke-width: 1;}
+        .outpost-poi circle { fill: #ffffff; stroke: #333333; stroke-width: 1;}
+
     </style>
 </head>
 <body>
 
-    <h1>Veridian Shard - 2D Conceptual Map</h1>
+    <h1>Veridian Shard - Interactive 2D Map</h1>
+    <p>Use Arrow Keys to move the red circle and reveal the map.</p>
 
-    <svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+    <div id="map-container">
+        <svg id="map-svg" width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
 
-        <title>Veridian Shard - 2D Conceptual Map Layout</title>
-        <desc>A schematic 2D representation of the Veridian Shard Battle Royale map concept.</desc>
+            <title>Veridian Shard - Interactive 2D Map</title>
+            <desc>Use arrow keys to move player (red circle) and reveal map areas.</desc>
 
-        <defs>
-            <style type="text/css"><![CDATA[
-                .label { font-family: sans-serif; font-size: 14px; fill: black; text-anchor: middle; }
-                .poi-label { font-family: sans-serif; font-size: 10px; fill: #333333; text-anchor: middle; }
-                /* Removed title-label class as we have an H1 now */
-            ]]></style>
-        </defs>
+            <g id="map-elements">
+                <g id="canopy" class="map-element">
+                    <path d="M 0,0 L 800,0 L 800,600 L 0,600 Z" />
+                    <text x="150" y="80" class="label">Overgrown Canopy</text>
+                    <text x="650" y="520" class="label">Overgrown Canopy</text>
+                </g>
 
-        <path d="M 50,50 L 750,50 L 750,550 L 50,550 Z"
-              fill="#55a630" stroke="#386641" stroke-width="2"
-              id="canopy"/>
-        <text x="150" y="80" class="label">Overgrown Canopy</text>
-         <text x="650" y="520" class="label">Overgrown Canopy</text>
+                <g id="ravine-network" class="map-element">
+                    <path d="M 100,600 Q 250,300 400,350 T 700,50" stroke-width="15"/>
+                    <path d="M 800,450 Q 500,400 450,200 T 0,150" stroke-width="12"/>
+                    <text x="200" y="450" class="label" transform="rotate(-20 200,450)">Ravine Network</text>
+                    <text x="600" y="200" class="label" transform="rotate(30 600,200)">Ravine Network</text>
+                </g>
 
-        <path d="M 100,550 Q 250,300 400,350 T 700,100"
-              fill="none" stroke="#6c757d" stroke-width="15"
-              id="ravine1"/>
-        <path d="M 750,450 Q 500,400 450,200 T 50,150"
-              fill="none" stroke="#6c757d" stroke-width="12"
-              id="ravine2"/>
-         <text x="200" y="450" class="label" transform="rotate(-20 200,450)">Ravine Network</text>
-         <text x="600" y="200" class="label" transform="rotate(30 600,200)">Ravine Network</text>
+                <g id="impact-heart" class="map-element">
+                     <ellipse cx="400" cy="300" rx="120" ry="90"/>
+                     <text x="400" y="305" class="label">Impact Heart</text>
+                     <g id="apex-shard">
+                         <path d="M400,240 L410,265 L435,265 L415,280 L425,305 L400,290 L375,305 L385,280 L365,265 L390,265 Z"/>
+                         <text x="400" y="235" class="poi-label">Apex Shard</text>
+                     </g>
+                </g>
 
-        <ellipse cx="400" cy="300" rx="120" ry="90"
-                 fill="#ade8f4" stroke="#0077b6" stroke-width="2"
-                 id="impact-heart"/>
-        <text x="400" y="305" class="label">Impact Heart</text>
+                <g id="crystal-caves" class="map-element">
+                    <path d="M 350,230 Q 280,200 250,250 T 300, 350 Q 330, 400 380, 380" opacity="0.8"/>
+                    <text x="280" y="230" class="label">Crystal Caves</text>
+                     <g id="grotto">
+                        <circle cx="270" cy="280" r="15"/>
+                        <text x="270" y="305" class="poi-label">Bioluminescent Grotto</text>
+                     </g>
+                </g>
 
-        <path d="M 350,230 Q 280,200 250,250 T 300, 350 Q 330, 400 380, 380"
-              fill="#ffc8dd" stroke="#e07a5f" stroke-width="1" opacity="0.8"
-              id="crystal-caves"/>
-        <text x="280" y="230" class="label">Crystal Caves</text>
+                <g id="outpost1" class="map-element outpost">
+                    <rect x="600" y="400" width="80" height="60" transform="rotate(15 640,430)"/>
+                    <text x="640" y="435" class="label">Research</text>
+                    <text x="640" y="450" class="label">Outpost</text>
+                </g>
+                 <g id="outpost2" class="map-element outpost">
+                    <rect x="120" y="130" width="100" height="70" transform="rotate(-10 170,165)"/>
+                    <text x="170" y="170" class="label">Research</text>
+                    <text x="170" y="185" class="label">Outpost</text>
+                    <g id="lab-delta-poi" class="outpost-poi">
+                        <circle cx="170" cy="150" r="8"/>
+                        <text x="170" y="138" class="poi-label">Hydroponics Lab Delta</text>
+                    </g>
+                </g>
+                 <g id="outpost3" class="map-element outpost">
+                    <rect x="450" y="480" width="90" height="50" transform="rotate(-5 495,505)"/>
+                    <text x="495" y="510" class="label">Outpost Gamma</text>
+                 </g>
 
-        <rect x="600" y="400" width="80" height="60"
-              fill="#fca311" stroke="#e85d04" stroke-width="1.5"
-              id="outpost1" transform="rotate(15 640,430)"/>
-        <text x="640" y="435" class="label">Research</text>
-        <text x="640" y="450" class="label">Outpost</text>
+                <g id="reactor" class="map-element">
+                    <rect x="50" y="480" width="70" height="70" />
+                    <circle cx="85" cy="515" r="15" /> <line x1="75" y1="470" x2="80" y2="480" stroke="#386641" stroke-width="3"/>
+                    <line x1="100" y1="475" x2="95" y2="480" stroke="#386641" stroke-width="4"/>
+                    <line x1="125" y1="500" x2="120" y2="505" stroke="#386641" stroke-width="3"/>
+                    <line x1="130" y1="530" x2="120" y2="525" stroke="#386641" stroke-width="4"/>
+                    <line x1="70" y1="555" x2="75" y2="550" stroke="#386641" stroke-width="3"/>
+                    <text x="85" y="475" class="poi-label">Root-Bound Reactor</text>
+                </g>
 
-        <rect x="120" y="130" width="100" height="70"
-              fill="#fca311" stroke="#e85d04" stroke-width="1.5"
-              id="outpost2" transform="rotate(-10 170,165)"/>
-        <text x="170" y="170" class="label">Research</text>
-         <text x="170" y="185" class="label">Outpost</text>
+                <g class="map-element crystal-cluster">
+                    <circle cx="550" cy="120" r="5"/><circle cx="560" cy="130" r="7"/><circle cx="545" cy="135" r="6"/>
+                    <text x="550" y="115" class="poi-label">Crystal Cluster</text>
+                 </g>
+                 <g class="map-element crystal-cluster">
+                    <circle cx="100" cy="350" r="6"/><circle cx="112" cy="345" r="4"/><circle cx="105" cy="360" r="5"/>
+                 </g>
+                 <g class="map-element crystal-cluster">
+                     <circle cx="680" cy="280" r="8"/><circle cx="695" cy="290" r="6"/><circle cx="675" cy="295" r="7"/>
+                 </g>
 
+                 <g id="sky-bridge" class="map-element">
+                     <line x1="300" y1="330" x2="500" y2="370"/>
+                     <text x="400" y="345" class="poi-label">The Sky-Bridge</text>
+                 </g>
+            </g>
 
-        <path d="M400,240 L410,265 L435,265 L415,280 L425,305 L400,290 L375,305 L385,280 L365,265 L390,265 Z"
-              fill="#fff3b0" stroke="#ffaa00" stroke-width="1"/>
-        <text x="400" y="235" class="poi-label">Apex Shard</text>
+            <circle id="player" cx="400" cy="300" r="10"/>
 
-        <circle cx="270" cy="280" r="15" fill="#d0f4de" stroke="#588157" stroke-width="1"/>
-        <text x="270" y="305" class="poi-label">Bioluminescent Grotto</text>
+        </svg>
+    </div>
 
-        <circle cx="170" cy="150" r="8" fill="#ffffff" stroke="#333333" stroke-width="1"/>
-         <text x="170" y="138" class="poi-label">Hydroponics Lab Delta</text>
+    <script>
+        // --- JavaScript for Interactivity ---
 
-         <line x1="300" y1="330" x2="500" y2="370" stroke="#adb5bd" stroke-width="8" stroke-dasharray="15 5"/>
-         <text x="400" y="345" class="poi-label">The Sky-Bridge</text>
+        const player = document.getElementById('player');
+        const mapElements = document.querySelectorAll('#map-elements > .map-element'); // Select direct children of the main group
+        const svg = document.getElementById('map-svg');
+        const viewBox = svg.viewBox.baseVal;
 
-    </svg>
-    </body>
+        let playerX = parseFloat(player.getAttribute('cx'));
+        let playerY = parseFloat(player.getAttribute('cy'));
+        const playerSpeed = 15; // How many units the player moves per key press
+        const visibilityRadius = 150; // How far the player can "see"
+
+        // Function to update map visibility based on player position
+        function updateVisibility() {
+            mapElements.forEach(element => {
+                // Get bounding box of the element (approximate position and size)
+                // Note: getBBox() can be performance intensive if called very often on many complex elements
+                try {
+                    const bbox = element.getBBox();
+                    const elementCenterX = bbox.x + bbox.width / 2;
+                    const elementCenterY = bbox.y + bbox.height / 2;
+
+                    // Calculate distance between player and element center
+                    const dx = playerX - elementCenterX;
+                    const dy = playerY - elementCenterY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // Check if the element center is within the visibility radius
+                    // A more accurate check would consider the element's corners/edges vs the radius
+                    if (distance < visibilityRadius + Math.max(bbox.width, bbox.height) / 2) { // Add rough element size to radius
+                        element.classList.add('visible');
+                    } else {
+                        // Optional: Fade out elements that leave the radius
+                         // element.classList.remove('visible');
+                         // Currently, once revealed, it stays revealed. Remove the line above to keep it revealed.
+                    }
+                } catch (e) {
+                    // getBBox can fail for hidden or non-rendered elements, ignore errors
+                     console.warn("Could not get BBox for element:", element.id, e);
+                }
+            });
+        }
+
+        // Handle Keyboard Input
+        document.addEventListener('keydown', (event) => {
+            let moved = false;
+            switch (event.key) {
+                case 'ArrowUp':
+                    playerY -= playerSpeed;
+                    moved = true;
+                    break;
+                case 'ArrowDown':
+                    playerY += playerSpeed;
+                    moved = true;
+                    break;
+                case 'ArrowLeft':
+                    playerX -= playerSpeed;
+                    moved = true;
+                    break;
+                case 'ArrowRight':
+                    playerX += playerSpeed;
+                    moved = true;
+                    break;
+            }
+
+            if (moved) {
+                // Keep player within SVG bounds (approx)
+                playerX = Math.max(10, Math.min(viewBox.width - 10, playerX));
+                playerY = Math.max(10, Math.min(viewBox.height - 10, playerY));
+
+                // Update player circle position
+                player.setAttribute('cx', playerX);
+                player.setAttribute('cy', playerY);
+
+                // Update map visibility
+                updateVisibility();
+            }
+        });
+
+        // Initial visibility update when the page loads
+        updateVisibility();
+
+    </script>
+
+</body>
 </html>
