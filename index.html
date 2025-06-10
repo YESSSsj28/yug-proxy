@@ -736,8 +736,11 @@
         // YouTube Player API
         let youtubePlayer;
         let sabotageVideoPlayer;
-        
+        let youtubeAPILoaded = false;
+
+        // This function will be called by YouTube API when ready
         function onYouTubeIframeAPIReady() {
+            youtubeAPILoaded = true;
             youtubePlayer = new YT.Player('youtubeIframe', {
                 events: {
                     'onReady': onPlayerReady,
@@ -754,18 +757,20 @@
         }
 
         function onPlayerReady(event) {
-            // Player is ready
+            console.log("Main audio player ready");
         }
 
         function onPlayerStateChange(event) {
-            // Player state changed
+            console.log("Main player state changed:", event.data);
         }
-        
+
         function onSabotagePlayerReady(event) {
-            // Sabotage player is ready
+            console.log("Sabotage video player ready");
         }
-        
+
         function onSabotagePlayerStateChange(event) {
+            console.log("Sabotage player state changed:", event.data);
+            
             if (event.data === YT.PlayerState.ENDED) {
                 // When sabotage video ends, hide it and show the timer
                 sabotageVideo.classList.remove('active');
@@ -962,10 +967,33 @@
                 ? 'ZrXA0JoOuwE' 
                 : '-puHyEdltnM';
             
+            // Show the video container
+            sabotageVideo.classList.add('active');
+            
             // Load and play the sabotage video
             if (sabotageVideoPlayer) {
-                sabotageVideoPlayer.loadVideoById(videoId);
-                sabotageVideo.classList.add('active');
+                try {
+                    sabotageVideoPlayer.loadVideoById(videoId);
+                    sabotageVideoPlayer.playVideo();
+                } catch (e) {
+                    console.error("Error playing sabotage video:", e);
+                    // Fallback - just show the timer if video fails
+                    sabotageVideo.classList.remove('active');
+                    timerContainer.classList.add('active');
+                    if (youtubePlayer) {
+                        youtubePlayer.seekTo(0);
+                        youtubePlayer.playVideo();
+                    }
+                }
+            } else {
+                console.error("Sabotage video player not initialized");
+                // Fallback - just show the timer if player not ready
+                sabotageVideo.classList.remove('active');
+                timerContainer.classList.add('active');
+                if (youtubePlayer) {
+                    youtubePlayer.seekTo(0);
+                    youtubePlayer.playVideo();
+                }
             }
         }
         
