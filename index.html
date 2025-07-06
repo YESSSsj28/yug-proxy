@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Among Us Auth</title>
+    <title>Among Us Enhanced</title>
     <style>
         :root {
             --red: #ff4655;
@@ -13,6 +13,7 @@
             --shadow: 0 4px 20px rgba(0, 247, 255, 0.3);
             --green: #00ff88;
             --yellow: #ffcc00;
+            --blue: #4655ff;
         }
 
         * {
@@ -286,6 +287,100 @@
             margin: 1rem 0;
             background: rgba(0, 247, 255, 0.1);
         }
+
+        /* Countdown Screen Styles */
+        .countdown-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .countdown-screen.active {
+            display: flex;
+        }
+
+        .countdown-number {
+            font-size: 15rem;
+            font-weight: bold;
+            animation: pulse 1s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Role Reveal Screen Styles */
+        .role-reveal-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .role-reveal-screen.active {
+            display: flex;
+        }
+
+        .role-animation {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .role-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .role-image.active {
+            opacity: 1;
+        }
+
+        .role-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--red), var(--cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .imposter-title {
+            color: var(--red);
+        }
+
+        .crewmate-title {
+            color: var(--cyan);
+        }
+
+        .other-imposters {
+            margin-top: 2rem;
+            color: var(--red);
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
@@ -351,6 +446,12 @@
                     <span class="setting-value" id="tasks-value">5</span>
                 </div>
                 <input type="range" id="tasks-slider" min="1" max="100" value="5">
+                
+                <div class="setting-group" style="margin-top: 1.5rem;">
+                    <span class="setting-label">Number of Imposters:</span>
+                    <span class="setting-value" id="imposters-value">1</span>
+                </div>
+                <input type="range" id="imposters-slider" min="1" max="3" value="1">
             </div>
 
             <div class="player-list" id="player-list">
@@ -363,6 +464,21 @@
                 <button id="leave-game-btn" class="secondary">Leave Game</button>
             </div>
         </div>
+    </div>
+
+    <!-- Countdown Screen -->
+    <div id="countdown-screen" class="countdown-screen">
+        <div id="countdown-display" class="countdown-number"></div>
+    </div>
+
+    <!-- Role Reveal Screen -->
+    <div id="role-reveal-screen" class="role-reveal-screen">
+        <div class="role-animation">
+            <img src="https://cdn-icons-png.flaticon.com/512/3663/3663378.png" class="role-image" id="crewmate-image" alt="Crewmate">
+            <img src="https://cdn-icons-png.flaticon.com/512/3663/3663374.png" class="role-image" id="imposter-image" alt="Imposter">
+        </div>
+        <h1 id="role-title" class="role-title"></h1>
+        <div id="other-imposters" class="other-imposters"></div>
     </div>
 
     <!-- Firebase SDK -->
@@ -411,12 +527,22 @@
         const gameStatus = document.getElementById('game-status');
         const tasksSlider = document.getElementById('tasks-slider');
         const tasksValue = document.getElementById('tasks-value');
-        const settingsForm = document.getElementById('settings-form');
+        const impostersSlider = document.getElementById('imposters-slider');
+        const impostersValue = document.getElementById('imposters-value');
+        const countdownScreen = document.getElementById('countdown-screen');
+        const countdownDisplay = document.getElementById('countdown-display');
+        const roleRevealScreen = document.getElementById('role-reveal-screen');
+        const roleTitle = document.getElementById('role-title');
+        const crewmateImage = document.getElementById('crewmate-image');
+        const imposterImage = document.getElementById('imposter-image');
+        const otherImposters = document.getElementById('other-imposters');
 
         // Game state
         let currentGameId = null;
         let isHost = false;
         let gameUnsubscribe = null;
+        let playerRole = null;
+        let otherImposterNames = [];
 
         // Tab switching
         loginTab.addEventListener('click', () => {
@@ -436,6 +562,11 @@
         // Tasks slider
         tasksSlider.addEventListener('input', () => {
             tasksValue.textContent = tasksSlider.value;
+        });
+
+        // Imposters slider
+        impostersSlider.addEventListener('input', () => {
+            impostersValue.textContent = impostersSlider.value;
         });
 
         // Auth state listener
@@ -501,7 +632,7 @@
                 });
         });
 
-        // CREATE GAME - IMPROVED IMPLEMENTATION
+        // CREATE GAME
         createGameBtn.addEventListener('click', async () => {
             const user = auth.currentUser;
             if (!user) return alert("Please login first!");
@@ -540,7 +671,7 @@
             }
         });
 
-        // JOIN GAME - IMPROVED IMPLEMENTATION
+        // JOIN GAME
         joinGameBtn.addEventListener('click', async () => {
             const roomCode = prompt("Enter 4-letter room code:");
             if (!roomCode || roomCode.length !== 4) return alert("Invalid code!");
@@ -604,7 +735,7 @@
             if (gameUnsubscribe) gameUnsubscribe();
             
             gameUnsubscribe = db.collection("games").doc(currentGameId)
-                .onSnapshot(doc => {
+                .onSnapshot(async doc => {
                     if (!doc.exists) {
                         gameStatus.textContent = "Game has been closed by host";
                         leaveGameBtn.textContent = "Return to Menu";
@@ -630,17 +761,27 @@
                         playerList.appendChild(playerItem);
                     });
                     
-                    // Update tasks if host
+                    // Update settings if host
                     if (isHost) {
                         tasksSlider.value = gameData.tasks || 5;
                         tasksValue.textContent = gameData.tasks || 5;
+                        impostersSlider.value = gameData.imposters || 1;
+                        impostersValue.textContent = gameData.imposters || 1;
                     }
                     
-                    // Handle game started
-                    if (gameData.status === "started") {
-                        gameStatus.textContent = "Game has started!";
-                        alert("Game is starting! (This would launch the actual game in a full implementation)");
-                        leaveGame();
+                    // Handle game starting (countdown)
+                    if (gameData.status === "starting" && !countdownScreen.classList.contains('active')) {
+                        showCountdown();
+                    }
+                    
+                    // Handle role assignment
+                    if (gameData.status === "assigning_roles" && gameData.roles) {
+                        const user = auth.currentUser;
+                        if (user && gameData.roles[user.uid]) {
+                            playerRole = gameData.roles[user.uid].role;
+                            otherImposterNames = gameData.roles[user.uid].otherImposters || [];
+                            showRoleReveal();
+                        }
                     }
                 }, error => {
                     console.error("Game listener error:", error);
@@ -652,19 +793,146 @@
             if (!isHost) return;
             
             try {
-                // Update game with current settings
+                // Update game status to "starting"
                 await db.collection("games").doc(currentGameId).update({
-                    status: "started",
-                    tasks: parseInt(tasksSlider.value)
+                    status: "starting",
+                    tasks: parseInt(tasksSlider.value),
+                    imposters: parseInt(impostersSlider.value),
+                    startTime: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                
-                // In a full implementation, this would launch the game for all players
-                gameStatus.textContent = "Starting game...";
+
+                // Show countdown screen
+                showCountdown();
                 
             } catch (error) {
                 alert("Error starting game: " + error.message);
             }
         });
+
+        // Show countdown sequence
+        function showCountdown() {
+            countdownScreen.classList.add('active');
+            
+            // Countdown from 3
+            countdownDisplay.textContent = '3';
+            countdownDisplay.style.color = 'var(--red)';
+            
+            setTimeout(() => {
+                countdownDisplay.textContent = '2';
+                countdownDisplay.style.color = 'var(--blue)';
+                
+                setTimeout(() => {
+                    countdownDisplay.textContent = '1';
+                    countdownDisplay.style.color = 'var(--red)';
+                    
+                    setTimeout(async () => {
+                        // Assign roles after countdown
+                        await assignRoles();
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        }
+
+        // Assign roles to players
+        async function assignRoles() {
+            const gameRef = db.collection("games").doc(currentGameId);
+            const gameDoc = await gameRef.get();
+            const gameData = gameDoc.data();
+            
+            // Get number of imposters (default to 1 if not set)
+            const numImposters = gameData.imposters || 1;
+            const players = gameData.players;
+            
+            // Create array of imposter indices
+            const imposterIndices = [];
+            while (imposterIndices.length < numImposters) {
+                const randomIndex = Math.floor(Math.random() * players.length);
+                if (!imposterIndices.includes(randomIndex)) {
+                    imposterIndices.push(randomIndex);
+                }
+            }
+            
+            // Create roles object
+            const roles = {};
+            const imposterIds = imposterIndices.map(i => players[i]);
+            
+            players.forEach((playerId, index) => {
+                const isImposter = imposterIndices.includes(index);
+                roles[playerId] = {
+                    role: isImposter ? 'imposter' : 'crewmate',
+                    otherImposters: isImposter 
+                        ? imposterIds.filter(id => id !== playerId)
+                            .map(id => gameData.playerNames[gameData.players.indexOf(id)])
+                        : []
+                };
+            });
+            
+            // Update game with roles and status
+            await gameRef.update({
+                status: "assigning_roles",
+                roles: roles
+            });
+        }
+
+        // Show role reveal animation
+        function showRoleReveal() {
+            countdownScreen.classList.remove('active');
+            roleRevealScreen.classList.add('active');
+            
+            // Animation sequence
+            let switches = 0;
+            const maxSwitches = 8;
+            const switchInterval = setInterval(() => {
+                if (switches % 2 === 0) {
+                    crewmateImage.classList.remove('active');
+                    imposterImage.classList.add('active');
+                } else {
+                    imposterImage.classList.remove('active');
+                    crewmateImage.classList.add('active');
+                }
+                switches++;
+                
+                if (switches >= maxSwitches) {
+                    clearInterval(switchInterval);
+                    revealFinalRole();
+                }
+            }, 200);
+        }
+
+        // Reveal final role
+        function revealFinalRole() {
+            crewmateImage.classList.remove('active');
+            imposterImage.classList.remove('active');
+            
+            if (playerRole === 'imposter') {
+                roleTitle.textContent = 'IMPOSTER';
+                roleTitle.className = 'role-title imposter-title';
+                imposterImage.classList.add('active');
+                
+                if (otherImposterNames.length > 0) {
+                    otherImposters.textContent = `Other Imposters: ${otherImposterNames.join(', ')}`;
+                } else {
+                    otherImposters.textContent = "You're the only Imposter!";
+                }
+            } else {
+                roleTitle.textContent = 'CREWMATE';
+                roleTitle.className = 'role-title crewmate-title';
+                crewmateImage.classList.add('active');
+                otherImposters.textContent = "Complete all tasks to win!";
+            }
+            
+            // After 15 seconds, start the game
+            setTimeout(() => {
+                if (isHost) {
+                    db.collection("games").doc(currentGameId).update({
+                        status: "started"
+                    });
+                }
+                // In a full implementation, this would launch the actual game
+                alert("Game is starting! (This would launch the actual game in a full implementation)");
+                leaveGame();
+            }, 15000);
+        }
 
         // LEAVE GAME
         leaveGameBtn.addEventListener('click', leaveGame);
@@ -708,6 +976,8 @@
             authView.classList.remove('active');
             menuView.classList.remove('active');
             lobbyView.classList.remove('active');
+            countdownScreen.classList.remove('active');
+            roleRevealScreen.classList.remove('active');
             
             if (viewName === 'auth') {
                 authView.classList.add('active');
