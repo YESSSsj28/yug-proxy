@@ -14,6 +14,7 @@
             --green: #00ff88;
             --yellow: #ffcc00;
             --blue: #4655ff;
+            --purple: #b400ff;
         }
 
         * {
@@ -21,24 +22,50 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Courier New', monospace;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
         }
 
         body {
             background: var(--dark);
             color: var(--light);
-            min-height: 100vh;
             display: grid;
             place-items: center;
-            padding: 1rem;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(255, 70, 85, 0.1) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(0, 247, 255, 0.1) 0%, transparent 20%);
         }
 
+        #app {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            position: relative;
+        }
+
+        .view-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
         .container {
             width: 100%;
             max-width: 500px;
-            background: rgba(14, 14, 26, 0.8);
+            background: rgba(14, 14, 26, 0.9);
             border-radius: 12px;
             padding: 2rem;
             box-shadow: var(--shadow);
@@ -46,6 +73,15 @@
             backdrop-filter: blur(10px);
             position: relative;
             overflow: hidden;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 0;
+                height: 100%;
+                max-width: 100%;
+                padding: 1.5rem;
+            }
         }
 
         h1 {
@@ -70,6 +106,7 @@
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1.5rem;
+            width: 100%;
         }
 
         .tab {
@@ -94,6 +131,7 @@
             display: none;
             flex-direction: column;
             gap: 1rem;
+            width: 100%;
         }
 
         .form.active {
@@ -104,6 +142,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            width: 100%;
         }
 
         input {
@@ -114,6 +153,7 @@
             color: var(--light);
             font-size: 1rem;
             transition: all 0.3s ease;
+            width: 100%;
         }
 
         input:focus {
@@ -134,6 +174,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-top: 0.5rem;
+            width: 100%;
         }
 
         button:hover {
@@ -161,11 +202,20 @@
             box-shadow: 0 4px 15px rgba(0, 255, 136, 0.5);
         }
 
+        button.blue {
+            background: var(--blue);
+        }
+
+        button.blue:hover {
+            box-shadow: 0 4px 15px rgba(70, 85, 255, 0.5);
+        }
+
         .error {
             color: var(--red);
             font-size: 0.9rem;
             height: 1rem;
             margin-bottom: 0.5rem;
+            text-align: center;
         }
 
         .view {
@@ -174,6 +224,8 @@
             align-items: center;
             gap: 1.5rem;
             text-align: center;
+            width: 100%;
+            height: 100%;
         }
 
         .view.active {
@@ -313,6 +365,12 @@
             animation: pulse 1s ease-in-out;
         }
 
+        @media (max-width: 600px) {
+            .countdown-number {
+                font-size: 10rem;
+            }
+        }
+
         @keyframes pulse {
             0% { transform: scale(1); opacity: 0; }
             50% { transform: scale(1.2); opacity: 1; }
@@ -340,10 +398,17 @@
         }
 
         .role-animation {
-            width: 300px;
-            height: 300px;
+            width: 200px;
+            height: 200px;
             position: relative;
             margin-bottom: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            .role-animation {
+                width: 150px;
+                height: 150px;
+            }
         }
 
         .role-image {
@@ -368,6 +433,12 @@
             color: transparent;
         }
 
+        @media (max-width: 600px) {
+            .role-title {
+                font-size: 2rem;
+            }
+        }
+
         .imposter-title {
             color: var(--red);
         }
@@ -380,105 +451,316 @@
             margin-top: 2rem;
             color: var(--red);
             font-size: 1.2rem;
+            max-width: 80%;
+        }
+
+        /* Game Screen Styles */
+        .game-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0e0e1a;
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .game-screen.active {
+            display: flex;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .game-tasks {
+            background: rgba(0, 247, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .emergency-button {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 70, 85, 0.7);
+            z-index: 1001;
+        }
+
+        /* Meeting Screen Styles */
+        .meeting-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(14, 14, 26, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            z-index: 1002;
+        }
+
+        .meeting-screen.active {
+            display: flex;
+        }
+
+        .meeting-title {
+            font-size: 2rem;
+            color: var(--red);
+            margin-bottom: 1rem;
+        }
+
+        .meeting-tasks {
+            color: var(--cyan);
+            margin-bottom: 1.5rem;
+        }
+
+        .vote-player-list {
+            width: 100%;
+            max-width: 500px;
+            max-height: 60vh;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .vote-player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .vote-player-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .vote-buttons {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* Results Screen Styles */
+        .results-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(14, 14, 26, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1003;
+            text-align: center;
+        }
+
+        .results-screen.active {
+            display: flex;
+        }
+
+        .results-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .results-imposter {
+            color: var(--red);
+        }
+
+        .results-crewmate {
+            color: var(--cyan);
+        }
+
+        /* Death Screen Styles */
+        .death-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1004;
+            color: var(--red);
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        .death-screen.active {
+            display: flex;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div id="app">
         <!-- Auth View -->
-        <div id="auth-view" class="view active">
-            <h1>Among Us Auth</h1>
-            
-            <div class="tabs">
-                <button class="tab active" id="login-tab">Login</button>
-                <button class="tab" id="signup-tab">Sign Up</button>
+        <div id="auth-view" class="view-container view active">
+            <div class="container">
+                <h1>Among Us Auth</h1>
+                
+                <div class="tabs">
+                    <button class="tab active" id="login-tab">Login</button>
+                    <button class="tab" id="signup-tab">Sign Up</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="form active">
+                    <div class="input-group">
+                        <input type="text" id="login-username" placeholder="Crewmate Name" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="login-password" placeholder="Password" required>
+                    </div>
+                    <div id="login-error" class="error"></div>
+                    <button type="button" id="login-btn">Start Game</button>
+                </form>
+
+                <!-- Signup Form -->
+                <form id="signup-form" class="form">
+                    <div class="input-group">
+                        <input type="text" id="signup-username" placeholder="New Crewmate Name" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="signup-password" placeholder="New Password" required>
+                    </div>
+                    <div id="signup-error" class="error"></div>
+                    <button type="button" id="signup-btn">Join Crew</button>
+                </form>
             </div>
-
-            <!-- Login Form -->
-            <form id="login-form" class="form active">
-                <div class="input-group">
-                    <input type="text" id="login-username" placeholder="Crewmate Name" required>
-                </div>
-                <div class="input-group">
-                    <input type="password" id="login-password" placeholder="Password" required>
-                </div>
-                <div id="login-error" class="error"></div>
-                <button type="button" id="login-btn">Start Game</button>
-            </form>
-
-            <!-- Signup Form -->
-            <form id="signup-form" class="form">
-                <div class="input-group">
-                    <input type="text" id="signup-username" placeholder="New Crewmate Name" required>
-                </div>
-                <div class="input-group">
-                    <input type="password" id="signup-password" placeholder="New Password" required>
-                </div>
-                <div id="signup-error" class="error"></div>
-                <button type="button" id="signup-btn">Join Crew</button>
-            </form>
         </div>
 
         <!-- Menu View -->
-        <div id="menu-view" class="view">
-            <h1>Welcome, <span id="username-display">Player</span>!</h1>
-            <div class="button-group">
-                <button id="join-game-btn">Join Game</button>
-                <button id="create-game-btn">Create Game</button>
+        <div id="menu-view" class="view-container view">
+            <div class="container">
+                <h1>Welcome, <span id="username-display">Player</span>!</h1>
+                <div class="button-group">
+                    <button id="join-game-btn">Join Game</button>
+                    <button id="create-game-btn">Create Game</button>
+                </div>
+                <button id="logout-btn" class="secondary">Log Out</button>
             </div>
-            <button id="logout-btn" class="secondary">Log Out</button>
         </div>
 
         <!-- Lobby View -->
-        <div id="lobby-view" class="view">
-            <h1>Game Lobby</h1>
-            
-            <div class="lobby-info">
-                <h2>Room Code</h2>
-                <div class="room-code" id="room-code-display">ABCD</div>
-                <div id="game-status" class="status-message">Waiting for players...</div>
-            </div>
-
-            <div class="settings-form" id="settings-form">
-                <h2>Game Settings</h2>
-                <div class="setting-group">
-                    <span class="setting-label">Number of Tasks:</span>
-                    <span class="setting-value" id="tasks-value">5</span>
-                </div>
-                <input type="range" id="tasks-slider" min="1" max="100" value="5">
+        <div id="lobby-view" class="view-container view">
+            <div class="container">
+                <h1>Game Lobby</h1>
                 
-                <div class="setting-group" style="margin-top: 1.5rem;">
-                    <span class="setting-label">Number of Imposters:</span>
-                    <span class="setting-value" id="imposters-value">1</span>
+                <div class="lobby-info">
+                    <h2>Room Code</h2>
+                    <div class="room-code" id="room-code-display">ABCD</div>
+                    <div id="game-status" class="status-message">Waiting for players...</div>
                 </div>
-                <input type="range" id="imposters-slider" min="1" max="3" value="1">
-            </div>
 
-            <div class="player-list" id="player-list">
-                <h2>Players (<span id="player-count">1</span>/10)</h2>
-                <!-- Players will be added here dynamically -->
-            </div>
+                <div class="settings-form" id="settings-form">
+                    <h2>Game Settings</h2>
+                    <div class="setting-group">
+                        <span class="setting-label">Number of Tasks:</span>
+                        <span class="setting-value" id="tasks-value">5</span>
+                    </div>
+                    <input type="range" id="tasks-slider" min="1" max="10" value="5">
+                    
+                    <div class="setting-group" style="margin-top: 1.5rem;">
+                        <span class="setting-label">Number of Imposters:</span>
+                        <span class="setting-value" id="imposters-value">1</span>
+                    </div>
+                    <input type="range" id="imposters-slider" min="1" max="3" value="1">
+                </div>
 
-            <div class="button-group">
-                <button id="start-game-btn" class="green">Start Game</button>
-                <button id="leave-game-btn" class="secondary">Leave Game</button>
+                <div class="player-list" id="player-list">
+                    <h2>Players (<span id="player-count">1</span>/10)</h2>
+                    <!-- Players will be added here dynamically -->
+                </div>
+
+                <div class="button-group">
+                    <button id="start-game-btn" class="green">Start Game</button>
+                    <button id="leave-game-btn" class="secondary">Leave Game</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Countdown Screen -->
-    <div id="countdown-screen" class="countdown-screen">
-        <div id="countdown-display" class="countdown-number"></div>
-    </div>
-
-    <!-- Role Reveal Screen -->
-    <div id="role-reveal-screen" class="role-reveal-screen">
-        <div class="role-animation">
-            <img src="https://cdn-icons-png.flaticon.com/512/3663/3663378.png" class="role-image" id="crewmate-image" alt="Crewmate">
-            <img src="https://cdn-icons-png.flaticon.com/512/3663/3663374.png" class="role-image" id="imposter-image" alt="Imposter">
+        <!-- Countdown Screen -->
+        <div id="countdown-screen" class="countdown-screen">
+            <div id="countdown-display" class="countdown-number"></div>
         </div>
-        <h1 id="role-title" class="role-title"></h1>
-        <div id="other-imposters" class="other-imposters"></div>
+
+        <!-- Role Reveal Screen -->
+        <div id="role-reveal-screen" class="role-reveal-screen">
+            <div class="role-animation">
+                <img src="https://cdn-icons-png.flaticon.com/512/3663/3663378.png" class="role-image" id="crewmate-image" alt="Crewmate">
+                <img src="https://cdn-icons-png.flaticon.com/512/3663/3663374.png" class="role-image" id="imposter-image" alt="Imposter">
+            </div>
+            <h1 id="role-title" class="role-title"></h1>
+            <div id="other-imposters" class="other-imposters"></div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="game-screen">
+            <div class="game-header">
+                <div class="game-tasks" id="game-tasks-display">Tasks: 0/5</div>
+            </div>
+            
+            <!-- Game content would go here -->
+            <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
+                <h1 id="game-message">Complete your tasks!</h1>
+            </div>
+            
+            <div class="emergency-button" id="emergency-button">
+                <span>!</span>
+            </div>
+        </div>
+
+        <!-- Meeting Screen -->
+        <div id="meeting-screen" class="meeting-screen">
+            <h1 class="meeting-title">EMERGENCY MEETING</h1>
+            <div class="meeting-tasks" id="meeting-tasks">Tasks Completed: 0/5</div>
+            
+            <div class="vote-player-list" id="vote-player-list">
+                <!-- Players will be listed here for voting -->
+            </div>
+            
+            <div class="vote-buttons">
+                <button id="skip-vote-btn" class="secondary">Skip Vote</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="results-screen">
+            <h1 id="results-title" class="results-title"></h1>
+            <div id="results-message"></div>
+            <button id="continue-game-btn" class="green" style="margin-top: 2rem;">Continue</button>
+        </div>
+
+        <!-- Death Screen -->
+        <div id="death-screen" class="death-screen">
+            <h1>YOU DIED</h1>
+            <div id="death-message" style="margin-top: 1rem; font-size: 1.2rem;"></div>
+        </div>
     </div>
 
     <!-- Firebase SDK -->
@@ -536,6 +818,20 @@
         const crewmateImage = document.getElementById('crewmate-image');
         const imposterImage = document.getElementById('imposter-image');
         const otherImposters = document.getElementById('other-imposters');
+        const gameScreen = document.getElementById('game-screen');
+        const gameTasksDisplay = document.getElementById('game-tasks-display');
+        const emergencyButton = document.getElementById('emergency-button');
+        const meetingScreen = document.getElementById('meeting-screen');
+        const meetingTasksDisplay = document.getElementById('meeting-tasks');
+        const votePlayerList = document.getElementById('vote-player-list');
+        const skipVoteBtn = document.getElementById('skip-vote-btn');
+        const resultsScreen = document.getElementById('results-screen');
+        const resultsTitle = document.getElementById('results-title');
+        const resultsMessage = document.getElementById('results-message');
+        const continueGameBtn = document.getElementById('continue-game-btn');
+        const deathScreen = document.getElementById('death-screen');
+        const deathMessage = document.getElementById('death-message');
+        const gameMessage = document.getElementById('game-message');
 
         // Game state
         let currentGameId = null;
@@ -543,6 +839,11 @@
         let gameUnsubscribe = null;
         let playerRole = null;
         let otherImposterNames = [];
+        let playerTasks = [];
+        let completedTasks = 0;
+        let totalTasks = 5;
+        let isDead = false;
+        let gameData = null;
 
         // Tab switching
         loginTab.addEventListener('click', () => {
@@ -550,6 +851,7 @@
             signupTab.classList.remove('active');
             loginForm.classList.add('active');
             signupForm.classList.remove('active');
+            loginError.textContent = '';
         });
 
         signupTab.addEventListener('click', () => {
@@ -557,6 +859,7 @@
             loginTab.classList.remove('active');
             signupForm.classList.add('active');
             loginForm.classList.remove('active');
+            signupError.textContent = '';
         });
 
         // Tasks slider
@@ -626,6 +929,9 @@
                 })
                 .then(() => {
                     signupError.textContent = '';
+                    loginTab.click();
+                    document.getElementById('login-username').value = username;
+                    document.getElementById('login-password').value = password;
                 })
                 .catch(error => {
                     signupError.textContent = error.message;
@@ -651,8 +957,8 @@
                     playerNames: [user.displayName || user.email.split('@')[0]],
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     maxPlayers: 10,
-                    tasks: 5,
-                    imposters: 1
+                    tasks: parseInt(tasksSlider.value),
+                    imposters: parseInt(impostersSlider.value)
                 });
                 
                 currentGameId = gameRef.id;
@@ -661,10 +967,6 @@
                 showView('lobby');
                 roomCodeDisplay.textContent = roomCode;
                 gameStatus.textContent = "You are the host! Set tasks and start when ready.";
-                
-                // Only show settings and start button for host
-                settingsForm.style.display = 'block';
-                startGameBtn.style.display = 'block';
                 
             } catch (error) {
                 alert("Error creating game: " + error.message);
@@ -690,7 +992,7 @@
                 if (snapshot.empty) return alert("Game not found or already started");
                 
                 const gameDoc = snapshot.docs[0];
-                const gameData = gameDoc.data();
+                gameData = gameDoc.data();
                 
                 // Check if already in game
                 if (gameData.players.includes(user.uid)) {
@@ -721,10 +1023,6 @@
                 roomCodeDisplay.textContent = gameData.roomCode;
                 gameStatus.textContent = "Waiting for host to start...";
                 
-                // Hide settings and start button for non-hosts
-                settingsForm.style.display = 'none';
-                startGameBtn.style.display = 'none';
-                
             } catch (error) {
                 alert("Error joining game: " + error.message);
             }
@@ -742,8 +1040,9 @@
                         return;
                     }
                     
-                    const gameData = doc.data();
+                    gameData = doc.data();
                     roomCodeDisplay.textContent = gameData.roomCode;
+                    playerCount.textContent = gameData.players.length;
                     
                     // Update player list
                     playerList.innerHTML = '<h2>Players (<span id="player-count">' + 
@@ -782,6 +1081,34 @@
                             otherImposterNames = gameData.roles[user.uid].otherImposters || [];
                             showRoleReveal();
                         }
+                    }
+                    
+                    // Handle game started
+                    if (gameData.status === "started") {
+                        startGame();
+                    }
+                    
+                    // Handle meeting called
+                    if (gameData.status === "meeting") {
+                        showMeetingScreen();
+                    }
+                    
+                    // Handle voting results
+                    if (gameData.status === "voting_results" && gameData.votingResults) {
+                        showVotingResults();
+                    }
+                    
+                    // Handle player death
+                    if (gameData.status === "player_dead" && gameData.deadPlayers) {
+                        const user = auth.currentUser;
+                        if (user && gameData.deadPlayers.includes(user.uid)) {
+                            showDeathScreen();
+                        }
+                    }
+                    
+                    // Handle game over
+                    if (gameData.status === "game_over") {
+                        showGameOver();
                     }
                 }, error => {
                     console.error("Game listener error:", error);
@@ -837,11 +1164,12 @@
         async function assignRoles() {
             const gameRef = db.collection("games").doc(currentGameId);
             const gameDoc = await gameRef.get();
-            const gameData = gameDoc.data();
+            gameData = gameDoc.data();
             
             // Get number of imposters (default to 1 if not set)
             const numImposters = gameData.imposters || 1;
             const players = gameData.players;
+            totalTasks = gameData.tasks || 5;
             
             // Create array of imposter indices
             const imposterIndices = [];
@@ -856,21 +1184,40 @@
             const roles = {};
             const imposterIds = imposterIndices.map(i => players[i]);
             
+            // Distribute tasks evenly among crewmates
+            const taskNumbers = Array.from({length: totalTasks}, (_, i) => i + 1);
+            shuffleArray(taskNumbers);
+            
+            let taskIndex = 0;
+            const tasksPerPlayer = Math.ceil(totalTasks / (players.length - numImposters));
+            
             players.forEach((playerId, index) => {
                 const isImposter = imposterIndices.includes(index);
+                
+                // Assign tasks to crewmates
+                let playerTasks = [];
+                if (!isImposter) {
+                    playerTasks = taskNumbers.slice(taskIndex, taskIndex + tasksPerPlayer);
+                    taskIndex += tasksPerPlayer;
+                }
+                
                 roles[playerId] = {
                     role: isImposter ? 'imposter' : 'crewmate',
                     otherImposters: isImposter 
                         ? imposterIds.filter(id => id !== playerId)
                             .map(id => gameData.playerNames[gameData.players.indexOf(id)])
-                        : []
+                        : [],
+                    tasks: playerTasks,
+                    completedTasks: 0
                 };
             });
             
             // Update game with roles and status
             await gameRef.update({
                 status: "assigning_roles",
-                roles: roles
+                roles: roles,
+                totalTasks: totalTasks,
+                completedTasks: 0
             });
         }
 
@@ -921,17 +1268,169 @@
                 otherImposters.textContent = "Complete all tasks to win!";
             }
             
-            // After 15 seconds, start the game
+            // After 2 seconds, start the game
             setTimeout(() => {
                 if (isHost) {
                     db.collection("games").doc(currentGameId).update({
                         status: "started"
                     });
                 }
-                // In a full implementation, this would launch the actual game
-                alert("Game is starting! (This would launch the actual game in a full implementation)");
-                leaveGame();
-            }, 15000);
+            }, 2000);
+        }
+
+        // Start the game
+        function startGame() {
+            roleRevealScreen.classList.remove('active');
+            gameScreen.classList.add('active');
+            
+            const user = auth.currentUser;
+            if (!user || !gameData.roles) return;
+            
+            playerRole = gameData.roles[user.uid].role;
+            playerTasks = gameData.roles[user.uid].tasks || [];
+            completedTasks = gameData.roles[user.uid].completedTasks || 0;
+            totalTasks = gameData.totalTasks || 5;
+            
+            if (playerRole === 'imposter') {
+                gameMessage.textContent = "Sabotage and eliminate crewmates!";
+            } else {
+                gameMessage.textContent = `Your tasks: ${playerTasks.join(', ')}`;
+            }
+            
+            updateTasksDisplay();
+        }
+
+        // Update tasks display
+        function updateTasksDisplay() {
+            const totalCompleted = gameData.completedTasks || 0;
+            gameTasksDisplay.textContent = `Tasks: ${totalCompleted}/${totalTasks}`;
+            
+            if (meetingScreen.classList.contains('active')) {
+                meetingTasksDisplay.textContent = `Tasks Completed: ${totalCompleted}/${totalTasks}`;
+            }
+        }
+
+        // Emergency meeting button
+        emergencyButton.addEventListener('click', () => {
+            if (isDead) return;
+            
+            if (confirm("Call emergency meeting?")) {
+                db.collection("games").doc(currentGameId).update({
+                    status: "meeting"
+                });
+            }
+        });
+
+        // Show meeting screen
+        function showMeetingScreen() {
+            meetingScreen.classList.add('active');
+            
+            // Populate player list for voting
+            votePlayerList.innerHTML = '';
+            
+            const user = auth.currentUser;
+            if (!user || !gameData) return;
+            
+            gameData.playerNames.forEach((name, index) => {
+                const playerId = gameData.players[index];
+                
+                // Don't show dead players or yourself
+                if (gameData.deadPlayers && gameData.deadPlayers.includes(playerId)) return;
+                if (playerId === user.uid) return;
+                
+                const playerItem = document.createElement('div');
+                playerItem.className = 'vote-player-item';
+                playerItem.textContent = name;
+                playerItem.addEventListener('click', () => votePlayer(playerId, name));
+                votePlayerList.appendChild(playerItem);
+            });
+            
+            updateTasksDisplay();
+        }
+
+        // Skip vote
+        skipVoteBtn.addEventListener('click', () => {
+            votePlayer(null, "Skip");
+        });
+
+        // Vote for player
+        async function votePlayer(playerId, playerName) {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            await db.collection("games").doc(currentGameId).update({
+                status: "voting_results",
+                votingResults: {
+                    votedPlayerId: playerId,
+                    votedPlayerName: playerName,
+                    voterId: user.uid,
+                    voterName: user.displayName || user.email.split('@')[0]
+                }
+            });
+        }
+
+        // Show voting results
+        function showVotingResults() {
+            meetingScreen.classList.remove('active');
+            resultsScreen.classList.add('active');
+            
+            const results = gameData.votingResults;
+            if (!results) return;
+            
+            if (results.votedPlayerId) {
+                const isImposter = gameData.roles && gameData.roles[results.votedPlayerId] && 
+                                  gameData.roles[results.votedPlayerId].role === 'imposter';
+                
+                if (isImposter) {
+                    resultsTitle.textContent = `${results.votedPlayerName} was The Imposter!`;
+                    resultsTitle.className = 'results-title results-imposter';
+                    resultsMessage.textContent = "The crewmates made the right choice!";
+                } else {
+                    resultsTitle.textContent = `${results.votedPlayerName} was Not The Imposter!`;
+                    resultsTitle.className = 'results-title results-crewmate';
+                    resultsMessage.textContent = "The crewmates made a mistake!";
+                }
+            } else {
+                resultsTitle.textContent = "The crew skipped voting!";
+                resultsTitle.className = 'results-title';
+                resultsMessage.textContent = "No one was ejected.";
+            }
+        }
+
+        // Continue after voting results
+        continueGameBtn.addEventListener('click', async () => {
+            resultsScreen.classList.remove('active');
+            
+            // If someone was voted out, mark them as dead
+            if (gameData.votingResults && gameData.votingResults.votedPlayerId) {
+                await db.collection("games").doc(currentGameId).update({
+                    status: "started",
+                    deadPlayers: firebase.firestore.FieldValue.arrayUnion(gameData.votingResults.votedPlayerId)
+                });
+            } else {
+                await db.collection("games").doc(currentGameId).update({
+                    status: "started"
+                });
+            }
+        });
+
+        // Show death screen
+        function showDeathScreen() {
+            isDead = true;
+            deathScreen.classList.add('active');
+            
+            const totalCompleted = gameData.completedTasks || 0;
+            deathMessage.textContent = `Tasks completed: ${totalCompleted}/${totalTasks}`;
+            
+            setTimeout(() => {
+                deathScreen.classList.remove('active');
+            }, 3000);
+        }
+
+        // Show game over
+        function showGameOver() {
+            alert("Game over! This would show proper game over screen in full implementation");
+            leaveGame();
         }
 
         // LEAVE GAME
@@ -960,6 +1459,7 @@
                 
                 if (gameUnsubscribe) gameUnsubscribe();
                 currentGameId = null;
+                isDead = false;
             }
             
             showView('menu');
@@ -978,6 +1478,10 @@
             lobbyView.classList.remove('active');
             countdownScreen.classList.remove('active');
             roleRevealScreen.classList.remove('active');
+            gameScreen.classList.remove('active');
+            meetingScreen.classList.remove('active');
+            resultsScreen.classList.remove('active');
+            deathScreen.classList.remove('active');
             
             if (viewName === 'auth') {
                 authView.classList.add('active');
@@ -993,6 +1497,15 @@
             } else if (viewName === 'lobby') {
                 lobbyView.classList.add('active');
             }
+        }
+
+        // Helper function to shuffle array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
         }
     </script>
 </body>
