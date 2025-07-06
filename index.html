@@ -221,7 +221,7 @@
 <body>
     <div class="container">
         <!-- Auth View -->
-        <div id="auth-view" class="active">
+        <div id="auth-view">
             <h1>Among Us Auth</h1>
             
             <div class="tabs">
@@ -295,6 +295,21 @@
         const emergencyBtn = document.getElementById('emergency-btn');
         const gamesPlayedDisplay = document.getElementById('games-played');
 
+        // Check auth state on load
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in, show welcome view
+                const username = user.displayName || user.email.split('@')[0];
+                showWelcome(username);
+                loadUserData(user.uid);
+            } else {
+                // No user signed in, show auth view
+                authView.classList.add('active');
+                welcomeView.classList.remove('active');
+                tabs[0].click();
+            }
+        });
+
         // Tab switching
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -309,16 +324,6 @@
                     signupForm.classList.add('active');
                 }
             });
-        });
-
-        // Check auth state
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                // User is signed in
-                const username = user.displayName || user.email.split('@')[0];
-                showWelcome(username);
-                loadUserData(user.uid);
-            }
         });
 
         // Sign up function
@@ -355,6 +360,7 @@
                 .then(() => {
                     const user = auth.currentUser;
                     showWelcome(user.displayName);
+                    loadUserData(user.uid);
                 })
                 .catch((error) => {
                     showError(signupError, error.message);
@@ -381,7 +387,14 @@
                     loadUserData(user.uid);
                 })
                 .catch((error) => {
-                    showError(loginError, error.message);
+                    // Specific error message for wrong credentials
+                    if (error.code === 'auth/invalid-credential' || 
+                        error.code === 'auth/wrong-password' || 
+                        error.code === 'auth/user-not-found') {
+                        showError(loginError, 'Wrong username or password!');
+                    } else {
+                        showError(loginError, error.message);
+                    }
                 });
         });
 
@@ -396,6 +409,9 @@
                         userData.gamesPlayed = (userData.gamesPlayed || 0) + 1;
                     }
                     return userData;
+                }).then(() => {
+                    // Update the displayed count
+                    loadUserData(user.uid);
                 });
                 
                 alert("🚨 EMERGENCY MEETING! 🚨\nWho is the impostor?");
