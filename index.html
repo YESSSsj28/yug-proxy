@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Among Us Enhanced</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root {
             --red: #ff4655;
@@ -15,13 +16,16 @@
             --yellow: #ffcc00;
             --blue: #4655ff;
             --purple: #b400ff;
+            --crewmate-blue: #6b8cff;
+            --imposter-red: #ff3e3e;
+            --task-yellow: #ffde59;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Courier New', monospace;
+            font-family: 'Press Start 2P', cursive;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -29,16 +33,16 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
+            background-color: var(--dark);
         }
 
         body {
-            background: var(--dark);
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0e0e1a 100%);
             color: var(--light);
             display: grid;
             place-items: center;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(255, 70, 85, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 247, 255, 0.1) 0%, transparent 20%);
+                url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="3" fill="rgba(255,70,85,0.2)"/><circle cx="50" cy="50" r="2" fill="rgba(0,247,255,0.2)"/><circle cx="80" cy="30" r="3" fill="rgba(255,70,85,0.2)"/><circle cx="30" cy="80" r="2" fill="rgba(0,247,255,0.2)"/></svg>');
         }
 
         #app {
@@ -65,14 +69,32 @@
         .container {
             width: 100%;
             max-width: 500px;
-            background: rgba(14, 14, 26, 0.9);
-            border-radius: 12px;
+            background: rgba(14, 14, 26, 0.85);
+            border-radius: 16px;
             padding: 2rem;
             box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
             position: relative;
             overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0,247,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 600px) {
@@ -85,7 +107,7 @@
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 1.8rem;
             margin-bottom: 1.5rem;
             text-align: center;
             background: linear-gradient(to right, var(--red), var(--cyan));
@@ -94,12 +116,14 @@
             color: transparent;
             text-transform: uppercase;
             letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
         }
 
         h2 {
             color: var(--cyan);
             margin-bottom: 1rem;
             text-align: center;
+            font-size: 1.2rem;
         }
 
         .tabs {
@@ -115,16 +139,18 @@
             text-align: center;
             background: rgba(255, 255, 255, 0.1);
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             color: var(--light);
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s ease;
+            font-size: 0.8rem;
         }
 
         .tab.active {
             background: var(--red);
-            box-shadow: 0 0 10px rgba(255, 70, 85, 0.5);
+            box-shadow: 0 0 15px rgba(255, 70, 85, 0.7);
+            transform: translateY(-2px);
         }
 
         .form {
@@ -147,11 +173,11 @@
 
         input {
             padding: 0.8rem 1rem;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
             background: rgba(255, 255, 255, 0.05);
             color: var(--light);
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             width: 100%;
         }
@@ -159,12 +185,12 @@
         input:focus {
             outline: none;
             border-color: var(--cyan);
-            box-shadow: 0 0 0 3px rgba(0, 247, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(0, 247, 255, 0.3);
         }
 
         button {
             padding: 0.8rem;
-            border-radius: 6px;
+            border-radius: 8px;
             border: none;
             background: var(--red);
             color: white;
@@ -175,47 +201,55 @@
             letter-spacing: 1px;
             margin-top: 0.5rem;
             width: 100%;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 70, 85, 0.5);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
         }
 
         button:active {
-            transform: translateY(0);
+            transform: translateY(1px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
         }
 
         button.secondary {
             background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
         }
 
         button.secondary:hover {
-            box-shadow: 0 4px 15px rgba(0, 247, 255, 0.3);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.15);
         }
 
         button.green {
             background: var(--green);
+            box-shadow: 0 4px 0 rgba(0,100,50,0.3);
         }
 
         button.green:hover {
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.5);
+            box-shadow: 0 6px 0 rgba(0,100,50,0.3);
         }
 
         button.blue {
             background: var(--blue);
+            box-shadow: 0 4px 0 rgba(0,0,100,0.3);
         }
 
         button.blue:hover {
-            box-shadow: 0 4px 15px rgba(70, 85, 255, 0.5);
+            box-shadow: 0 6px 0 rgba(0,0,100,0.3);
         }
 
         .error {
             color: var(--red);
-            font-size: 0.9rem;
+            font-size: 0.7rem;
             height: 1rem;
             margin-bottom: 0.5rem;
             text-align: center;
+            text-shadow: 0 0 5px rgba(255,70,85,0.5);
         }
 
         .view {
@@ -249,9 +283,10 @@
         .lobby-info {
             background: rgba(0, 247, 255, 0.1);
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 1.5rem;
             width: 100%;
+            border: 1px solid rgba(0, 247, 255, 0.2);
         }
 
         .room-code {
@@ -260,24 +295,27 @@
             letter-spacing: 5px;
             color: var(--yellow);
             margin: 1rem 0;
-            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            text-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
+            font-family: 'Courier New', monospace;
         }
 
         .player-list {
             width: 100%;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 1rem;
             max-height: 200px;
             overflow-y: auto;
             margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .player-item {
             display: flex;
             justify-content: space-between;
-            padding: 0.5rem;
+            padding: 0.75rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            align-items: center;
         }
 
         .player-item:last-child {
@@ -287,6 +325,7 @@
         .player-host {
             color: var(--yellow);
             font-weight: bold;
+            text-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
         }
 
         .settings-form {
@@ -305,6 +344,7 @@
 
         .setting-label {
             text-align: left;
+            font-size: 0.8rem;
         }
 
         .setting-value {
@@ -313,15 +353,18 @@
             border-radius: 20px;
             min-width: 60px;
             text-align: center;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
-            height: 8px;
+            height: 10px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 5px;
             margin: 1rem 0;
+            outline: none;
         }
 
         input[type="range"]::-webkit-slider-thumb {
@@ -331,6 +374,8 @@
             background: var(--cyan);
             border-radius: 50%;
             cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 247, 255, 0.7);
+            border: 2px solid white;
         }
 
         .status-message {
@@ -338,6 +383,8 @@
             border-radius: 8px;
             margin: 1rem 0;
             background: rgba(0, 247, 255, 0.1);
+            border: 1px solid rgba(0, 247, 255, 0.2);
+            font-size: 0.8rem;
         }
 
         /* Countdown Screen Styles */
@@ -363,6 +410,7 @@
             font-size: 15rem;
             font-weight: bold;
             animation: pulse 1s ease-in-out;
+            text-shadow: 0 0 20px currentColor;
         }
 
         @media (max-width: 600px) {
@@ -418,6 +466,7 @@
             object-fit: contain;
             opacity: 0;
             transition: opacity 0.3s ease;
+            filter: drop-shadow(0 0 10px currentColor);
         }
 
         .role-image.active {
@@ -431,6 +480,7 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            text-shadow: 0 0 15px rgba(0, 247, 255, 0.5);
         }
 
         @media (max-width: 600px) {
@@ -441,10 +491,12 @@
 
         .imposter-title {
             color: var(--red);
+            text-shadow: 0 0 15px rgba(255, 70, 85, 0.7);
         }
 
         .crewmate-title {
             color: var(--cyan);
+            text-shadow: 0 0 15px rgba(0, 247, 255, 0.7);
         }
 
         .other-imposters {
@@ -452,6 +504,7 @@
             color: var(--red);
             font-size: 1.2rem;
             max-width: 80%;
+            text-shadow: 0 0 5px rgba(255, 70, 85, 0.5);
         }
 
         /* Game Screen Styles */
@@ -465,6 +518,7 @@
             display: none;
             flex-direction: column;
             z-index: 1000;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M20,20 L80,20 L80,80 L20,80 Z" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></svg>');
         }
 
         .game-screen.active {
@@ -476,12 +530,71 @@
             justify-content: space-between;
             padding: 1rem;
             background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .game-tasks {
             background: rgba(0, 247, 255, 0.1);
             padding: 0.5rem 1rem;
             border-radius: 20px;
+            border: 1px solid rgba(0, 247, 255, 0.2);
+            font-size: 0.8rem;
+        }
+
+        .task-list {
+            padding: 1rem;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .task-item.completed {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: rgba(0, 255, 136, 0.2);
+            opacity: 0.7;
+        }
+
+        .task-item.completed .task-name {
+            text-decoration: line-through;
+            color: var(--green);
+        }
+
+        .task-name {
+            color: var(--task-yellow);
+        }
+
+        .task-status {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--task-yellow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-item.completed .task-status {
+            background: var(--green);
+            border-color: var(--green);
         }
 
         .emergency-button {
@@ -497,8 +610,10 @@
             justify-content: center;
             font-size: 1.5rem;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(255, 70, 85, 0.7);
+            box-shadow: 0 0 20px rgba(255, 70, 85, 0.7);
             z-index: 1001;
+            border: 2px solid white;
+            animation: pulse 2s infinite;
         }
 
         /* Meeting Screen Styles */
@@ -524,11 +639,13 @@
             font-size: 2rem;
             color: var(--red);
             margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 70, 85, 0.7);
         }
 
         .meeting-tasks {
             color: var(--cyan);
             margin-bottom: 1.5rem;
+            font-size: 0.9rem;
         }
 
         .vote-player-list {
@@ -546,11 +663,14 @@
             padding: 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
         }
 
         .vote-player-item:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .vote-buttons {
@@ -583,6 +703,7 @@
         .results-title {
             font-size: 2rem;
             margin-bottom: 1rem;
+            text-shadow: 0 0 10px currentColor;
         }
 
         .results-imposter {
@@ -591,6 +712,11 @@
 
         .results-crewmate {
             color: var(--cyan);
+        }
+
+        .results-message {
+            margin-bottom: 2rem;
+            max-width: 80%;
         }
 
         /* Death Screen Styles */
@@ -614,6 +740,38 @@
         .death-screen.active {
             display: flex;
         }
+
+        .death-message {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: var(--cyan);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -621,7 +779,7 @@
         <!-- Auth View -->
         <div id="auth-view" class="view-container view active">
             <div class="container">
-                <h1>Among Us Auth</h1>
+                <h1>Among Us Enhanced</h1>
                 
                 <div class="tabs">
                     <button class="tab active" id="login-tab">Login</button>
@@ -681,9 +839,9 @@
                     <h2>Game Settings</h2>
                     <div class="setting-group">
                         <span class="setting-label">Number of Tasks:</span>
-                        <span class="setting-value" id="tasks-value">5</span>
+                        <span class="setting-value" id="tasks-value">15</span>
                     </div>
-                    <input type="range" id="tasks-slider" min="1" max="10" value="5">
+                    <input type="range" id="tasks-slider" min="1" max="100" value="15">
                     
                     <div class="setting-group" style="margin-top: 1.5rem;">
                         <span class="setting-label">Number of Imposters:</span>
@@ -722,12 +880,11 @@
         <!-- Game Screen -->
         <div id="game-screen" class="game-screen">
             <div class="game-header">
-                <div class="game-tasks" id="game-tasks-display">Tasks: 0/5</div>
+                <div class="game-tasks" id="game-tasks-display">Tasks: 0/15</div>
             </div>
             
-            <!-- Game content would go here -->
-            <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
-                <h1 id="game-message">Complete your tasks!</h1>
+            <div class="task-list" id="task-list">
+                <!-- Tasks will be added here dynamically -->
             </div>
             
             <div class="emergency-button" id="emergency-button">
@@ -738,7 +895,7 @@
         <!-- Meeting Screen -->
         <div id="meeting-screen" class="meeting-screen">
             <h1 class="meeting-title">EMERGENCY MEETING</h1>
-            <div class="meeting-tasks" id="meeting-tasks">Tasks Completed: 0/5</div>
+            <div class="meeting-tasks" id="meeting-tasks">Tasks Completed: 0/15</div>
             
             <div class="vote-player-list" id="vote-player-list">
                 <!-- Players will be listed here for voting -->
@@ -752,14 +909,14 @@
         <!-- Results Screen -->
         <div id="results-screen" class="results-screen">
             <h1 id="results-title" class="results-title"></h1>
-            <div id="results-message"></div>
+            <div id="results-message" class="results-message"></div>
             <button id="continue-game-btn" class="green" style="margin-top: 2rem;">Continue</button>
         </div>
 
         <!-- Death Screen -->
         <div id="death-screen" class="death-screen">
             <h1>YOU DIED</h1>
-            <div id="death-message" style="margin-top: 1rem; font-size: 1.2rem;"></div>
+            <div id="death-message" class="death-message"></div>
         </div>
     </div>
 
@@ -820,6 +977,7 @@
         const otherImposters = document.getElementById('other-imposters');
         const gameScreen = document.getElementById('game-screen');
         const gameTasksDisplay = document.getElementById('game-tasks-display');
+        const taskList = document.getElementById('task-list');
         const emergencyButton = document.getElementById('emergency-button');
         const meetingScreen = document.getElementById('meeting-screen');
         const meetingTasksDisplay = document.getElementById('meeting-tasks');
@@ -831,7 +989,6 @@
         const continueGameBtn = document.getElementById('continue-game-btn');
         const deathScreen = document.getElementById('death-screen');
         const deathMessage = document.getElementById('death-message');
-        const gameMessage = document.getElementById('game-message');
 
         // Game state
         let currentGameId = null;
@@ -841,7 +998,7 @@
         let otherImposterNames = [];
         let playerTasks = [];
         let completedTasks = 0;
-        let totalTasks = 5;
+        let totalTasks = 15;
         let isDead = false;
         let gameData = null;
 
@@ -958,7 +1115,8 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     maxPlayers: 10,
                     tasks: parseInt(tasksSlider.value),
-                    imposters: parseInt(impostersSlider.value)
+                    imposters: parseInt(impostersSlider.value),
+                    completedTasks: 0
                 });
                 
                 currentGameId = gameRef.id;
@@ -1049,11 +1207,13 @@
                         gameData.players.length + '</span>/' + gameData.maxPlayers + ')</h2>';
                     
                     gameData.playerNames.forEach((name, index) => {
+                        const playerId = gameData.players[index];
+                        
                         const playerItem = document.createElement('div');
                         playerItem.className = 'player-item';
                         playerItem.innerHTML = `
-                            <span class="${gameData.hostId === gameData.players[index] ? 'player-host' : ''}">
-                                ${name} ${gameData.hostId === gameData.players[index] ? '(Host)' : ''}
+                            <span class="${gameData.hostId === playerId ? 'player-host' : ''}">
+                                ${name} ${gameData.hostId === playerId ? '(Host)' : ''}
                             </span>
                             <span>${index === 0 ? '🔴' : '🔵'}</span>
                         `;
@@ -1062,8 +1222,8 @@
                     
                     // Update settings if host
                     if (isHost) {
-                        tasksSlider.value = gameData.tasks || 5;
-                        tasksValue.textContent = gameData.tasks || 5;
+                        tasksSlider.value = gameData.tasks || 15;
+                        tasksValue.textContent = gameData.tasks || 15;
                         impostersSlider.value = gameData.imposters || 1;
                         impostersValue.textContent = gameData.imposters || 1;
                     }
@@ -1169,7 +1329,7 @@
             // Get number of imposters (default to 1 if not set)
             const numImposters = gameData.imposters || 1;
             const players = gameData.players;
-            totalTasks = gameData.tasks || 5;
+            totalTasks = gameData.tasks || 15;
             
             // Create array of imposter indices
             const imposterIndices = [];
@@ -1184,12 +1344,16 @@
             const roles = {};
             const imposterIds = imposterIndices.map(i => players[i]);
             
+            // Calculate total tasks needed (only crewmates do tasks)
+            const crewmateCount = players.length - numImposters;
+            const tasksPerCrewmate = Math.ceil(totalTasks / crewmateCount);
+            const actualTotalTasks = tasksPerCrewmate * crewmateCount;
+            
             // Distribute tasks evenly among crewmates
-            const taskNumbers = Array.from({length: totalTasks}, (_, i) => i + 1);
+            const taskNumbers = Array.from({length: actualTotalTasks}, (_, i) => i + 1);
             shuffleArray(taskNumbers);
             
             let taskIndex = 0;
-            const tasksPerPlayer = Math.ceil(totalTasks / (players.length - numImposters));
             
             players.forEach((playerId, index) => {
                 const isImposter = imposterIndices.includes(index);
@@ -1197,8 +1361,8 @@
                 // Assign tasks to crewmates
                 let playerTasks = [];
                 if (!isImposter) {
-                    playerTasks = taskNumbers.slice(taskIndex, taskIndex + tasksPerPlayer);
-                    taskIndex += tasksPerPlayer;
+                    playerTasks = taskNumbers.slice(taskIndex, taskIndex + tasksPerCrewmate);
+                    taskIndex += tasksPerCrewmate;
                 }
                 
                 roles[playerId] = {
@@ -1216,7 +1380,7 @@
             await gameRef.update({
                 status: "assigning_roles",
                 roles: roles,
-                totalTasks: totalTasks,
+                totalTasks: actualTotalTasks,
                 completedTasks: 0
             });
         }
@@ -1289,15 +1453,69 @@
             playerRole = gameData.roles[user.uid].role;
             playerTasks = gameData.roles[user.uid].tasks || [];
             completedTasks = gameData.roles[user.uid].completedTasks || 0;
-            totalTasks = gameData.totalTasks || 5;
+            totalTasks = gameData.totalTasks || 15;
             
-            if (playerRole === 'imposter') {
-                gameMessage.textContent = "Sabotage and eliminate crewmates!";
+            // Only show tasks if crewmate
+            if (playerRole === 'crewmate') {
+                renderTasks();
+                gameMessage.textContent = "Complete your tasks!";
             } else {
-                gameMessage.textContent = `Your tasks: ${playerTasks.join(', ')}`;
+                taskList.innerHTML = '<h2 style="color: var(--red); text-shadow: 0 0 10px var(--red);">SABOTAGE AND ELIMINATE CREWMATES!</h2>';
             }
             
             updateTasksDisplay();
+        }
+
+        // Render tasks list
+        function renderTasks() {
+            taskList.innerHTML = '';
+            
+            playerTasks.forEach(task => {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                taskItem.innerHTML = `
+                    <span class="task-name">Task ${task}</span>
+                    <div class="task-status"></div>
+                `;
+                
+                taskItem.addEventListener('click', () => {
+                    completeTask(task, taskItem);
+                });
+                
+                taskList.appendChild(taskItem);
+            });
+        }
+
+        // Complete a task
+        async function completeTask(task, taskElement) {
+            if (playerRole !== 'crewmate' || isDead) return;
+            
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            // Mark task as completed locally
+            taskElement.classList.add('completed');
+            
+            // Update completed tasks count
+            completedTasks++;
+            
+            // Update game state
+            try {
+                await db.collection("games").doc(currentGameId).update({
+                    [`roles.${user.uid}.completedTasks`]: completedTasks,
+                    completedTasks: firebase.firestore.FieldValue.increment(1)
+                });
+                
+                // Check if all tasks are completed
+                if (completedTasks >= playerTasks.length) {
+                    gameMessage.textContent = "All your tasks completed! Help others!";
+                }
+                
+                updateTasksDisplay();
+            } catch (error) {
+                console.error("Error completing task:", error);
+                taskElement.classList.remove('completed');
+            }
         }
 
         // Update tasks display
@@ -1307,6 +1525,14 @@
             
             if (meetingScreen.classList.contains('active')) {
                 meetingTasksDisplay.textContent = `Tasks Completed: ${totalCompleted}/${totalTasks}`;
+            }
+            
+            // Check for game win condition (all tasks completed)
+            if (totalCompleted >= totalTasks && gameData.status === "started") {
+                db.collection("games").doc(currentGameId).update({
+                    status: "game_over",
+                    winner: "crewmates"
+                });
             }
         }
 
@@ -1407,6 +1633,21 @@
                     status: "started",
                     deadPlayers: firebase.firestore.FieldValue.arrayUnion(gameData.votingResults.votedPlayerId)
                 });
+                
+                // Check if all imposters are dead
+                const imposterIds = Object.entries(gameData.roles)
+                    .filter(([_, role]) => role.role === 'imposter')
+                    .map(([id, _]) => id);
+                
+                const deadImposters = imposterIds.filter(id => 
+                    gameData.deadPlayers && gameData.deadPlayers.includes(id));
+                
+                if (deadImposters.length === imposterIds.length) {
+                    await db.collection("games").doc(currentGameId).update({
+                        status: "game_over",
+                        winner: "crewmates"
+                    });
+                }
             } else {
                 await db.collection("games").doc(currentGameId).update({
                     status: "started"
