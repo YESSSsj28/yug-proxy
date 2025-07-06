@@ -3,1102 +3,442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Among Us IRL | Random Imposter</title>
+    <title>Among Us Auth</title>
     <style>
         :root {
-            --primary: #ff5e5e;
-            --primary-dark: #d83f3f;
-            --secondary: #4cc9f0;
-            --bg: #0f172a;
-            --glass: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --success: #4ade80;
-            --crewmate: #4cc9f0;
-            --imposter: #ff5e5e;
-            --danger: #f87171;
+            --red: #ff4655;
+            --dark: #0e0e1a;
+            --light: #f0f0f0;
+            --cyan: #00f7ff;
+            --shadow: 0 4px 20px rgba(0, 247, 255, 0.3);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Courier New', monospace;
         }
 
         body {
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: white;
+            background: var(--dark);
+            color: var(--light);
             min-height: 100vh;
-            padding: 2rem;
+            display: grid;
+            place-items: center;
+            padding: 1rem;
             background-image: 
-                radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.15) 0px, transparent 50%),
-                radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.15) 0px, transparent 50%);
+                radial-gradient(circle at 10% 20%, rgba(255, 70, 85, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 247, 255, 0.1) 0%, transparent 20%);
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
+            width: 100%;
+            max-width: 420px;
+            background: rgba(14, 14, 26, 0.8);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
         }
 
-        header {
-            grid-column: 1 / -1;
-            text-align: center;
-            margin-bottom: 1rem;
-            animation: fadeIn 0.8s ease-out;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.5rem;
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent, transparent,
+                var(--cyan), transparent
+            );
+            transform: rotate(30deg);
+            opacity: 0.05;
+            z-index: -1;
         }
 
         h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.8;
-            font-weight: 400;
-        }
-
-        .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            border-radius: 20px;
-            border: 1px solid var(--glass-border);
-            padding: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        /* TASKS SECTION */
-        .tasks-section {
-            grid-column: 1;
-        }
-
-        .progress-container {
-            width: 100%;
-            margin-bottom: 1.5rem;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        .progress-bar {
-            height: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 100px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 100px;
-            width: 0%;
-            transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(
-                90deg,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.3) 50%,
-                rgba(255, 255, 255, 0) 100%
-            );
-            animation: shimmer 2s infinite;
-        }
-
-        .task-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 1rem;
-        }
-
-        .task {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 1rem;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-            font-weight: 500;
-            border-radius: 16px;
-        }
-
-        .task::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .task:hover::before {
-            opacity: 1;
-        }
-
-        .task.completed {
-            background: var(--success);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(74, 222, 128, 0.3);
-        }
-
-        .task.completed::after {
-            content: '✓';
-            position: absolute;
-            font-size: 1.5rem;
-            font-weight: bold;
-            animation: checkIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        /* IMPOSTER SECTION */
-        .imposter-section {
-            grid-column: 2;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .role-display {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem 0;
-            position: relative;
-        }
-
-        .player-name {
             font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            background: linear-gradient(90deg, #fff, #eee);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            background: linear-gradient(to right, var(--red), var(--cyan));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-align: center;
-        }
-
-        .role {
-            font-size: 3rem;
-            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 2px;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center;
-            margin: 1rem 0;
         }
 
-        .role.show {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .role.crewmate {
-            color: var(--crewmate);
-            text-shadow: 0 0 20px rgba(76, 201, 240, 0.5);
-        }
-
-        .role.imposter {
-            color: var(--imposter);
-            text-shadow: 0 0 20px rgba(255, 94, 94, 0.5);
-        }
-
-        .role-icon {
-            width: 120px;
-            height: 120px;
-            margin: 1rem auto;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0;
-            transform: scale(0.5);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .role-icon.show {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 100px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-            color: white;
-            box-shadow: 0 4px 15px rgba(216, 63, 63, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(216, 63, 63, 0.4);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .btn-danger {
-            background: linear-gradient(90deg, var(--danger), var(--primary-dark));
-            color: white;
-            box-shadow: 0 4px 15px rgba(216, 63, 63, 0.3);
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(216, 63, 63, 0.4);
-        }
-
-        /* Sabotage modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
+        .tabs {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .modal {
-            background: var(--glass);
-            backdrop-filter: blur(16px) saturate(180%);
-            border-radius: 20px;
-            border: 1px solid var(--glass-border);
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.active .modal {
-            transform: translateY(0);
-        }
-
-        .modal-header {
+            gap: 0.5rem;
             margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem;
             text-align: center;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .modal-body {
-            margin-bottom: 2rem;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-
-        .sabotage-option {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            color: var(--light);
             cursor: pointer;
+            font-weight: bold;
             transition: all 0.3s ease;
         }
 
-        .sabotage-option:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-3px);
+        .tab.active {
+            background: var(--red);
+            box-shadow: 0 0 10px rgba(255, 70, 85, 0.5);
         }
 
-        .sabotage-option h3 {
-            margin-bottom: 0.5rem;
-            color: var(--imposter);
-        }
-
-        .sabotage-option p {
-            opacity: 0.8;
-            font-size: 0.9rem;
-        }
-
-        .time-input {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .time-input input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            padding: 0.8rem;
-            color: white;
-            font-size: 1rem;
-            width: 80px;
-            text-align: center;
-        }
-
-        .time-input label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        /* Timer */
-        .timer-container {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: var(--glass);
-            backdrop-filter: blur(16px) saturate(180%);
-            border-radius: 20px;
-            border: 1px solid var(--glass-border);
-            padding: 1rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            z-index: 100;
+        .form {
             display: none;
+            flex-direction: column;
+            gap: 1rem;
         }
 
-        .timer-container.active {
-            display: block;
-            animation: pulse 1.5s infinite;
-        }
-
-        .timer-header {
+        .form.active {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
+            animation: fadeIn 0.4s ease-out;
         }
 
-        .timer-title {
-            font-weight: 600;
-            color: var(--imposter);
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
-        .timer-close {
-            background: none;
+        input {
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(0, 247, 255, 0.2);
+        }
+
+        button {
+            padding: 0.8rem;
+            border-radius: 6px;
             border: none;
+            background: var(--red);
             color: white;
-            font-size: 1.2rem;
+            font-weight: bold;
             cursor: pointer;
-            opacity: 0.7;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
         }
 
-        .timer-close:hover {
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 70, 85, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .error {
+            color: var(--red);
+            font-size: 0.9rem;
+            height: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .error.show {
             opacity: 1;
         }
 
-        /* Round complete message */
-        .round-complete {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--glass);
-            backdrop-filter: blur(16px) saturate(180%);
-            border-radius: 20px;
-            border: 1px solid var(--glass-border);
-            padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
+        .welcome-view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
             text-align: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
         }
 
-        .round-complete.active {
-            opacity: 1;
+        .welcome-view.active {
+            display: flex;
+            animation: fadeIn 0.4s ease-out;
         }
 
-        .round-complete h2 {
+        .player-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(to right, var(--red), var(--cyan));
+            display: grid;
+            place-items: center;
             font-size: 2rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            font-weight: bold;
+            color: var(--dark);
         }
 
-        /* YouTube embed */
-        .youtube-embed {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .sabotage-video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .sabotage-video.active {
-            opacity: 1;
-            z-index: 1001;
+        .emergency-btn {
+            background: var(--red);
+            animation: pulse 2s infinite;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes checkIn {
-            0% { opacity: 0; transform: scale(0); }
-            80% { transform: scale(1.2); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0% { box-shadow: 0 0 0 0 rgba(255, 70, 85, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 70, 85, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 70, 85, 0); }
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 1024px) {
+        @media (max-width: 480px) {
             .container {
-                grid-template-columns: 1fr;
-            }
-            
-            .imposter-section {
-                grid-column: 1;
-                margin-top: 2rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .task-grid {
-                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .player-name {
-                font-size: 1.5rem;
-            }
-            
-            .role {
-                font-size: 2rem;
-            }
-
-            .header-buttons {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .header-buttons .btn {
-                width: 100%;
+                padding: 1.5rem;
             }
         }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
 </head>
 <body>
-    <!-- YouTube embed for audio (hidden) -->
-    <div class="youtube-embed">
-        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/WernYF9GmAo?enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen id="youtubeIframe"></iframe>
-    </div>
-
-    <!-- Sabotage video embed -->
-    <div class="sabotage-video" id="sabotageVideo">
-        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/ZrXA0JoOuwE?enablejsapi=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen id="sabotageVideoIframe"></iframe>
-    </div>
-
-    <!-- Timer display -->
-    <div class="timer-container" id="timerContainer">
-        <div class="timer-header">
-            <div class="timer-title">SABOTAGE ACTIVE</div>
-            <button class="timer-close" id="closeTimerBtn">×</button>
-        </div>
-        <div id="timerMessage"></div>
-    </div>
-
-    <!-- Round complete message -->
-    <div class="round-complete" id="roundComplete">
-        <h2>Round Complete!</h2>
-        <p>Starting next round in 3 seconds...</p>
-    </div>
-
     <div class="container">
-        <header>
-            <div>
-                <h1>Among Us IRL</h1>
-                <p class="subtitle">Complete 15 tasks. Random imposter each round!</p>
-            </div>
-            <div class="header-buttons">
-                <button class="btn btn-danger glass-card" id="sabotageBtn">SABOTAGE</button>
-                <button class="btn btn-secondary glass-card" id="roleSelectorBtn">ROLE SELECTOR</button>
-            </div>
-        </header>
-
-        <!-- TASKS SECTION -->
-        <section class="tasks-section glass-card">
-            <div class="progress-container">
-                <div class="progress-header">
-                    <span>Mission Progress</span>
-                    <span id="progressText">0/15</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-            </div>
-
-            <div class="task-grid" id="taskGrid">
-                <!-- Tasks will be added here -->
-            </div>
-
-            <div class="controls">
-                <button class="btn btn-primary" id="resetBtn">Reset All Tasks</button>
-            </div>
-        </section>
-
-        <!-- IMPOSTER SECTION -->
-        <section class="imposter-section glass-card">
-            <h2>Role Revealer</h2>
+        <!-- Auth View -->
+        <div id="auth-view" class="active">
+            <h1>Among Us Auth</h1>
             
-            <div class="role-display">
-                <div class="player-name" id="currentPlayer">Tap Reveal</div>
-                <div class="role-icon" id="roleIcon"></div>
-                <div class="role" id="roleDisplay"></div>
+            <div class="tabs">
+                <button class="tab active" data-tab="login">Login</button>
+                <button class="tab" data-tab="signup">Sign Up</button>
             </div>
-            
-            <div class="controls">
-                <button class="btn btn-primary" id="showRoleBtn">Reveal Role</button>
-                <button class="btn btn-secondary" id="nextPlayerBtn">Next Player</button>
-            </div>
-        </section>
-    </div>
 
-    <!-- Sabotage Modal -->
-    <div class="modal-overlay" id="sabotageModal">
-        <div class="modal glass-card">
-            <div class="modal-header">
-                <h2 class="modal-title">SABOTAGE</h2>
-                <p>Choose your sabotage type:</p>
-            </div>
-            <div class="modal-body">
-                <div class="sabotage-option" id="nairaRoomOption">
-                    <h3>Naira's Room</h3>
-                    <p>2 people must have their hands on paper until timer ends</p>
+            <!-- Login Form -->
+            <form id="login-form" class="form active">
+                <div class="input-group">
+                    <input type="text" id="login-username" placeholder="Crewmate Name" required>
                 </div>
-                <div class="sabotage-option" id="diningTableOption">
-                    <h3>Dining Table</h3>
-                    <p>2 people must sit down until timer ends</p>
+                <div class="input-group">
+                    <input type="password" id="login-password" placeholder="Password" required>
                 </div>
-                <div class="time-input">
-                    <label for="sabotageDelay">Delay (seconds):</label>
-                    <input type="number" id="sabotageDelay" min="0" max="300" value="0">
-                    <button class="btn btn-primary" id="nowBtn">Now</button>
+                <div id="login-error" class="error"></div>
+                <button type="button" id="login-btn">Start Game</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signup-form" class="form">
+                <div class="input-group">
+                    <input type="text" id="signup-username" placeholder="New Crewmate Name" required>
                 </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" id="cancelSabotageBtn">Cancel</button>
-            </div>
+                <div class="input-group">
+                    <input type="password" id="signup-password" placeholder="New Password" required>
+                </div>
+                <div id="signup-error" class="error"></div>
+                <button type="button" id="signup-btn">Join Crew</button>
+            </form>
+        </div>
+
+        <!-- Welcome View -->
+        <div id="welcome-view" class="welcome-view">
+            <div class="player-avatar" id="player-avatar"></div>
+            <h1>Welcome, <span id="username-display"></span>!</h1>
+            <p>You're now in the game. Watch out for impostors!</p>
+            <p>Games played: <span id="games-played">0</span></p>
+            <button class="emergency-btn" id="emergency-btn">Emergency Meeting</button>
+            <button id="logout-btn">Log Out</button>
         </div>
     </div>
 
     <script>
-        // Configuration
-        const TOTAL_TASKS = 15;
-        const PLAYERS = ["Arya", "Shan", "Neev", "Naira", "Yug"];
-        let IMPOSTER = ""; // Will be set randomly
-        let sabotageDelay = localStorage.getItem('sabotageDelay') || 0;
-        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGQE7m__ZrA3byU-3DHn8x7NpkLdOddic",
+            authDomain: "amongusauth.firebaseapp.com",
+            projectId: "amongusauth",
+            storageBucket: "amongusauth.appspot.com",
+            messagingSenderId: "1024915360570",
+            appId: "1:1024915360570:web:be22081501d20a26631e03",
+            measurementId: "G-PKFC2W8GCN"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
         // DOM Elements
-        const taskGrid = document.getElementById('taskGrid');
-        const progressFill = document.getElementById('progressFill');
-        const progressText = document.getElementById('progressText');
-        const resetBtn = document.getElementById('resetBtn');
-        const currentPlayer = document.getElementById('currentPlayer');
-        const roleDisplay = document.getElementById('roleDisplay');
-        const roleIcon = document.getElementById('roleIcon');
-        const showRoleBtn = document.getElementById('showRoleBtn');
-        const nextPlayerBtn = document.getElementById('nextPlayerBtn');
-        const sabotageBtn = document.getElementById('sabotageBtn');
-        const roleSelectorBtn = document.getElementById('roleSelectorBtn');
-        const sabotageModal = document.getElementById('sabotageModal');
-        const nairaRoomOption = document.getElementById('nairaRoomOption');
-        const diningTableOption = document.getElementById('diningTableOption');
-        const cancelSabotageBtn = document.getElementById('cancelSabotageBtn');
-        const timerContainer = document.getElementById('timerContainer');
-        const timerMessage = document.getElementById('timerMessage');
-        const closeTimerBtn = document.getElementById('closeTimerBtn');
-        const roundComplete = document.getElementById('roundComplete');
-        const youtubeIframe = document.getElementById('youtubeIframe');
-        const sabotageVideo = document.getElementById('sabotageVideo');
-        const sabotageVideoIframe = document.getElementById('sabotageVideoIframe');
-        const sabotageDelayInput = document.getElementById('sabotageDelay');
-        const nowBtn = document.getElementById('nowBtn');
-        
-        // YouTube Player API
-        let youtubePlayer;
-        let sabotageVideoPlayer;
-        let youtubeAPILoaded = false;
+        const authView = document.getElementById('auth-view');
+        const welcomeView = document.getElementById('welcome-view');
+        const tabs = document.querySelectorAll('.tab');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const loginError = document.getElementById('login-error');
+        const signupError = document.getElementById('signup-error');
+        const usernameDisplay = document.getElementById('username-display');
+        const playerAvatar = document.getElementById('player-avatar');
+        const emergencyBtn = document.getElementById('emergency-btn');
+        const gamesPlayedDisplay = document.getElementById('games-played');
 
-        // This function will be called by YouTube API when ready
-        function onYouTubeIframeAPIReady() {
-            youtubeAPILoaded = true;
-            youtubePlayer = new YT.Player('youtubeIframe', {
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-            
-            sabotageVideoPlayer = new YT.Player('sabotageVideoIframe', {
-                events: {
-                    'onReady': onSabotagePlayerReady,
-                    'onStateChange': onSabotagePlayerStateChange
-                }
-            });
-        }
-
-        function onPlayerReady(event) {
-            console.log("Main audio player ready");
-        }
-
-        function onPlayerStateChange(event) {
-            console.log("Main player state changed:", event.data);
-        }
-
-        function onSabotagePlayerReady(event) {
-            console.log("Sabotage video player ready");
-        }
-
-        function onSabotagePlayerStateChange(event) {
-            console.log("Sabotage player state changed:", event.data);
-            
-            if (event.data === YT.PlayerState.ENDED) {
-                // When sabotage video ends, hide it and show the timer
-                sabotageVideo.classList.remove('active');
-                timerContainer.classList.add('active');
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
                 
-                // Play the countdown audio
-                if (youtubePlayer) {
-                    youtubePlayer.seekTo(0);
-                    youtubePlayer.playVideo();
+                if (tab.dataset.tab === 'login') {
+                    loginForm.classList.add('active');
+                    signupForm.classList.remove('active');
+                } else {
+                    loginForm.classList.remove('active');
+                    signupForm.classList.add('active');
                 }
-            }
-        }
-
-        // Load YouTube API
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        // State
-        let completedTasks = 0;
-        let currentPlayerIndex = 0;
-        let isRoleRevealed = false;
-        let sabotageActive = false;
-        let allPlayersRevealed = false;
-        
-        // Initialize
-        function init() {
-            // Set random imposter
-            selectRandomImposter();
-            
-            // Set saved sabotage delay
-            sabotageDelayInput.value = sabotageDelay;
-            
-            createTasks();
-            updatePlayerDisplay();
-            updateProgress();
-        }
-        
-        // Select random imposter
-        function selectRandomImposter() {
-            IMPOSTER = PLAYERS[Math.floor(Math.random() * PLAYERS.length)];
-        }
-        
-        // Create task grid
-        function createTasks() {
-            taskGrid.innerHTML = '';
-            
-            for (let i = 0; i < TOTAL_TASKS; i++) {
-                const task = document.createElement('div');
-                task.className = 'task glass-card';
-                task.textContent = `Task ${i + 1}`;
-                task.addEventListener('click', () => toggleTask(task));
-                taskGrid.appendChild(task);
-            }
-        }
-        
-        // Toggle task completion
-        function toggleTask(taskElement) {
-            const wasCompleted = taskElement.classList.contains('completed');
-            
-            if (wasCompleted) {
-                taskElement.classList.remove('completed');
-                completedTasks--;
-            } else {
-                taskElement.classList.add('completed');
-                completedTasks++;
-            }
-            
-            updateProgress();
-        }
-        
-        // Update progress display
-        function updateProgress() {
-            const progress = (completedTasks / TOTAL_TASKS) * 100;
-            progressFill.style.width = `${progress}%`;
-            progressText.textContent = `${completedTasks}/${TOTAL_TASKS}`;
-        }
-        
-        // Update player display
-        function updatePlayerDisplay() {
-            isRoleRevealed = false;
-            
-            currentPlayer.textContent = PLAYERS[currentPlayerIndex];
-            roleDisplay.className = 'role';
-            roleDisplay.textContent = '';
-            roleIcon.className = 'role-icon';
-            roleIcon.style.backgroundImage = '';
-            
-            showRoleBtn.disabled = false;
-            showRoleBtn.textContent = 'Reveal Role';
-        }
-        
-        // Reveal role for current player
-        function revealRole() {
-            if (isRoleRevealed) return;
-            
-            const player = PLAYERS[currentPlayerIndex];
-            const isImposter = player === IMPOSTER;
-            
-            // Set role display
-            roleDisplay.textContent = isImposter ? 'IMPOSTER' : 'CREWMATE';
-            roleDisplay.className = `role ${isImposter ? 'imposter' : 'crewmate'}`;
-            
-            // Set role icon
-            roleIcon.className = `role-icon ${isImposter ? 'imposter' : 'crewmate'}`;
-            roleIcon.style.backgroundImage = isImposter 
-                ? 'url("https://cdn-icons-png.flaticon.com/512/2583/2583344.png")' 
-                : 'url("https://cdn-icons-png.flaticon.com/512/2583/2583329.png")';
-            
-            // Disable button during reveal
-            showRoleBtn.disabled = true;
-            showRoleBtn.textContent = isImposter ? 'IMPOSTER!' : 'Crewmate';
-            
-            // Animate elements
-            setTimeout(() => {
-                roleDisplay.classList.add('show');
-                roleIcon.classList.add('show');
-            }, 50);
-            
-            isRoleRevealed = true;
-        }
-        
-        // Move to next player
-        function nextPlayer() {
-            if (!isRoleRevealed) {
-                revealRole();
-                setTimeout(() => {
-                    advancePlayer();
-                }, 1500);
-            } else {
-                advancePlayer();
-            }
-        }
-        
-        function advancePlayer() {
-            currentPlayerIndex = (currentPlayerIndex + 1) % PLAYERS.length;
-            
-            // Check if all players have been revealed
-            if (currentPlayerIndex === 0) {
-                allPlayersRevealed = true;
-                showRoundComplete();
-            } else {
-                updatePlayerDisplay();
-            }
-        }
-        
-        // Show round complete message
-        function showRoundComplete() {
-            roundComplete.classList.add('active');
-            
-            setTimeout(() => {
-                roundComplete.classList.remove('active');
-                startNewRound();
-            }, 3000);
-        }
-        
-        // Start a new round
-        function startNewRound() {
-            // Reset player index
-            currentPlayerIndex = 0;
-            
-            // Select new random imposter
-            selectRandomImposter();
-            
-            // Reset tasks
-            document.querySelectorAll('.task').forEach(task => {
-                task.classList.remove('completed');
             });
-            completedTasks = 0;
-            updateProgress();
+        });
+
+        // Check auth state
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                const username = user.displayName || user.email.split('@')[0];
+                showWelcome(username);
+                loadUserData(user.uid);
+            }
+        });
+
+        // Sign up function
+        document.getElementById('signup-btn').addEventListener('click', () => {
+            const username = document.getElementById('signup-username').value.trim();
+            const password = document.getElementById('signup-password').value.trim();
             
-            // Update player display
-            allPlayersRevealed = false;
-            updatePlayerDisplay();
-        }
-        
-        // Activate sabotage
-        function activateSabotage(type) {
-            if (sabotageActive) return;
+            if (!username || !password) {
+                showError(signupError, 'Enter a name and password!');
+                return;
+            }
             
-            sabotageActive = true;
-            sabotageBtn.disabled = true;
+            if (password.length < 6) {
+                showError(signupError, 'Password must be at least 6 characters');
+                return;
+            }
             
-            // Set message based on sabotage type
-            const message = type === 'naira' 
-                ? "Naira's Room - 2 people must have hands on paper" 
-                : "Dining Table - 2 people must sit down";
+            // Create user with email/password (using username as email)
+            const email = `${username}@amongus.game`;
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Update display name
+                    return userCredential.user.updateProfile({
+                        displayName: username
+                    }).then(() => {
+                        // Create user data in Realtime Database
+                        return database.ref('users/' + userCredential.user.uid).set({
+                            username: username,
+                            gamesPlayed: 0,
+                            createdAt: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    });
+                })
+                .then(() => {
+                    const user = auth.currentUser;
+                    showWelcome(user.displayName);
+                })
+                .catch((error) => {
+                    showError(signupError, error.message);
+                });
+        });
+
+        // Login function
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
             
-            timerMessage.textContent = message;
+            if (!username || !password) {
+                showError(loginError, 'Enter name and password!');
+                return;
+            }
             
-            // Set the appropriate video based on sabotage type
-            const videoId = type === 'naira' 
-                ? 'ZrXA0JoOuwE' 
-                : '-puHyEdltnM';
-            
-            // Show the video container
-            sabotageVideo.classList.add('active');
-            
-            // Load and play the sabotage video
-            if (sabotageVideoPlayer) {
-                try {
-                    sabotageVideoPlayer.loadVideoById(videoId);
-                    sabotageVideoPlayer.playVideo();
-                } catch (e) {
-                    console.error("Error playing sabotage video:", e);
-                    // Fallback - just show the timer if video fails
-                    sabotageVideo.classList.remove('active');
-                    timerContainer.classList.add('active');
-                    if (youtubePlayer) {
-                        youtubePlayer.seekTo(0);
-                        youtubePlayer.playVideo();
+            // Sign in with email/password (using username as email)
+            const email = `${username}@amongus.game`;
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const displayName = user.displayName || username;
+                    showWelcome(displayName);
+                    loadUserData(user.uid);
+                })
+                .catch((error) => {
+                    showError(loginError, error.message);
+                });
+        });
+
+        // Emergency Meeting Button
+        emergencyBtn.addEventListener('click', () => {
+            const user = auth.currentUser;
+            if (user) {
+                // Increment games played count
+                const userRef = database.ref('users/' + user.uid);
+                userRef.transaction((userData) => {
+                    if (userData) {
+                        userData.gamesPlayed = (userData.gamesPlayed || 0) + 1;
                     }
-                }
-            } else {
-                console.error("Sabotage video player not initialized");
-                // Fallback - just show the timer if player not ready
-                sabotageVideo.classList.remove('active');
-                timerContainer.classList.add('active');
-                if (youtubePlayer) {
-                    youtubePlayer.seekTo(0);
-                    youtubePlayer.playVideo();
-                }
+                    return userData;
+                });
+                
+                alert("🚨 EMERGENCY MEETING! 🚨\nWho is the impostor?");
             }
-        }
-        
-        // Schedule sabotage with delay
-        function scheduleSabotage(type) {
-            const delay = parseInt(sabotageDelayInput.value) * 1000;
-            
-            // Save delay setting
-            sabotageDelay = sabotageDelayInput.value;
-            localStorage.setItem('sabotageDelay', sabotageDelay);
-            
-            if (delay === 0) {
-                activateSabotage(type);
-            } else {
-                setTimeout(() => {
-                    activateSabotage(type);
-                }, delay);
-            }
-            
-            sabotageModal.classList.remove('active');
-        }
-        
-        // Event Listeners
-        resetBtn.addEventListener('click', () => {
-            // Reset tasks
-            document.querySelectorAll('.task').forEach(task => {
-                task.classList.remove('completed');
+        });
+
+        // Logout function
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            auth.signOut().then(() => {
+                authView.classList.add('active');
+                welcomeView.classList.remove('active');
+                document.getElementById('login-username').value = '';
+                document.getElementById('login-password').value = '';
+                document.getElementById('signup-username').value = '';
+                document.getElementById('signup-password').value = '';
+                tabs[0].click();
+            }).catch((error) => {
+                console.error('Logout error:', error);
             });
-            completedTasks = 0;
-            updateProgress();
-            
-            // Reset player display and choose new imposter
-            currentPlayerIndex = 0;
-            selectRandomImposter();
-            updatePlayerDisplay();
-            
-            // Reset sabotage
-            sabotageActive = false;
-            sabotageBtn.disabled = false;
-            timerContainer.classList.remove('active');
-            sabotageVideo.classList.remove('active');
-            
-            // Reset round state
-            allPlayersRevealed = false;
-            roundComplete.classList.remove('active');
-            
-            // Pause audio
-            if (youtubePlayer) {
-                youtubePlayer.pauseVideo();
-            }
-            if (sabotageVideoPlayer) {
-                sabotageVideoPlayer.pauseVideo();
-            }
         });
-        
-        showRoleBtn.addEventListener('click', revealRole);
-        nextPlayerBtn.addEventListener('click', nextPlayer);
-        
-        // Sabotage button
-        sabotageBtn.addEventListener('click', () => {
-            if (!sabotageActive) {
-                sabotageModal.classList.add('active');
-            }
-        });
-        
-        // Role selector button
-        roleSelectorBtn.addEventListener('click', () => {
-            if (!isRoleRevealed) {
-                revealRole();
-            }
-        });
-        
-        // Sabotage options
-        nairaRoomOption.addEventListener('click', () => {
-            scheduleSabotage('naira');
-        });
-        
-        diningTableOption.addEventListener('click', () => {
-            scheduleSabotage('dining');
-        });
-        
-        // Now button
-        nowBtn.addEventListener('click', () => {
-            sabotageDelayInput.value = 0;
-        });
-        
-        // Cancel sabotage
-        cancelSabotageBtn.addEventListener('click', () => {
-            sabotageModal.classList.remove('active');
-        });
-        
-        // Close timer
-        closeTimerBtn.addEventListener('click', () => {
-            timerContainer.classList.remove('active');
-            sabotageActive = false;
-            sabotageBtn.disabled = false;
-            
-            // Pause audio
-            if (youtubePlayer) {
-                youtubePlayer.pauseVideo();
-            }
-        });
-        
-        // Initialize app
-        init();
+
+        // Helper functions
+        function showWelcome(username) {
+            authView.classList.remove('active');
+            welcomeView.classList.add('active');
+            usernameDisplay.textContent = username;
+            playerAvatar.textContent = username.charAt(0).toUpperCase();
+        }
+
+        function loadUserData(userId) {
+            database.ref('users/' + userId).once('value').then((snapshot) => {
+                const userData = snapshot.val();
+                if (userData && userData.gamesPlayed) {
+                    gamesPlayedDisplay.textContent = userData.gamesPlayed;
+                }
+            });
+        }
+
+        function showError(element, message) {
+            element.textContent = message;
+            element.classList.add('show');
+            setTimeout(() => element.classList.remove('show'), 3000);
+        }
     </script>
 </body>
 </html>
