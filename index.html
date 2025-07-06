@@ -106,7 +106,6 @@
 
         .form.active {
             display: flex;
-            animation: fadeIn 0.4s ease-out;
         }
 
         .input-group {
@@ -158,12 +157,7 @@
             color: var(--red);
             font-size: 0.9rem;
             height: 1rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .error.show {
-            opacity: 1;
+            margin-bottom: 0.5rem;
         }
 
         .welcome-view {
@@ -176,7 +170,6 @@
 
         .welcome-view.active {
             display: flex;
-            animation: fadeIn 0.4s ease-out;
         }
 
         .player-avatar {
@@ -194,11 +187,6 @@
         .emergency-btn {
             background: var(--red);
             animation: pulse 2s infinite;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes pulse {
@@ -256,8 +244,8 @@
 
         <!-- Welcome View -->
         <div id="welcome-view" class="welcome-view">
-            <div class="player-avatar" id="player-avatar"></div>
-            <h1>Welcome, <span id="username-display"></span>!</h1>
+            <div class="player-avatar" id="player-avatar">Y</div>
+            <h1>Welcome, <span id="username-display">Yug</span>!</h1>
             <p>You're now in the game. Watch out for impostors!</p>
             <p>Games played: <span id="games-played">0</span></p>
             <button class="emergency-btn" id="emergency-btn">Emergency Meeting</button>
@@ -295,18 +283,20 @@
         const emergencyBtn = document.getElementById('emergency-btn');
         const gamesPlayedDisplay = document.getElementById('games-played');
 
-        // Check auth state on load
+        // Initialize views
+        authView.style.display = 'block';
+        welcomeView.style.display = 'none';
+
+        // Check auth state
         auth.onAuthStateChanged(user => {
             if (user) {
-                // User is signed in, show welcome view
+                // User is signed in
                 const username = user.displayName || user.email.split('@')[0];
                 showWelcome(username);
                 loadUserData(user.uid);
             } else {
-                // No user signed in, show auth view
-                authView.classList.add('active');
-                welcomeView.classList.remove('active');
-                tabs[0].click();
+                // No user is signed in
+                showAuth();
             }
         });
 
@@ -332,12 +322,12 @@
             const password = document.getElementById('signup-password').value.trim();
             
             if (!username || !password) {
-                showError(signupError, 'Enter a name and password!');
+                signupError.textContent = 'Enter a name and password!';
                 return;
             }
             
             if (password.length < 6) {
-                showError(signupError, 'Password must be at least 6 characters');
+                signupError.textContent = 'Password must be at least 6 characters';
                 return;
             }
             
@@ -360,10 +350,9 @@
                 .then(() => {
                     const user = auth.currentUser;
                     showWelcome(user.displayName);
-                    loadUserData(user.uid);
                 })
                 .catch((error) => {
-                    showError(signupError, error.message);
+                    signupError.textContent = error.message;
                 });
         });
 
@@ -373,7 +362,7 @@
             const password = document.getElementById('login-password').value.trim();
             
             if (!username || !password) {
-                showError(loginError, 'Enter name and password!');
+                loginError.textContent = 'Enter name and password!';
                 return;
             }
             
@@ -387,13 +376,12 @@
                     loadUserData(user.uid);
                 })
                 .catch((error) => {
-                    // Specific error message for wrong credentials
                     if (error.code === 'auth/invalid-credential' || 
                         error.code === 'auth/wrong-password' || 
                         error.code === 'auth/user-not-found') {
-                        showError(loginError, 'Wrong username or password!');
+                        loginError.textContent = 'Wrong username or password!';
                     } else {
-                        showError(loginError, error.message);
+                        loginError.textContent = error.message;
                     }
                 });
         });
@@ -409,9 +397,6 @@
                         userData.gamesPlayed = (userData.gamesPlayed || 0) + 1;
                     }
                     return userData;
-                }).then(() => {
-                    // Update the displayed count
-                    loadUserData(user.uid);
                 });
                 
                 alert("🚨 EMERGENCY MEETING! 🚨\nWho is the impostor?");
@@ -421,13 +406,7 @@
         // Logout function
         document.getElementById('logout-btn').addEventListener('click', () => {
             auth.signOut().then(() => {
-                authView.classList.add('active');
-                welcomeView.classList.remove('active');
-                document.getElementById('login-username').value = '';
-                document.getElementById('login-password').value = '';
-                document.getElementById('signup-username').value = '';
-                document.getElementById('signup-password').value = '';
-                tabs[0].click();
+                showAuth();
             }).catch((error) => {
                 console.error('Logout error:', error);
             });
@@ -435,10 +414,22 @@
 
         // Helper functions
         function showWelcome(username) {
-            authView.classList.remove('active');
-            welcomeView.classList.add('active');
+            authView.style.display = 'none';
+            welcomeView.style.display = 'flex';
             usernameDisplay.textContent = username;
             playerAvatar.textContent = username.charAt(0).toUpperCase();
+        }
+
+        function showAuth() {
+            authView.style.display = 'block';
+            welcomeView.style.display = 'none';
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            document.getElementById('signup-username').value = '';
+            document.getElementById('signup-password').value = '';
+            loginError.textContent = '';
+            signupError.textContent = '';
+            tabs[0].click();
         }
 
         function loadUserData(userId) {
@@ -448,12 +439,6 @@
                     gamesPlayedDisplay.textContent = userData.gamesPlayed;
                 }
             });
-        }
-
-        function showError(element, message) {
-            element.textContent = message;
-            element.classList.add('show');
-            setTimeout(() => element.classList.remove('show'), 3000);
         }
     </script>
 </body>
