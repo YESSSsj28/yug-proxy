@@ -45,23 +45,6 @@
             overflow: hidden;
         }
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to bottom right,
-                transparent, transparent,
-                var(--cyan), transparent
-            );
-            transform: rotate(30deg);
-            opacity: 0.05;
-            z-index: -1;
-        }
-
         h1 {
             font-size: 2rem;
             margin-bottom: 1.5rem;
@@ -160,7 +143,7 @@
             margin-bottom: 0.5rem;
         }
 
-        .welcome-view {
+        .view {
             display: none;
             flex-direction: column;
             align-items: center;
@@ -168,53 +151,43 @@
             text-align: center;
         }
 
-        .welcome-view.active {
+        .view.active {
             display: flex;
+            animation: fadeIn 0.3s ease-out;
         }
 
-        .player-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(to right, var(--red), var(--cyan));
-            display: grid;
-            place-items: center;
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--dark);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .emergency-btn {
-            background: var(--red);
-            animation: pulse 2s infinite;
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 70, 85, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(255, 70, 85, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 70, 85, 0); }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 1.5rem;
-            }
+        #game-status {
+            margin: 1rem 0;
+            color: var(--cyan);
+            min-height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
     </style>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
 </head>
 <body>
     <div class="container">
         <!-- Auth View -->
-        <div id="auth-view">
+        <div id="auth-view" class="view active">
             <h1>Among Us Auth</h1>
             
             <div class="tabs">
-                <button class="tab active" data-tab="login">Login</button>
-                <button class="tab" data-tab="signup">Sign Up</button>
+                <button class="tab active" id="login-tab">Login</button>
+                <button class="tab" id="signup-tab">Sign Up</button>
             </div>
 
             <!-- Login Form -->
@@ -242,16 +215,22 @@
             </form>
         </div>
 
-        <!-- Welcome View -->
-        <div id="welcome-view" class="welcome-view">
-            <div class="player-avatar" id="player-avatar">Y</div>
-            <h1>Welcome, <span id="username-display">Yug</span>!</h1>
-            <p>You're now in the game. Watch out for impostors!</p>
-            <p>Games played: <span id="games-played">0</span></p>
-            <button class="emergency-btn" id="emergency-btn">Emergency Meeting</button>
+        <!-- Menu View -->
+        <div id="menu-view" class="view">
+            <h1>Welcome, <span id="username-display">Player</span>!</h1>
+            <div class="button-group">
+                <button id="join-game-btn">Join Game</button>
+                <button id="create-game-btn">Create Game</button>
+            </div>
+            <div id="game-status"></div>
             <button id="logout-btn">Log Out</button>
         </div>
     </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
 
     <script>
         // Firebase configuration
@@ -268,56 +247,73 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const database = firebase.database();
+        const db = firebase.firestore();
 
         // DOM Elements
         const authView = document.getElementById('auth-view');
-        const welcomeView = document.getElementById('welcome-view');
-        const tabs = document.querySelectorAll('.tab');
+        const menuView = document.getElementById('menu-view');
+        const loginTab = document.getElementById('login-tab');
+        const signupTab = document.getElementById('signup-tab');
         const loginForm = document.getElementById('login-form');
         const signupForm = document.getElementById('signup-form');
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
         const loginError = document.getElementById('login-error');
         const signupError = document.getElementById('signup-error');
         const usernameDisplay = document.getElementById('username-display');
-        const playerAvatar = document.getElementById('player-avatar');
-        const emergencyBtn = document.getElementById('emergency-btn');
-        const gamesPlayedDisplay = document.getElementById('games-played');
+        const joinGameBtn = document.getElementById('join-game-btn');
+        const createGameBtn = document.getElementById('create-game-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const gameStatus = document.getElementById('game-status');
 
-        // Initialize views
-        authView.style.display = 'block';
-        welcomeView.style.display = 'none';
+        // Tab switching
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('active');
+            signupTab.classList.remove('active');
+            loginForm.classList.add('active');
+            signupForm.classList.remove('active');
+        });
 
-        // Check auth state
+        signupTab.addEventListener('click', () => {
+            signupTab.classList.add('active');
+            loginTab.classList.remove('active');
+            signupForm.classList.add('active');
+            loginForm.classList.remove('active');
+        });
+
+        // Auth state listener
         auth.onAuthStateChanged(user => {
             if (user) {
-                // User is signed in
                 const username = user.displayName || user.email.split('@')[0];
-                showWelcome(username);
-                loadUserData(user.uid);
+                usernameDisplay.textContent = username;
+                showView('menu');
             } else {
-                // No user is signed in
-                showAuth();
+                showView('auth');
             }
         });
 
-        // Tab switching
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                if (tab.dataset.tab === 'login') {
-                    loginForm.classList.add('active');
-                    signupForm.classList.remove('active');
-                } else {
-                    loginForm.classList.remove('active');
-                    signupForm.classList.add('active');
-                }
-            });
+        // Login function
+        loginBtn.addEventListener('click', () => {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            
+            if (!username || !password) {
+                loginError.textContent = 'Enter name and password!';
+                return;
+            }
+            
+            const email = `${username}@amongus.game`;
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    loginError.textContent = '';
+                })
+                .catch(error => {
+                    loginError.textContent = 'Wrong username or password!';
+                });
         });
 
-        // Sign up function
-        document.getElementById('signup-btn').addEventListener('click', () => {
+        // Signup function
+        signupBtn.addEventListener('click', () => {
             const username = document.getElementById('signup-username').value.trim();
             const password = document.getElementById('signup-password').value.trim();
             
@@ -331,114 +327,118 @@
                 return;
             }
             
-            // Create user with email/password (using username as email)
             const email = `${username}@amongus.game`;
             auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Update display name
+                .then(userCredential => {
                     return userCredential.user.updateProfile({
                         displayName: username
-                    }).then(() => {
-                        // Create user data in Realtime Database
-                        return database.ref('users/' + userCredential.user.uid).set({
-                            username: username,
-                            gamesPlayed: 0,
-                            createdAt: firebase.database.ServerValue.TIMESTAMP
-                        });
                     });
                 })
                 .then(() => {
-                    const user = auth.currentUser;
-                    showWelcome(user.displayName);
+                    signupError.textContent = '';
                 })
-                .catch((error) => {
+                .catch(error => {
                     signupError.textContent = error.message;
                 });
         });
 
-        // Login function
-        document.getElementById('login-btn').addEventListener('click', () => {
-            const username = document.getElementById('login-username').value.trim();
-            const password = document.getElementById('login-password').value.trim();
-            
-            if (!username || !password) {
-                loginError.textContent = 'Enter name and password!';
-                return;
-            }
-            
-            // Sign in with email/password (using username as email)
-            const email = `${username}@amongus.game`;
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    const displayName = user.displayName || username;
-                    showWelcome(displayName);
-                    loadUserData(user.uid);
-                })
-                .catch((error) => {
-                    if (error.code === 'auth/invalid-credential' || 
-                        error.code === 'auth/wrong-password' || 
-                        error.code === 'auth/user-not-found') {
-                        loginError.textContent = 'Wrong username or password!';
-                    } else {
-                        loginError.textContent = error.message;
-                    }
-                });
-        });
-
-        // Emergency Meeting Button
-        emergencyBtn.addEventListener('click', () => {
+        // CREATE GAME - WORKING IMPLEMENTATION
+        createGameBtn.addEventListener('click', async () => {
             const user = auth.currentUser;
-            if (user) {
-                // Increment games played count
-                const userRef = database.ref('users/' + user.uid);
-                userRef.transaction((userData) => {
-                    if (userData) {
-                        userData.gamesPlayed = (userData.gamesPlayed || 0) + 1;
-                    }
-                    return userData;
+            if (!user) return alert("Please login first!");
+            
+            gameStatus.textContent = "Creating game...";
+            
+            try {
+                // Generate random 4-letter code
+                const roomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
+                
+                // Create game in Firestore
+                await db.collection("games").add({
+                    hostId: user.uid,
+                    hostName: user.displayName || user.email.split('@')[0],
+                    roomCode: roomCode,
+                    status: "waiting",
+                    players: [user.uid],
+                    playerNames: [user.displayName || user.email.split('@')[0]],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    maxPlayers: 10
                 });
                 
-                alert("🚨 EMERGENCY MEETING! 🚨\nWho is the impostor?");
+                gameStatus.innerHTML = `Game created!<br>Room Code: <strong>${roomCode}</strong>`;
+            } catch (error) {
+                gameStatus.textContent = "Error creating game: " + error.message;
             }
         });
 
-        // Logout function
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            auth.signOut().then(() => {
-                showAuth();
-            }).catch((error) => {
-                console.error('Logout error:', error);
-            });
+        // JOIN GAME - WORKING IMPLEMENTATION
+        joinGameBtn.addEventListener('click', async () => {
+            const roomCode = prompt("Enter 4-letter room code:").toUpperCase().trim();
+            if (!roomCode || roomCode.length !== 4) return alert("Invalid code!");
+            
+            const user = auth.currentUser;
+            if (!user) return alert("Please login first!");
+            
+            gameStatus.textContent = `Joining game ${roomCode}...`;
+            
+            try {
+                // Find game by room code
+                const snapshot = await db.collection("games")
+                    .where("roomCode", "==", roomCode)
+                    .where("status", "==", "waiting")
+                    .limit(1)
+                    .get();
+                
+                if (snapshot.empty) return gameStatus.textContent = "Game not found or already started";
+                
+                const gameDoc = snapshot.docs[0];
+                const gameData = gameDoc.data();
+                
+                // Check if already in game
+                if (gameData.players.includes(user.uid)) {
+                    return gameStatus.textContent = "You're already in this game!";
+                }
+                
+                // Check if game is full
+                if (gameData.players.length >= gameData.maxPlayers) {
+                    return gameStatus.textContent = "Game is full!";
+                }
+                
+                // Add player to game
+                await db.collection("games").doc(gameDoc.id).update({
+                    players: firebase.firestore.FieldValue.arrayUnion(user.uid),
+                    playerNames: firebase.firestore.FieldValue.arrayUnion(user.displayName || user.email.split('@')[0])
+                });
+                
+                gameStatus.innerHTML = `Joined game <strong>${roomCode}</strong>!<br>Waiting for host to start...`;
+            } catch (error) {
+                gameStatus.textContent = "Error joining game: " + error.message;
+            }
         });
 
-        // Helper functions
-        function showWelcome(username) {
-            authView.style.display = 'none';
-            welcomeView.style.display = 'flex';
-            usernameDisplay.textContent = username;
-            playerAvatar.textContent = username.charAt(0).toUpperCase();
-        }
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+            gameStatus.textContent = "";
+        });
 
-        function showAuth() {
-            authView.style.display = 'block';
-            welcomeView.style.display = 'none';
-            document.getElementById('login-username').value = '';
-            document.getElementById('login-password').value = '';
-            document.getElementById('signup-username').value = '';
-            document.getElementById('signup-password').value = '';
-            loginError.textContent = '';
-            signupError.textContent = '';
-            tabs[0].click();
-        }
-
-        function loadUserData(userId) {
-            database.ref('users/' + userId).once('value').then((snapshot) => {
-                const userData = snapshot.val();
-                if (userData && userData.gamesPlayed) {
-                    gamesPlayedDisplay.textContent = userData.gamesPlayed;
-                }
-            });
+        // View management
+        function showView(viewName) {
+            authView.classList.remove('active');
+            menuView.classList.remove('active');
+            
+            if (viewName === 'auth') {
+                authView.classList.add('active');
+                document.getElementById('login-username').value = '';
+                document.getElementById('login-password').value = '';
+                document.getElementById('signup-username').value = '';
+                document.getElementById('signup-password').value = '';
+                loginError.textContent = '';
+                signupError.textContent = '';
+                loginTab.click();
+            } else if (viewName === 'menu') {
+                menuView.classList.add('active');
+            }
         }
     </script>
 </body>
