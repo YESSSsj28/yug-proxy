@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Among Us Enhanced</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
@@ -542,6 +542,9 @@
         }
 
         .task-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
             padding: 1rem;
             width: 100%;
             max-width: 500px;
@@ -570,7 +573,6 @@
         .task-item.completed {
             background: rgba(0, 255, 136, 0.1);
             border-color: rgba(0, 255, 136, 0.2);
-            opacity: 0.7;
         }
 
         .task-item.completed .task-name {
@@ -590,6 +592,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            color: var(--green);
         }
 
         .task-item.completed .task-status {
@@ -745,6 +748,121 @@
             margin-top: 1rem;
             font-size: 1.2rem;
             color: var(--cyan);
+        }
+
+        /* Game Over Screen Styles */
+        .game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(14, 14, 26, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1005;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .game-over-screen.active {
+            display: flex;
+        }
+
+        .game-over-title {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .game-over-crewmate {
+            color: var(--cyan);
+        }
+
+        .game-over-imposter {
+            color: var(--red);
+        }
+
+        .game-over-message {
+            margin-bottom: 2rem;
+            max-width: 80%;
+        }
+
+        .game-over-players {
+            width: 100%;
+            max-width: 500px;
+            margin: 1rem 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .game-over-player {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-over-player-role {
+            color: var(--yellow);
+        }
+
+        .game-over-buttons {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-height: 700px) {
+            .container {
+                padding: 1rem !important;
+                overflow-y: auto;
+                max-height: 95vh;
+            }
+            
+            h1 {
+                font-size: 1.5rem !important;
+                margin-bottom: 1rem !important;
+            }
+            
+            .player-list {
+                max-height: 150px !important;
+            }
+            
+            .task-list {
+                max-height: 50vh !important;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .tab {
+                font-size: 0.7rem !important;
+                padding: 0.5rem !important;
+            }
+            
+            .room-code {
+                font-size: 2rem !important;
+            }
+            
+            .countdown-number {
+                font-size: 8rem !important;
+            }
+            
+            .role-title {
+                font-size: 1.8rem !important;
+            }
+            
+            .task-list {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Animations */
@@ -918,6 +1036,21 @@
             <h1>YOU DIED</h1>
             <div id="death-message" class="death-message"></div>
         </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="game-over-screen">
+            <h1 id="game-over-title" class="game-over-title"></h1>
+            <div id="game-over-message" class="game-over-message"></div>
+            
+            <div class="game-over-players" id="game-over-players">
+                <!-- Players will be listed here -->
+            </div>
+            
+            <div class="game-over-buttons">
+                <button id="return-to-menu-btn" class="secondary">Return to Menu</button>
+                <button id="play-again-btn" class="green">Play Again</button>
+            </div>
+        </div>
     </div>
 
     <!-- Firebase SDK -->
@@ -989,6 +1122,12 @@
         const continueGameBtn = document.getElementById('continue-game-btn');
         const deathScreen = document.getElementById('death-screen');
         const deathMessage = document.getElementById('death-message');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const gameOverTitle = document.getElementById('game-over-title');
+        const gameOverMessage = document.getElementById('game-over-message');
+        const gameOverPlayers = document.getElementById('game-over-players');
+        const returnToMenuBtn = document.getElementById('return-to-menu-btn');
+        const playAgainBtn = document.getElementById('play-again-btn');
 
         // Game state
         let currentGameId = null;
@@ -1326,7 +1465,6 @@
             const gameDoc = await gameRef.get();
             gameData = gameDoc.data();
             
-            // Get number of imposters (default to 1 if not set)
             const numImposters = gameData.imposters || 1;
             const players = gameData.players;
             totalTasks = gameData.tasks || 15;
@@ -1340,30 +1478,23 @@
                 }
             }
             
-            // Create roles object
             const roles = {};
             const imposterIds = imposterIndices.map(i => players[i]);
             
-            // Calculate total tasks needed (only crewmates do tasks)
-            const crewmateCount = players.length - numImposters;
-            const tasksPerCrewmate = Math.ceil(totalTasks / crewmateCount);
-            const actualTotalTasks = tasksPerCrewmate * crewmateCount;
-            
-            // Distribute tasks evenly among crewmates
-            const taskNumbers = Array.from({length: actualTotalTasks}, (_, i) => i + 1);
+            // Create all task numbers
+            const taskNumbers = Array.from({length: totalTasks}, (_, i) => i + 1);
             shuffleArray(taskNumbers);
             
+            // Distribute tasks evenly among all players (including imposters)
+            const tasksPerPlayer = Math.ceil(totalTasks / players.length);
             let taskIndex = 0;
             
             players.forEach((playerId, index) => {
                 const isImposter = imposterIndices.includes(index);
                 
-                // Assign tasks to crewmates
-                let playerTasks = [];
-                if (!isImposter) {
-                    playerTasks = taskNumbers.slice(taskIndex, taskIndex + tasksPerCrewmate);
-                    taskIndex += tasksPerCrewmate;
-                }
+                // Assign tasks to all players (but imposters won't need to complete them)
+                const playerTasks = taskNumbers.slice(taskIndex, taskIndex + tasksPerPlayer);
+                taskIndex += tasksPerPlayer;
                 
                 roles[playerId] = {
                     role: isImposter ? 'imposter' : 'crewmate',
@@ -1372,16 +1503,17 @@
                             .map(id => gameData.playerNames[gameData.players.indexOf(id)])
                         : [],
                     tasks: playerTasks,
-                    completedTasks: 0
+                    completedTasks: 0,
+                    completed: []
                 };
             });
             
-            // Update game with roles and status
             await gameRef.update({
                 status: "assigning_roles",
                 roles: roles,
-                totalTasks: actualTotalTasks,
-                completedTasks: 0
+                totalTasks: totalTasks,
+                completedTasks: 0,
+                deadPlayers: []
             });
         }
 
@@ -1458,7 +1590,6 @@
             // Only show tasks if crewmate
             if (playerRole === 'crewmate') {
                 renderTasks();
-                gameMessage.textContent = "Complete your tasks!";
             } else {
                 taskList.innerHTML = '<h2 style="color: var(--red); text-shadow: 0 0 10px var(--red);">SABOTAGE AND ELIMINATE CREWMATES!</h2>';
             }
@@ -1473,14 +1604,23 @@
             playerTasks.forEach(task => {
                 const taskItem = document.createElement('div');
                 taskItem.className = 'task-item';
+                
+                // Check if task is already completed
+                const isCompleted = gameData.roles[auth.currentUser.uid].completed && 
+                                    gameData.roles[auth.currentUser.uid].completed.includes(task);
+                
                 taskItem.innerHTML = `
                     <span class="task-name">Task ${task}</span>
-                    <div class="task-status"></div>
+                    <div class="task-status">${isCompleted ? '✓' : ''}</div>
                 `;
                 
-                taskItem.addEventListener('click', () => {
-                    completeTask(task, taskItem);
-                });
+                if (isCompleted) {
+                    taskItem.classList.add('completed');
+                } else {
+                    taskItem.addEventListener('click', () => {
+                        completeTask(task, taskItem);
+                    });
+                }
                 
                 taskList.appendChild(taskItem);
             });
@@ -1491,25 +1631,23 @@
             if (playerRole !== 'crewmate' || isDead) return;
             
             const user = auth.currentUser;
-            if (!user) return;
+            if (!user || !gameData.roles) return;
+            
+            // Check if task was already completed
+            if (!gameData.roles[user.uid].tasks.includes(task) || 
+                gameData.roles[user.uid].completed.includes(task)) {
+                return;
+            }
             
             // Mark task as completed locally
             taskElement.classList.add('completed');
             
-            // Update completed tasks count
-            completedTasks++;
-            
-            // Update game state
             try {
                 await db.collection("games").doc(currentGameId).update({
-                    [`roles.${user.uid}.completedTasks`]: completedTasks,
+                    [`roles.${user.uid}.completed`]: firebase.firestore.FieldValue.arrayUnion(task),
+                    [`roles.${user.uid}.completedTasks`]: firebase.firestore.FieldValue.increment(1),
                     completedTasks: firebase.firestore.FieldValue.increment(1)
                 });
-                
-                // Check if all tasks are completed
-                if (completedTasks >= playerTasks.length) {
-                    gameMessage.textContent = "All your tasks completed! Help others!";
-                }
                 
                 updateTasksDisplay();
             } catch (error) {
@@ -1670,8 +1808,45 @@
 
         // Show game over
         function showGameOver() {
-            alert("Game over! This would show proper game over screen in full implementation");
-            leaveGame();
+            gameScreen.classList.remove('active');
+            gameOverScreen.classList.add('active');
+            
+            const winner = gameData.winner;
+            const user = auth.currentUser;
+            
+            if (winner === 'crewmates') {
+                gameOverTitle.textContent = 'CREWMATES WIN!';
+                gameOverTitle.className = 'game-over-title game-over-crewmate';
+                gameOverMessage.textContent = 'All tasks completed!';
+            } else {
+                gameOverTitle.textContent = 'IMPOSTERS WIN!';
+                gameOverTitle.className = 'game-over-title game-over-imposter';
+                gameOverMessage.textContent = 'All crewmates eliminated!';
+            }
+            
+            // List all players and their roles
+            gameOverPlayers.innerHTML = '';
+            gameData.playerNames.forEach((name, index) => {
+                const playerId = gameData.players[index];
+                const playerRole = gameData.roles[playerId].role;
+                const isDead = gameData.deadPlayers && gameData.deadPlayers.includes(playerId);
+                
+                const playerEl = document.createElement('div');
+                playerEl.className = 'game-over-player';
+                playerEl.innerHTML = `
+                    <span>${name} ${user.uid === playerId ? '(You)' : ''} ${isDead ? '💀' : ''}</span>
+                    <span class="game-over-player-role">${playerRole.toUpperCase()}</span>
+                `;
+                
+                gameOverPlayers.appendChild(playerEl);
+            });
+            
+            // Only show play again button for host
+            if (isHost) {
+                playAgainBtn.style.display = 'block';
+            } else {
+                playAgainBtn.style.display = 'none';
+            }
         }
 
         // LEAVE GAME
@@ -1706,6 +1881,31 @@
             showView('menu');
         }
 
+        // Return to menu from game over screen
+        returnToMenuBtn.addEventListener('click', leaveGame);
+        
+        // Play again button
+        playAgainBtn.addEventListener('click', async () => {
+            if (!isHost) return;
+            
+            try {
+                // Reset game state but keep players
+                await db.collection("games").doc(currentGameId).update({
+                    status: "waiting",
+                    roles: {},
+                    deadPlayers: [],
+                    completedTasks: 0,
+                    votingResults: null,
+                    winner: null
+                });
+                
+                gameOverScreen.classList.remove('active');
+                showView('lobby');
+            } catch (error) {
+                alert("Error restarting game: " + error.message);
+            }
+        });
+
         // Logout
         logoutBtn.addEventListener('click', () => {
             leaveGame();
@@ -1723,6 +1923,7 @@
             meetingScreen.classList.remove('active');
             resultsScreen.classList.remove('active');
             deathScreen.classList.remove('active');
+            gameOverScreen.classList.remove('active');
             
             if (viewName === 'auth') {
                 authView.classList.add('active');
