@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Among Us Enhanced</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
@@ -890,9 +890,313 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.3);
         }
+
+        /* NEW STYLES FOR ENHANCED FEATURES */
+        .kill-button {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 70, 85, 0.7);
+            z-index: 1001;
+            border: 2px solid white;
+            animation: pulse 2s infinite;
+        }
+
+        .kill-button.disabled {
+            background: #666;
+            box-shadow: none;
+            animation: none;
+            cursor: not-allowed;
+        }
+
+        .kill-confirm-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1006;
+            padding: 1rem;
+        }
+
+        .kill-confirm-screen.active {
+            display: flex;
+        }
+
+        .kill-player-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            width: 100%;
+            max-width: 500px;
+            margin: 1rem 0;
+        }
+
+        .kill-player-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .kill-player-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--red);
+        }
+
+        .kill-player-item img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 0.5rem;
+        }
+
+        .kill-confirm-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .death-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1007;
+        }
+
+        .death-animation.active {
+            display: flex;
+        }
+
+        .death-animation img {
+            width: 200px;
+            height: 200px;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .discussion-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(14, 14, 26, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            z-index: 1008;
+        }
+
+        .discussion-screen.active {
+            display: flex;
+        }
+
+        .discussion-timer {
+            font-size: 2rem;
+            color: var(--red);
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--red);
+        }
+
+        .discussion-chat {
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-message {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .chat-input {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+        }
+
+        .chat-input button {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            background: var(--blue);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .skip-discussion-btn {
+            margin-top: 1rem;
+            background: var(--red);
+        }
+
+        .role-toggle-btn {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            background: var(--purple);
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+            display: none;
+        }
+
+        .task-undo-btn {
+            position: fixed;
+            bottom: 5rem;
+            right: 1rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--yellow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 222, 89, 0.7);
+            z-index: 1001;
+            border: 2px solid white;
+            display: none;
+        }
+
+        .tie-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            border: 2px solid var(--yellow);
+            color: var(--yellow);
+            z-index: 1010;
+            display: none;
+        }
+
+        .cooldown-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: white;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .orientation-warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark);
+            z-index: 2000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        @media (orientation: portrait) and (max-width: 768px) {
+            .orientation-warning {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-height: 768px) {
+            .container {
+                max-width: 600px;
+                padding: 2rem !important;
+            }
+            
+            .kill-button, .emergency-button, .task-undo-btn {
+                width: 80px;
+                height: 80px;
+                font-size: 1.2rem;
+            }
+            
+            .vote-player-list {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) and (orientation: landscape) {
+            .container {
+                max-width: 90%;
+                max-height: 90%;
+                overflow-y: auto;
+            }
+            
+            .player-list {
+                max-height: 30vh !important;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Orientation Warning -->
+    <div class="orientation-warning">
+        <h2>Please rotate your device</h2>
+        <p>For the best experience, please play in landscape mode</p>
+        <img src="https://cdn-icons-png.flaticon.com/512/992/992703.png" alt="Rotate device" style="width: 100px; margin-top: 2rem;">
+    </div>
+
     <div id="app">
         <!-- Auth View -->
         <div id="auth-view" class="view-container view active">
@@ -1005,9 +1309,43 @@
                 <!-- Tasks will be added here dynamically -->
             </div>
             
+            <div class="kill-button" id="kill-button">KILL</div>
             <div class="emergency-button" id="emergency-button">
                 <span>!</span>
             </div>
+            <div class="task-undo-btn" id="task-undo-btn">↩</div>
+        </div>
+
+        <!-- Kill Confirmation Screen -->
+        <div id="kill-confirm-screen" class="kill-confirm-screen">
+            <h2>Select a player to eliminate</h2>
+            <div class="kill-player-list" id="kill-player-list">
+                <!-- Players will be added here -->
+            </div>
+            <div class="kill-confirm-buttons">
+                <button id="confirm-kill-btn" class="green">Confirm</button>
+                <button id="cancel-kill-btn" class="secondary">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Death Animation -->
+        <div id="death-animation" class="death-animation">
+            <img src="https://cdn-icons-png.flaticon.com/512/3663/3663374.png" alt="Imposter">
+            <h2 style="color: var(--red); margin-top: 1rem;">ELIMINATED</h2>
+        </div>
+
+        <!-- Discussion Screen -->
+        <div id="discussion-screen" class="discussion-screen">
+            <h2 class="meeting-title">DISCUSSION PHASE</h2>
+            <div class="discussion-timer" id="discussion-timer">2:00</div>
+            <div class="discussion-chat" id="discussion-chat">
+                <!-- Chat messages will appear here -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Type your message...">
+                <button id="send-chat-btn">Send</button>
+            </div>
+            <button id="skip-discussion-btn" class="skip-discussion-btn">Skip to Voting</button>
         </div>
 
         <!-- Meeting Screen -->
@@ -1051,6 +1389,12 @@
                 <button id="play-again-btn" class="green">Play Again</button>
             </div>
         </div>
+
+        <!-- Role Toggle Button -->
+        <button class="role-toggle-btn" id="role-toggle-btn">Act As Crewmate</button>
+
+        <!-- Tie Notification -->
+        <div class="tie-notification" id="tie-notification">VOTE TIED! No one was ejected.</div>
     </div>
 
     <!-- Firebase SDK -->
@@ -1128,6 +1472,21 @@
         const gameOverPlayers = document.getElementById('game-over-players');
         const returnToMenuBtn = document.getElementById('return-to-menu-btn');
         const playAgainBtn = document.getElementById('play-again-btn');
+        const killButton = document.getElementById('kill-button');
+        const killConfirmScreen = document.getElementById('kill-confirm-screen');
+        const killPlayerList = document.getElementById('kill-player-list');
+        const confirmKillBtn = document.getElementById('confirm-kill-btn');
+        const cancelKillBtn = document.getElementById('cancel-kill-btn');
+        const deathAnimation = document.getElementById('death-animation');
+        const discussionScreen = document.getElementById('discussion-screen');
+        const discussionTimer = document.getElementById('discussion-timer');
+        const discussionChat = document.getElementById('discussion-chat');
+        const chatInput = document.getElementById('chat-input');
+        const sendChatBtn = document.getElementById('send-chat-btn');
+        const skipDiscussionBtn = document.getElementById('skip-discussion-btn');
+        const roleToggleBtn = document.getElementById('role-toggle-btn');
+        const taskUndoBtn = document.getElementById('task-undo-btn');
+        const tieNotification = document.getElementById('tie-notification');
 
         // Game state
         let currentGameId = null;
@@ -1140,6 +1499,12 @@
         let totalTasks = 15;
         let isDead = false;
         let gameData = null;
+        let killCooldown = false;
+        let selectedPlayerToKill = null;
+        let discussionTimeLeft = 120;
+        let discussionInterval = null;
+        let lastCompletedTask = null;
+        let actingAsCrewmate = false;
 
         // Tab switching
         loginTab.addEventListener('click', () => {
@@ -1389,7 +1754,7 @@
                     
                     // Handle meeting called
                     if (gameData.status === "meeting") {
-                        showMeetingScreen();
+                        startDiscussion();
                     }
                     
                     // Handle voting results
@@ -1557,11 +1922,15 @@
                 } else {
                     otherImposters.textContent = "You're the only Imposter!";
                 }
+                
+                // Show role toggle button for imposters
+                roleToggleBtn.style.display = 'block';
             } else {
                 roleTitle.textContent = 'CREWMATE';
                 roleTitle.className = 'role-title crewmate-title';
                 crewmateImage.classList.add('active');
                 otherImposters.textContent = "Complete all tasks to win!";
+                roleToggleBtn.style.display = 'none';
             }
             
             // After 2 seconds, start the game
@@ -1587,11 +1956,13 @@
             completedTasks = gameData.roles[user.uid].completedTasks || 0;
             totalTasks = gameData.totalTasks || 15;
             
-            // Only show tasks if crewmate
-            if (playerRole === 'crewmate') {
+            // Show appropriate UI based on role
+            if (playerRole === 'imposter') {
                 renderTasks();
+                killButton.style.display = 'flex';
             } else {
-                taskList.innerHTML = '<h2 style="color: var(--red); text-shadow: 0 0 10px var(--red);">SABOTAGE AND ELIMINATE CREWMATES!</h2>';
+                renderTasks();
+                killButton.style.display = 'none';
             }
             
             updateTasksDisplay();
@@ -1601,7 +1972,12 @@
         function renderTasks() {
             taskList.innerHTML = '';
             
-            playerTasks.forEach(task => {
+            // For imposters, show all tasks unless they're acting as crewmates
+            const tasksToShow = (playerRole === 'imposter' && !actingAsCrewmate) ? 
+                Array.from({length: totalTasks}, (_, i) => i + 1) : 
+                playerTasks;
+            
+            tasksToShow.forEach(task => {
                 const taskItem = document.createElement('div');
                 taskItem.className = 'task-item';
                 
@@ -1616,19 +1992,28 @@
                 
                 if (isCompleted) {
                     taskItem.classList.add('completed');
-                } else {
+                } else if (playerRole === 'crewmate' || actingAsCrewmate) {
                     taskItem.addEventListener('click', () => {
-                        completeTask(task, taskItem);
+                        if (confirm("Complete this task?")) {
+                            completeTask(task, taskItem);
+                            lastCompletedTask = task;
+                            taskUndoBtn.style.display = 'flex';
+                        }
                     });
                 }
                 
                 taskList.appendChild(taskItem);
             });
+            
+            if (playerRole === 'imposter' && !actingAsCrewmate) {
+                taskList.innerHTML = '<h2 style="color: var(--red); margin-bottom: 1rem;">MONITORING CREW TASKS</h2>' + taskList.innerHTML;
+            }
         }
 
         // Complete a task
         async function completeTask(task, taskElement) {
-            if (playerRole !== 'crewmate' || isDead) return;
+            if (playerRole !== 'crewmate' && !actingAsCrewmate) return;
+            if (isDead) return;
             
             const user = auth.currentUser;
             if (!user || !gameData.roles) return;
@@ -1661,7 +2046,7 @@
             const totalCompleted = gameData.completedTasks || 0;
             gameTasksDisplay.textContent = `Tasks: ${totalCompleted}/${totalTasks}`;
             
-            if (meetingScreen.classList.contains('active')) {
+            if (meetingScreen.classList.contains('active') || discussionScreen.classList.contains('active')) {
                 meetingTasksDisplay.textContent = `Tasks Completed: ${totalCompleted}/${totalTasks}`;
             }
             
@@ -1674,6 +2059,98 @@
             }
         }
 
+        // Universal Kill Button
+        killButton.addEventListener('click', () => {
+            if (killCooldown || isDead) return;
+            
+            if (playerRole === 'imposter') {
+                showKillSelection();
+            } else {
+                alert("Action not available to crewmates");
+            }
+        });
+
+        function showKillSelection() {
+            killPlayerList.innerHTML = '';
+            selectedPlayerToKill = null;
+            
+            const user = auth.currentUser;
+            if (!user || !gameData) return;
+            
+            gameData.playerNames.forEach((name, index) => {
+                const playerId = gameData.players[index];
+                
+                // Don't show dead players or yourself
+                if (gameData.deadPlayers && gameData.deadPlayers.includes(playerId)) return;
+                if (playerId === user.uid) return;
+                
+                const playerItem = document.createElement('div');
+                playerItem.className = 'kill-player-item';
+                playerItem.dataset.playerId = playerId;
+                playerItem.innerHTML = `
+                    <img src="https://cdn-icons-png.flaticon.com/512/3663/3663378.png" alt="Crewmate">
+                    <span>${name}</span>
+                `;
+                
+                playerItem.addEventListener('click', () => {
+                    // Remove previous selection
+                    const selected = killPlayerList.querySelector('.selected');
+                    if (selected) selected.classList.remove('selected');
+                    
+                    // Set new selection
+                    playerItem.classList.add('selected');
+                    selectedPlayerToKill = playerId;
+                });
+                
+                killPlayerList.appendChild(playerItem);
+            });
+            
+            killConfirmScreen.classList.add('active');
+        }
+
+        confirmKillBtn.addEventListener('click', async () => {
+            if (!selectedPlayerToKill) return;
+            
+            // Show death animation
+            killConfirmScreen.classList.remove('active');
+            deathAnimation.classList.add('active');
+            
+            // After animation, mark player as dead
+            setTimeout(async () => {
+                deathAnimation.classList.remove('active');
+                
+                await db.collection("games").doc(currentGameId).update({
+                    deadPlayers: firebase.firestore.FieldValue.arrayUnion(selectedPlayerToKill),
+                    status: "player_dead"
+                });
+                
+                // Start kill cooldown
+                killCooldown = true;
+                killButton.classList.add('disabled');
+                killButton.innerHTML = '<div class="cooldown-overlay">30s</div>';
+                
+                let cooldown = 30;
+                const cooldownInterval = setInterval(() => {
+                    cooldown--;
+                    killButton.querySelector('.cooldown-overlay').textContent = `${cooldown}s`;
+                    
+                    if (cooldown <= 0) {
+                        clearInterval(cooldownInterval);
+                        killCooldown = false;
+                        killButton.classList.remove('disabled');
+                        killButton.innerHTML = 'KILL';
+                    }
+                }, 1000);
+                
+                selectedPlayerToKill = null;
+            }, 2000);
+        });
+
+        cancelKillBtn.addEventListener('click', () => {
+            killConfirmScreen.classList.remove('active');
+            selectedPlayerToKill = null;
+        });
+
         // Emergency meeting button
         emergencyButton.addEventListener('click', () => {
             if (isDead) return;
@@ -1685,7 +2162,69 @@
             }
         });
 
-        // Show meeting screen
+        // Start discussion phase
+        function startDiscussion() {
+            meetingScreen.classList.remove('active');
+            discussionScreen.classList.add('active');
+            
+            // Reset timer
+            discussionTimeLeft = 120;
+            updateDiscussionTimer();
+            
+            // Clear chat
+            discussionChat.innerHTML = '';
+            
+            // Start timer
+            if (discussionInterval) clearInterval(discussionInterval);
+            discussionInterval = setInterval(() => {
+                discussionTimeLeft--;
+                updateDiscussionTimer();
+                
+                if (discussionTimeLeft <= 0) {
+                    endDiscussion();
+                }
+            }, 1000);
+        }
+
+        function updateDiscussionTimer() {
+            const minutes = Math.floor(discussionTimeLeft / 60);
+            const seconds = discussionTimeLeft % 60;
+            discussionTimer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function endDiscussion() {
+            clearInterval(discussionInterval);
+            discussionScreen.classList.remove('active');
+            showMeetingScreen();
+        }
+
+        // Send chat message
+        sendChatBtn.addEventListener('click', sendChatMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendChatMessage();
+        });
+
+        function sendChatMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            const username = user.displayName || user.email.split('@')[0];
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = 'chat-message';
+            messageElement.textContent = `${username}: ${message}`;
+            discussionChat.appendChild(messageElement);
+            
+            chatInput.value = '';
+            discussionChat.scrollTop = discussionChat.scrollHeight;
+        }
+
+        skipDiscussionBtn.addEventListener('click', endDiscussion);
+
+        // Show meeting screen for voting
         function showMeetingScreen() {
             meetingScreen.classList.add('active');
             
@@ -1704,8 +2243,20 @@
                 
                 const playerItem = document.createElement('div');
                 playerItem.className = 'vote-player-item';
-                playerItem.textContent = name;
-                playerItem.addEventListener('click', () => votePlayer(playerId, name));
+                playerItem.innerHTML = `
+                    <img src="https://cdn-icons-png.flaticon.com/512/3663/3663378.png" alt="Player" style="width: 50px; height: 50px;">
+                    <span>${name}</span>
+                `;
+                playerItem.dataset.playerId = playerId;
+                playerItem.addEventListener('click', () => {
+                    // Clear previous selection
+                    const selected = votePlayerList.querySelector('.selected');
+                    if (selected) selected.classList.remove('selected');
+                    
+                    // Set new selection
+                    playerItem.classList.add('selected');
+                });
+                
                 votePlayerList.appendChild(playerItem);
             });
             
@@ -1742,17 +2293,42 @@
             if (!results) return;
             
             if (results.votedPlayerId) {
-                const isImposter = gameData.roles && gameData.roles[results.votedPlayerId] && 
-                                  gameData.roles[results.votedPlayerId].role === 'imposter';
+                const votes = gameData.votes || {};
+                const voteCount = Object.values(votes).filter(v => v === results.votedPlayerId).length;
                 
-                if (isImposter) {
-                    resultsTitle.textContent = `${results.votedPlayerName} was The Imposter!`;
-                    resultsTitle.className = 'results-title results-imposter';
-                    resultsMessage.textContent = "The crewmates made the right choice!";
+                // Check for tie
+                const allVotes = Object.values(votes);
+                const voteCounts = {};
+                allVotes.forEach(v => {
+                    voteCounts[v] = (voteCounts[v] || 0) + 1;
+                });
+                
+                const maxVotes = Math.max(...Object.values(voteCounts));
+                const winners = Object.keys(voteCounts).filter(k => voteCounts[k] === maxVotes);
+                
+                if (winners.length > 1) {
+                    // Tie situation
+                    tieNotification.style.display = 'block';
+                    setTimeout(() => {
+                        tieNotification.style.display = 'none';
+                    }, 3000);
+                    
+                    resultsTitle.textContent = "VOTE TIED!";
+                    resultsTitle.className = 'results-title';
+                    resultsMessage.textContent = "No one was ejected due to a tie.";
                 } else {
-                    resultsTitle.textContent = `${results.votedPlayerName} was Not The Imposter!`;
-                    resultsTitle.className = 'results-title results-crewmate';
-                    resultsMessage.textContent = "The crewmates made a mistake!";
+                    const isImposter = gameData.roles && gameData.roles[results.votedPlayerId] && 
+                                      gameData.roles[results.votedPlayerId].role === 'imposter';
+                    
+                    if (isImposter) {
+                        resultsTitle.textContent = `${results.votedPlayerName} was The Imposter!`;
+                        resultsTitle.className = 'results-title results-imposter';
+                        resultsMessage.textContent = `The crewmates made the right choice (${voteCount} votes)!`;
+                    } else {
+                        resultsTitle.textContent = `${results.votedPlayerName} was Not The Imposter!`;
+                        resultsTitle.className = 'results-title results-crewmate';
+                        resultsMessage.textContent = `The crewmates made a mistake (${voteCount} votes)!`;
+                    }
                 }
             } else {
                 resultsTitle.textContent = "The crew skipped voting!";
@@ -1849,6 +2425,44 @@
             }
         }
 
+        // Role toggle functionality
+        roleToggleBtn.addEventListener('click', () => {
+            if (playerRole !== 'imposter') return;
+            
+            actingAsCrewmate = !actingAsCrewmate;
+            
+            if (actingAsCrewmate) {
+                roleToggleBtn.textContent = 'Return to Imposter';
+                killButton.style.display = 'none';
+            } else {
+                roleToggleBtn.textContent = 'Act As Crewmate';
+                killButton.style.display = 'flex';
+            }
+            
+            renderTasks();
+        });
+
+        // Task undo button
+        taskUndoBtn.addEventListener('click', async () => {
+            if (!lastCompletedTask) return;
+            
+            const user = auth.currentUser;
+            if (!user || !gameData.roles) return;
+            
+            try {
+                await db.collection("games").doc(currentGameId).update({
+                    [`roles.${user.uid}.completed`]: firebase.firestore.FieldValue.arrayRemove(lastCompletedTask),
+                    [`roles.${user.uid}.completedTasks`]: firebase.firestore.FieldValue.increment(-1),
+                    completedTasks: firebase.firestore.FieldValue.increment(-1)
+                });
+                
+                lastCompletedTask = null;
+                taskUndoBtn.style.display = 'none';
+            } catch (error) {
+                console.error("Error undoing task:", error);
+            }
+        });
+
         // LEAVE GAME
         leaveGameBtn.addEventListener('click', leaveGame);
 
@@ -1924,6 +2538,13 @@
             resultsScreen.classList.remove('active');
             deathScreen.classList.remove('active');
             gameOverScreen.classList.remove('active');
+            killConfirmScreen.classList.remove('active');
+            discussionScreen.classList.remove('active');
+            
+            // Hide all special buttons when changing views
+            killButton.style.display = 'none';
+            roleToggleBtn.style.display = 'none';
+            taskUndoBtn.style.display = 'none';
             
             if (viewName === 'auth') {
                 authView.classList.add('active');
