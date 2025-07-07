@@ -19,6 +19,9 @@
             --crewmate-blue: #6b8cff;
             --imposter-red: #ff3e3e;
             --task-yellow: #ffde59;
+            --crewmate-color: #6b8cff;
+            --imposter-color: #ff3e3e;
+            --dead-color: #666666;
         }
 
         * {
@@ -39,8 +42,9 @@
         body {
             background: radial-gradient(circle at center, #1a1a2e 0%, #0e0e1a 100%);
             color: var(--light);
-            display: grid;
-            place-items: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             background-image: 
                 url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="3" fill="rgba(255,70,85,0.2)"/><circle cx="50" cy="50" r="2" fill="rgba(0,247,255,0.2)"/><circle cx="80" cy="30" r="3" fill="rgba(255,70,85,0.2)"/><circle cx="30" cy="80" r="2" fill="rgba(0,247,255,0.2)"/></svg>');
         }
@@ -51,25 +55,31 @@
             max-width: 100%;
             max-height: 100%;
             position: relative;
+            overflow: hidden;
         }
 
-        .view-container {
+        .view {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            padding: 1rem;
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
-        .container {
+        .view.active {
+            display: flex;
+        }
+
+        /* Auth View */
+        .menu-container {
             width: 100%;
             max-width: 500px;
-            background: rgba(14, 14, 26, 0.85);
+            background: rgba(14, 14, 26, 0.95);
             border-radius: 16px;
             padding: 2rem;
             box-shadow: var(--shadow);
@@ -78,9 +88,10 @@
             position: relative;
             overflow: hidden;
             animation: fadeIn 0.5s ease-out;
+            text-align: center;
         }
 
-        .container::before {
+        .menu-container::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -92,72 +103,64 @@
             z-index: -1;
         }
 
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                border-radius: 0;
-                height: 100%;
-                max-width: 100%;
-                padding: 1.5rem;
-            }
-        }
-
-        h1 {
-            font-size: 1.8rem;
+        .game-title {
+            font-size: 2rem;
             margin-bottom: 1.5rem;
-            text-align: center;
             background: linear-gradient(to right, var(--red), var(--cyan));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
+            text-shadow: 0 0 15px rgba(0, 247, 255, 0.5);
+            position: relative;
         }
 
-        h2 {
-            color: var(--cyan);
-            margin-bottom: 1rem;
-            text-align: center;
-            font-size: 1.2rem;
+        .game-title::after {
+            content: '';
+            display: block;
+            width: 80%;
+            height: 4px;
+            background: linear-gradient(to right, var(--red), var(--cyan));
+            margin: 0.5rem auto;
+            border-radius: 2px;
         }
 
         .tabs {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            width: 100%;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         .tab {
             flex: 1;
-            padding: 0.75rem;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            background: transparent;
             border: none;
-            border-radius: 8px;
             color: var(--light);
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
             font-size: 0.8rem;
+            position: relative;
         }
 
         .tab.active {
-            background: var(--red);
-            box-shadow: 0 0 15px rgba(255, 70, 85, 0.7);
-            transform: translateY(-2px);
+            color: var(--cyan);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--cyan);
         }
 
         .form {
             display: none;
             flex-direction: column;
             gap: 1rem;
-            width: 100%;
         }
 
         .form.active {
@@ -168,29 +171,33 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            width: 100%;
         }
 
-        input {
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--light);
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--cyan);
-            box-shadow: 0 0 0 3px rgba(0, 247, 255, 0.3);
-        }
-
-        button {
+        .input-group input {
             padding: 0.8rem;
             border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--light);
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--cyan);
+        }
+
+        .error {
+            color: var(--red);
+            font-size: 0.7rem;
+            min-height: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 1rem;
+            border-radius: 12px;
             border: none;
             background: var(--red);
             color: white;
@@ -199,115 +206,112 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 0.5rem;
+            margin: 0.5rem 0;
             width: 100%;
             font-size: 0.9rem;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0));
+            pointer-events: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 0 rgba(0,0,0,0.2);
         }
 
-        button:hover {
-            transform: translateY(-2px);
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
             box-shadow: 0 6px 0 rgba(0,0,0,0.2);
         }
 
-        button:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
-        }
-
-        button.secondary {
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
-        }
-
-        button.secondary:hover {
-            box-shadow: 0 6px 0 rgba(0,0,0,0.1);
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        button.green {
+        .btn-green {
             background: var(--green);
-            box-shadow: 0 4px 0 rgba(0,100,50,0.3);
+            box-shadow: 0 6px 0 rgba(0,100,50,0.4);
         }
 
-        button.green:hover {
-            box-shadow: 0 6px 0 rgba(0,100,50,0.3);
-        }
-
-        button.blue {
+        .btn-blue {
             background: var(--blue);
-            box-shadow: 0 4px 0 rgba(0,0,100,0.3);
-        }
-
-        button.blue:hover {
-            box-shadow: 0 6px 0 rgba(0,0,100,0.3);
-        }
-
-        .error {
-            color: var(--red);
-            font-size: 0.7rem;
-            height: 1rem;
-            margin-bottom: 0.5rem;
-            text-align: center;
-            text-shadow: 0 0 5px rgba(255,70,85,0.5);
-        }
-
-        .view {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-            text-align: center;
-            width: 100%;
-            height: 100%;
-        }
-
-        .view.active {
-            display: flex;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            box-shadow: 0 6px 0 rgba(0,0,100,0.4);
         }
 
         .button-group {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
             width: 100%;
+            gap: 0.5rem;
         }
 
-        /* Lobby styles */
-        .lobby-info {
-            background: rgba(0, 247, 255, 0.1);
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
+        /* Lobby Styles */
+        .lobby-container {
             width: 100%;
-            border: 1px solid rgba(0, 247, 255, 0.2);
+            max-width: 500px;
+            background: rgba(14, 14, 26, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s ease-out;
         }
 
-        .room-code {
+        .room-code-display {
             font-size: 2.5rem;
             font-weight: bold;
             letter-spacing: 5px;
             color: var(--yellow);
             margin: 1rem 0;
-            text-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
+            text-shadow: 0 0 20px rgba(255, 204, 0, 0.8);
             font-family: 'Courier New', monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 2px solid var(--yellow);
+            text-align: center;
+        }
+
+        .status-message {
+            font-size: 0.8rem;
+            color: var(--cyan);
+            margin-bottom: 1rem;
+            text-align: center;
         }
 
         .player-list {
             width: 100%;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 12px;
             padding: 1rem;
             max-height: 200px;
             overflow-y: auto;
-            margin-bottom: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 1.5rem 0;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .player-list h2 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--cyan);
         }
 
         .player-item {
@@ -316,35 +320,50 @@
             padding: 0.75rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             align-items: center;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
         }
 
         .player-item:last-child {
             border-bottom: none;
         }
 
+        .player-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
         .player-host {
             color: var(--yellow);
             font-weight: bold;
-            text-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
         }
 
-        .settings-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            width: 100%;
+        /* Game Settings */
+        .settings-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
             margin-bottom: 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-panel h2 {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            color: var(--cyan);
         }
 
         .setting-group {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin: 1rem 0;
+            font-size: 0.8rem;
         }
 
         .setting-label {
             text-align: left;
-            font-size: 0.8rem;
+            color: var(--cyan);
         }
 
         .setting-value {
@@ -353,7 +372,6 @@
             border-radius: 20px;
             min-width: 60px;
             text-align: center;
-            font-size: 0.8rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
@@ -374,20 +392,212 @@
             background: var(--cyan);
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 0 5px rgba(0, 247, 255, 0.7);
+            box-shadow: 0 0 10px rgba(0, 247, 255, 0.7);
             border: 2px solid white;
         }
 
-        .status-message {
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            background: rgba(0, 247, 255, 0.1);
-            border: 1px solid rgba(0, 247, 255, 0.2);
-            font-size: 0.8rem;
+        /* Game Screen */
+        .game-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0e0e1a;
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M20,20 L80,20 L80,80 L20,80 Z" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></svg>');
         }
 
-        /* Countdown Screen Styles */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-tasks {
+            background: rgba(0, 247, 255, 0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            border: 2px solid rgba(0, 247, 255, 0.3);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .task-progress {
+            font-weight: bold;
+            color: var(--cyan);
+        }
+
+        /* Task List */
+        .task-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-item:hover {
+            background: rgba(0, 0, 0, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .task-item.completed {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .task-name {
+            color: var(--task-yellow);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 5px rgba(255, 222, 89, 0.7));
+        }
+
+        .task-item.completed .task-icon {
+            filter: grayscale(100%) brightness(0.5) drop-shadow(0 0 5px rgba(0, 255, 136, 0.7));
+        }
+
+        .task-status {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--task-yellow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--green);
+            font-size: 0.7rem;
+        }
+
+        .task-item.completed .task-status {
+            background: var(--green);
+            border-color: var(--green);
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            position: fixed;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 1001;
+            border: 3px solid white;
+            box-shadow: 0 0 25px currentColor;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .kill-btn {
+            bottom: 1.5rem;
+            left: 1.5rem;
+            background: var(--imposter-color);
+            animation: pulse 2s infinite;
+        }
+
+        .emergency-btn {
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: var(--red);
+            animation: pulse 2s infinite;
+        }
+
+        .undo-btn {
+            bottom: 8rem;
+            right: 1.5rem;
+            background: var(--yellow);
+            color: black;
+            display: none;
+        }
+
+        .role-toggle-btn {
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-color: var(--red);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            display: none;
+            width: auto;
+            height: auto;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 15px currentColor; }
+            50% { box-shadow: 0 0 30px currentColor; }
+            100% { box-shadow: 0 0 15px currentColor; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Countdown Screen */
         .countdown-screen {
             position: fixed;
             top: 0;
@@ -402,30 +612,14 @@
             z-index: 1000;
         }
 
-        .countdown-screen.active {
-            display: flex;
-        }
-
         .countdown-number {
             font-size: 15rem;
             font-weight: bold;
             animation: pulse 1s ease-in-out;
-            text-shadow: 0 0 20px currentColor;
+            text-shadow: 0 0 30px currentColor;
         }
 
-        @media (max-width: 600px) {
-            .countdown-number {
-                font-size: 10rem;
-            }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* Role Reveal Screen Styles */
+        /* Role Reveal Screen */
         .role-reveal-screen {
             position: fixed;
             top: 0;
@@ -441,22 +635,11 @@
             text-align: center;
         }
 
-        .role-reveal-screen.active {
-            display: flex;
-        }
-
         .role-animation {
-            width: 200px;
-            height: 200px;
+            width: 250px;
+            height: 250px;
             position: relative;
             margin-bottom: 2rem;
-        }
-
-        @media (max-width: 600px) {
-            .role-animation {
-                width: 150px;
-                height: 150px;
-            }
         }
 
         .role-image {
@@ -466,7 +649,8 @@
             object-fit: contain;
             opacity: 0;
             transition: opacity 0.3s ease;
-            filter: drop-shadow(0 0 10px currentColor);
+            filter: drop-shadow(0 0 20px currentColor);
+            animation: float 3s ease-in-out infinite;
         }
 
         .role-image.active {
@@ -474,152 +658,38 @@
         }
 
         .role-title {
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin-bottom: 1rem;
             background: linear-gradient(to right, var(--red), var(--cyan));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 15px rgba(0, 247, 255, 0.5);
-        }
-
-        @media (max-width: 600px) {
-            .role-title {
-                font-size: 2rem;
-            }
+            text-shadow: 0 0 20px rgba(0, 247, 255, 0.7);
         }
 
         .imposter-title {
             color: var(--red);
-            text-shadow: 0 0 15px rgba(255, 70, 85, 0.7);
+            text-shadow: 0 0 20px rgba(255, 70, 85, 0.8);
         }
 
         .crewmate-title {
             color: var(--cyan);
-            text-shadow: 0 0 15px rgba(0, 247, 255, 0.7);
+            text-shadow: 0 0 20px rgba(0, 247, 255, 0.8);
         }
 
         .other-imposters {
             margin-top: 2rem;
             color: var(--red);
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             max-width: 80%;
-            text-shadow: 0 0 5px rgba(255, 70, 85, 0.5);
-        }
-
-        /* Game Screen Styles */
-        .game-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0e0e1a;
-            display: none;
-            flex-direction: column;
-            z-index: 1000;
-            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M20,20 L80,20 L80,80 L20,80 Z" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></svg>');
-        }
-
-        .game-screen.active {
-            display: flex;
-        }
-
-        .game-header {
-            display: flex;
-            justify-content: space-between;
+            text-shadow: 0 0 10px rgba(255, 70, 85, 0.5);
+            background: rgba(0,0,0,0.3);
             padding: 1rem;
-            background: rgba(0, 0, 0, 0.5);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 2px solid var(--red);
         }
 
-        .game-tasks {
-            background: rgba(0, 247, 255, 0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            border: 1px solid rgba(0, 247, 255, 0.2);
-            font-size: 0.8rem;
-        }
-
-        .task-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
-            padding: 1rem;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .task-item {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .task-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .task-item.completed {
-            background: rgba(0, 255, 136, 0.1);
-            border-color: rgba(0, 255, 136, 0.2);
-        }
-
-        .task-item.completed .task-name {
-            text-decoration: line-through;
-            color: var(--green);
-        }
-
-        .task-name {
-            color: var(--task-yellow);
-        }
-
-        .task-status {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid var(--task-yellow);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--green);
-        }
-
-        .task-item.completed .task-status {
-            background: var(--green);
-            border-color: var(--green);
-        }
-
-        .emergency-button {
-            position: fixed;
-            bottom: 1rem;
-            right: 1rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--red);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 70, 85, 0.7);
-            z-index: 1001;
-            border: 2px solid white;
-            animation: pulse 2s infinite;
-        }
-
-        /* Meeting Screen Styles */
+        /* Meeting Screen */
         .meeting-screen {
             position: fixed;
             top: 0;
@@ -630,60 +700,111 @@
             display: none;
             flex-direction: column;
             align-items: center;
-            padding: 1rem;
+            padding: 2rem;
             z-index: 1002;
-        }
-
-        .meeting-screen.active {
-            display: flex;
+            overflow-y: auto;
         }
 
         .meeting-title {
             font-size: 2rem;
             color: var(--red);
-            margin-bottom: 1rem;
-            text-shadow: 0 0 10px rgba(255, 70, 85, 0.7);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 15px rgba(255, 70, 85, 0.8);
+            text-align: center;
         }
 
         .meeting-tasks {
             color: var(--cyan);
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 2px solid var(--cyan);
+            text-align: center;
+        }
+
+        /* Voting Timer */
+        .voting-timer {
+            font-size: 1.5rem;
+            color: var(--red);
+            margin: 1rem 0;
+            text-shadow: 0 0 10px rgba(255, 70, 85, 0.5);
+            text-align: center;
+        }
+
+        .voting-timer-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .voting-timer-progress {
+            height: 100%;
+            background: linear-gradient(to right, var(--red), var(--cyan));
+            width: 100%;
+            transition: width 1s linear;
         }
 
         .vote-player-list {
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             max-height: 60vh;
             overflow-y: auto;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 1rem;
         }
 
         .vote-player-item {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
+            border: 2px solid transparent;
         }
 
         .vote-player-item:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .vote-player-item.selected {
+            border-color: var(--red);
+            box-shadow: 0 0 20px rgba(255, 70, 85, 0.5);
+        }
+
+        .vote-player-avatar {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .vote-player-name {
+            font-size: 0.9rem;
+            text-align: center;
         }
 
         .vote-buttons {
             display: flex;
             gap: 1rem;
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
+            justify-content: center;
         }
 
-        /* Results Screen Styles */
+        /* Results Screen */
         .results-screen {
             position: fixed;
             top: 0;
@@ -697,16 +818,13 @@
             justify-content: center;
             z-index: 1003;
             text-align: center;
-        }
-
-        .results-screen.active {
-            display: flex;
+            padding: 2rem;
         }
 
         .results-title {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            text-shadow: 0 0 10px currentColor;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 15px currentColor;
         }
 
         .results-imposter {
@@ -720,9 +838,14 @@
         .results-message {
             margin-bottom: 2rem;
             max-width: 80%;
+            font-size: 1.1rem;
+            background: rgba(0,0,0,0.3);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid currentColor;
         }
 
-        /* Death Screen Styles */
+        /* Death Screen */
         .death-screen {
             position: fixed;
             top: 0;
@@ -736,21 +859,21 @@
             justify-content: center;
             z-index: 1004;
             color: var(--red);
-            font-size: 2rem;
+            font-size: 3rem;
             text-align: center;
         }
 
-        .death-screen.active {
-            display: flex;
-        }
-
         .death-message {
-            margin-top: 1rem;
-            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            font-size: 1.5rem;
             color: var(--cyan);
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 2px solid var(--cyan);
         }
 
-        /* Game Over Screen Styles */
+        /* Game Over Screen */
         .game-over-screen {
             position: fixed;
             top: 0;
@@ -764,17 +887,14 @@
             justify-content: center;
             z-index: 1005;
             text-align: center;
-            padding: 1rem;
-        }
-
-        .game-over-screen.active {
-            display: flex;
+            padding: 2rem;
+            overflow-y: auto;
         }
 
         .game-over-title {
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 2rem;
-            text-shadow: 0 0 10px currentColor;
+            text-shadow: 0 0 15px currentColor;
         }
 
         .game-over-crewmate {
@@ -788,88 +908,295 @@
         .game-over-message {
             margin-bottom: 2rem;
             max-width: 80%;
+            font-size: 1.2rem;
+            background: rgba(0,0,0,0.3);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid currentColor;
         }
 
         .game-over-players {
             width: 100%;
-            max-width: 500px;
-            margin: 1rem 0;
-            background: rgba(255, 255, 255, 0.05);
+            max-width: 600px;
+            margin: 2rem 0;
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 12px;
-            padding: 1rem;
+            padding: 1.5rem;
             max-height: 300px;
             overflow-y: auto;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         .game-over-player {
             display: flex;
             justify-content: space-between;
-            padding: 0.75rem;
+            padding: 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .game-over-player:last-child {
+            border-bottom: none;
         }
 
         .game-over-player-role {
             color: var(--yellow);
+            text-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
         }
 
         .game-over-buttons {
             margin-top: 2rem;
             display: flex;
-            gap: 1rem;
+            gap: 1.5rem;
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
+            justify-content: center;
         }
 
-        /* Responsive adjustments */
-        @media (max-height: 700px) {
-            .container {
-                padding: 1rem !important;
-                overflow-y: auto;
-                max-height: 95vh;
-            }
-            
-            h1 {
-                font-size: 1.5rem !important;
-                margin-bottom: 1rem !important;
-            }
-            
-            .player-list {
-                max-height: 150px !important;
-            }
-            
-            .task-list {
-                max-height: 50vh !important;
-            }
+        /* Kill Confirmation Screen */
+        .kill-confirm-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1006;
+            padding: 2rem;
+            overflow-y: auto;
         }
 
-        @media (max-width: 400px) {
-            .tab {
-                font-size: 0.7rem !important;
-                padding: 0.5rem !important;
+        .kill-confirm-title {
+            font-size: 2rem;
+            color: var(--red);
+            margin-bottom: 2rem;
+            text-shadow: 0 0 15px rgba(255, 70, 85, 0.8);
+            text-align: center;
+        }
+
+        .kill-player-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 600px;
+            margin: 2rem 0;
+        }
+
+        .kill-player-item {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .kill-player-item:hover {
+            background: rgba(0, 0, 0, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .kill-player-item.selected {
+            border-color: var(--red);
+            box-shadow: 0 0 20px rgba(255, 70, 85, 0.5);
+        }
+
+        .kill-player-avatar {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .kill-player-name {
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .kill-confirm-buttons {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+
+        /* Death Animation */
+        .death-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1007;
+        }
+
+        .death-animation-img {
+            width: 250px;
+            height: 250px;
+            animation: float 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px var(--red));
+        }
+
+        .death-animation-text {
+            margin-top: 2rem;
+            font-size: 3rem;
+            color: var(--red);
+            text-shadow: 0 0 15px rgba(255, 70, 85, 0.8);
+        }
+
+        /* Cooldown Overlay */
+        .cooldown-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: white;
+            border-radius: 50%;
+        }
+
+        /* Tie Notification */
+        .tie-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1.5rem 3rem;
+            border-radius: 12px;
+            border: 3px solid var(--yellow);
+            color: var(--yellow);
+            font-size: 1.5rem;
+            z-index: 1010;
+            display: none;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 204, 0, 0.5);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 1.8rem;
             }
             
-            .room-code {
-                font-size: 2rem !important;
+            .room-code-display {
+                font-size: 2rem;
             }
             
             .countdown-number {
-                font-size: 8rem !important;
+                font-size: 10rem;
             }
             
             .role-title {
-                font-size: 1.8rem !important;
+                font-size: 2.5rem;
             }
             
             .task-list {
                 grid-template-columns: 1fr;
             }
+            
+            .vote-player-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .kill-player-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 1rem;
+            }
+            
+            .undo-btn {
+                bottom: 7rem;
+            }
+
+            .meeting-title, .kill-confirm-title {
+                font-size: 1.5rem;
+            }
+
+            .results-title, .game-over-title {
+                font-size: 2rem;
+            }
         }
 
-        /* Animations */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+        @media (max-width: 480px) {
+            .game-title {
+                font-size: 1.5rem;
+            }
+            
+            .room-code-display {
+                font-size: 1.5rem;
+                padding: 0.5rem;
+            }
+            
+            .countdown-number {
+                font-size: 8rem;
+            }
+            
+            .role-title {
+                font-size: 2rem;
+            }
+            
+            .menu-container, .lobby-container {
+                padding: 1rem;
+            }
+            
+            .btn {
+                padding: 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .action-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 0.9rem;
+            }
+            
+            .undo-btn {
+                bottom: 6.5rem;
+            }
+
+            .vote-player-item, .kill-player-item {
+                padding: 1rem;
+            }
+
+            .vote-player-avatar, .kill-player-avatar {
+                width: 60px;
+                height: 60px;
+            }
+
+            .game-over-buttons, .kill-confirm-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .role-toggle-btn {
+                font-size: 0.6rem;
+                padding: 0.4rem 0.8rem;
+            }
         }
 
         /* Scrollbar */
@@ -890,318 +1217,14 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.3);
         }
-
-        /* NEW STYLES FOR ENHANCED FEATURES */
-        .kill-button {
-            position: fixed;
-            bottom: 1rem;
-            left: 1rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--red);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 70, 85, 0.7);
-            z-index: 1001;
-            border: 2px solid white;
-            animation: pulse 2s infinite;
-        }
-
-        .kill-button.disabled {
-            background: #666;
-            box-shadow: none;
-            animation: none;
-            cursor: not-allowed;
-        }
-
-        .kill-confirm-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1006;
-            padding: 1rem;
-        }
-
-        .kill-confirm-screen.active {
-            display: flex;
-        }
-
-        .kill-player-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            width: 100%;
-            max-width: 500px;
-            margin: 1rem 0;
-        }
-
-        .kill-player-item {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .kill-player-item:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: var(--red);
-        }
-
-        .kill-player-item img {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 0.5rem;
-        }
-
-        .kill-confirm-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .death-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1007;
-        }
-
-        .death-animation.active {
-            display: flex;
-        }
-
-        .death-animation img {
-            width: 200px;
-            height: 200px;
-            animation: float 2s ease-in-out infinite;
-        }
-
-        .discussion-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(14, 14, 26, 0.95);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding: 1rem;
-            z-index: 1008;
-        }
-
-        .discussion-screen.active {
-            display: flex;
-        }
-
-        .discussion-timer {
-            font-size: 2rem;
-            color: var(--red);
-            margin-bottom: 1rem;
-            text-shadow: 0 0 10px var(--red);
-        }
-
-        .discussion-chat {
-            width: 100%;
-            max-width: 500px;
-            height: 300px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 8px;
-            padding: 1rem;
-            overflow-y: auto;
-            margin-bottom: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .chat-message {
-            margin-bottom: 0.5rem;
-            padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-
-        .chat-input {
-            width: 100%;
-            max-width: 500px;
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .chat-input input {
-            flex: 1;
-            padding: 0.8rem;
-            border-radius: 8px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--light);
-        }
-
-        .chat-input button {
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            background: var(--blue);
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        .skip-discussion-btn {
-            margin-top: 1rem;
-            background: var(--red);
-        }
-
-        .role-toggle-btn {
-            position: fixed;
-            bottom: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            background: var(--purple);
-            color: white;
-            border: none;
-            cursor: pointer;
-            z-index: 1001;
-            display: none;
-        }
-
-        .task-undo-btn {
-            position: fixed;
-            bottom: 5rem;
-            right: 1rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--yellow);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 222, 89, 0.7);
-            z-index: 1001;
-            border: 2px solid white;
-            display: none;
-        }
-
-        .tie-notification {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            border: 2px solid var(--yellow);
-            color: var(--yellow);
-            z-index: 1010;
-            display: none;
-        }
-
-        .cooldown-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5rem;
-            color: white;
-            border-radius: 50%;
-            display: none;
-        }
-
-        .orientation-warning {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--dark);
-            z-index: 2000;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        @media (orientation: portrait) and (max-width: 768px) {
-            .orientation-warning {
-                display: flex;
-            }
-        }
-
-        @media (max-width: 1024px) and (min-height: 768px) {
-            .container {
-                max-width: 600px;
-                padding: 2rem !important;
-            }
-            
-            .kill-button, .emergency-button, .task-undo-btn {
-                width: 80px;
-                height: 80px;
-                font-size: 1.2rem;
-            }
-            
-            .vote-player-list {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) and (orientation: landscape) {
-            .container {
-                max-width: 90%;
-                max-height: 90%;
-                overflow-y: auto;
-            }
-            
-            .player-list {
-                max-height: 30vh !important;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Orientation Warning -->
-    <div class="orientation-warning">
-        <h2>Please rotate your device</h2>
-        <p>For the best experience, please play in landscape mode</p>
-        <img src="https://cdn-icons-png.flaticon.com/512/992/992703.png" alt="Rotate device" style="width: 100px; margin-top: 2rem;">
-    </div>
-
     <div id="app">
         <!-- Auth View -->
-        <div id="auth-view" class="view-container view active">
-            <div class="container">
-                <h1>Among Us Enhanced</h1>
+        <div id="auth-view" class="view active">
+            <div class="menu-container">
+                <h1 class="game-title">Among Us Enhanced</h1>
                 
                 <div class="tabs">
                     <button class="tab active" id="login-tab">Login</button>
@@ -1217,7 +1240,7 @@
                         <input type="password" id="login-password" placeholder="Password" required>
                     </div>
                     <div id="login-error" class="error"></div>
-                    <button type="button" id="login-btn">Start Game</button>
+                    <button type="button" id="login-btn" class="btn">Start Game</button>
                 </form>
 
                 <!-- Signup Form -->
@@ -1229,35 +1252,32 @@
                         <input type="password" id="signup-password" placeholder="New Password" required>
                     </div>
                     <div id="signup-error" class="error"></div>
-                    <button type="button" id="signup-btn">Join Crew</button>
+                    <button type="button" id="signup-btn" class="btn">Join Crew</button>
                 </form>
             </div>
         </div>
 
         <!-- Menu View -->
-        <div id="menu-view" class="view-container view">
-            <div class="container">
-                <h1>Welcome, <span id="username-display">Player</span>!</h1>
+        <div id="menu-view" class="view">
+            <div class="menu-container">
+                <h1 class="game-title">Welcome, <span id="username-display">Player</span>!</h1>
                 <div class="button-group">
-                    <button id="join-game-btn">Join Game</button>
-                    <button id="create-game-btn">Create Game</button>
+                    <button id="join-game-btn" class="btn btn-blue">Join Game</button>
+                    <button id="create-game-btn" class="btn btn-green">Create Game</button>
                 </div>
-                <button id="logout-btn" class="secondary">Log Out</button>
+                <button id="logout-btn" class="btn btn-secondary">Log Out</button>
             </div>
         </div>
 
         <!-- Lobby View -->
-        <div id="lobby-view" class="view-container view">
-            <div class="container">
-                <h1>Game Lobby</h1>
+        <div id="lobby-view" class="view">
+            <div class="lobby-container">
+                <h1 class="game-title">Game Lobby</h1>
                 
-                <div class="lobby-info">
-                    <h2>Room Code</h2>
-                    <div class="room-code" id="room-code-display">ABCD</div>
-                    <div id="game-status" class="status-message">Waiting for players...</div>
-                </div>
+                <div class="room-code-display" id="room-code-display">ABCD</div>
+                <div id="game-status" class="status-message">Waiting for players...</div>
 
-                <div class="settings-form" id="settings-form">
+                <div class="settings-panel">
                     <h2>Game Settings</h2>
                     <div class="setting-group">
                         <span class="setting-label">Number of Tasks:</span>
@@ -1265,7 +1285,7 @@
                     </div>
                     <input type="range" id="tasks-slider" min="1" max="100" value="15">
                     
-                    <div class="setting-group" style="margin-top: 1.5rem;">
+                    <div class="setting-group">
                         <span class="setting-label">Number of Imposters:</span>
                         <span class="setting-value" id="imposters-value">1</span>
                     </div>
@@ -1278,8 +1298,8 @@
                 </div>
 
                 <div class="button-group">
-                    <button id="start-game-btn" class="green">Start Game</button>
-                    <button id="leave-game-btn" class="secondary">Leave Game</button>
+                    <button id="start-game-btn" class="btn btn-green">Start Game</button>
+                    <button id="leave-game-btn" class="btn btn-secondary">Leave Game</button>
                 </div>
             </div>
         </div>
@@ -1302,50 +1322,37 @@
         <!-- Game Screen -->
         <div id="game-screen" class="game-screen">
             <div class="game-header">
-                <div class="game-tasks" id="game-tasks-display">Tasks: 0/15</div>
+                <div class="game-tasks" id="game-tasks-display">
+                    <span class="task-progress">0/15</span> Tasks
+                </div>
             </div>
             
             <div class="task-list" id="task-list">
                 <!-- Tasks will be added here dynamically -->
             </div>
             
-            <div class="kill-button" id="kill-button">KILL</div>
-            <div class="emergency-button" id="emergency-button">
-                <span>!</span>
-            </div>
-            <div class="task-undo-btn" id="task-undo-btn">↩</div>
+            <button class="action-btn kill-btn" id="kill-button">KILL</button>
+            <button class="action-btn emergency-btn" id="emergency-button">!</button>
+            <button class="action-btn undo-btn" id="task-undo-btn">↩</button>
+            <button class="action-btn role-toggle-btn" id="role-toggle-btn">Act As Crewmate</button>
         </div>
 
         <!-- Kill Confirmation Screen -->
         <div id="kill-confirm-screen" class="kill-confirm-screen">
-            <h2>Select a player to eliminate</h2>
+            <h2 class="kill-confirm-title">Select a player to eliminate</h2>
             <div class="kill-player-list" id="kill-player-list">
                 <!-- Players will be added here -->
             </div>
             <div class="kill-confirm-buttons">
-                <button id="confirm-kill-btn" class="green">Confirm</button>
-                <button id="cancel-kill-btn" class="secondary">Cancel</button>
+                <button id="confirm-kill-btn" class="btn btn-green">Confirm</button>
+                <button id="cancel-kill-btn" class="btn btn-secondary">Cancel</button>
             </div>
         </div>
 
         <!-- Death Animation -->
         <div id="death-animation" class="death-animation">
-            <img src="https://cdn-icons-png.flaticon.com/512/3663/3663374.png" alt="Imposter">
-            <h2 style="color: var(--red); margin-top: 1rem;">ELIMINATED</h2>
-        </div>
-
-        <!-- Discussion Screen -->
-        <div id="discussion-screen" class="discussion-screen">
-            <h2 class="meeting-title">DISCUSSION PHASE</h2>
-            <div class="discussion-timer" id="discussion-timer">2:00</div>
-            <div class="discussion-chat" id="discussion-chat">
-                <!-- Chat messages will appear here -->
-            </div>
-            <div class="chat-input">
-                <input type="text" id="chat-input" placeholder="Type your message...">
-                <button id="send-chat-btn">Send</button>
-            </div>
-            <button id="skip-discussion-btn" class="skip-discussion-btn">Skip to Voting</button>
+            <img src="https://cdn-icons-png.flaticon.com/512/3663/3663374.png" class="death-animation-img" alt="Imposter">
+            <h2 class="death-animation-text">ELIMINATED</h2>
         </div>
 
         <!-- Meeting Screen -->
@@ -1353,12 +1360,19 @@
             <h1 class="meeting-title">EMERGENCY MEETING</h1>
             <div class="meeting-tasks" id="meeting-tasks">Tasks Completed: 0/15</div>
             
+            <div class="voting-timer">
+                <div>Time Remaining: <span id="voting-time">120</span>s</div>
+                <div class="voting-timer-bar">
+                    <div class="voting-timer-progress" id="voting-timer-progress"></div>
+                </div>
+            </div>
+            
             <div class="vote-player-list" id="vote-player-list">
                 <!-- Players will be listed here for voting -->
             </div>
             
             <div class="vote-buttons">
-                <button id="skip-vote-btn" class="secondary">Skip Vote</button>
+                <button id="skip-vote-btn" class="btn btn-secondary">Skip Vote</button>
             </div>
         </div>
 
@@ -1366,7 +1380,7 @@
         <div id="results-screen" class="results-screen">
             <h1 id="results-title" class="results-title"></h1>
             <div id="results-message" class="results-message"></div>
-            <button id="continue-game-btn" class="green" style="margin-top: 2rem;">Continue</button>
+            <button id="continue-game-btn" class="btn btn-green">Continue</button>
         </div>
 
         <!-- Death Screen -->
@@ -1385,13 +1399,10 @@
             </div>
             
             <div class="game-over-buttons">
-                <button id="return-to-menu-btn" class="secondary">Return to Menu</button>
-                <button id="play-again-btn" class="green">Play Again</button>
+                <button id="return-to-menu-btn" class="btn btn-secondary">Return to Menu</button>
+                <button id="play-again-btn" class="btn btn-green">Play Again</button>
             </div>
         </div>
-
-        <!-- Role Toggle Button -->
-        <button class="role-toggle-btn" id="role-toggle-btn">Act As Crewmate</button>
 
         <!-- Tie Notification -->
         <div class="tie-notification" id="tie-notification">VOTE TIED! No one was ejected.</div>
@@ -1478,15 +1489,11 @@
         const confirmKillBtn = document.getElementById('confirm-kill-btn');
         const cancelKillBtn = document.getElementById('cancel-kill-btn');
         const deathAnimation = document.getElementById('death-animation');
-        const discussionScreen = document.getElementById('discussion-screen');
-        const discussionTimer = document.getElementById('discussion-timer');
-        const discussionChat = document.getElementById('discussion-chat');
-        const chatInput = document.getElementById('chat-input');
-        const sendChatBtn = document.getElementById('send-chat-btn');
-        const skipDiscussionBtn = document.getElementById('skip-discussion-btn');
         const roleToggleBtn = document.getElementById('role-toggle-btn');
         const taskUndoBtn = document.getElementById('task-undo-btn');
         const tieNotification = document.getElementById('tie-notification');
+        const votingTimeDisplay = document.getElementById('voting-time');
+        const votingTimerProgress = document.getElementById('voting-timer-progress');
 
         // Game state
         let currentGameId = null;
@@ -1501,10 +1508,11 @@
         let gameData = null;
         let killCooldown = false;
         let selectedPlayerToKill = null;
-        let discussionTimeLeft = 120;
-        let discussionInterval = null;
         let lastCompletedTask = null;
         let actingAsCrewmate = false;
+        let votingTimer = null;
+        let votingTimeLeft = 120;
+        let allPlayersVoted = false;
 
         // Tab switching
         loginTab.addEventListener('click', () => {
@@ -1620,7 +1628,8 @@
                     maxPlayers: 10,
                     tasks: parseInt(tasksSlider.value),
                     imposters: parseInt(impostersSlider.value),
-                    completedTasks: 0
+                    completedTasks: 0,
+                    votes: {}
                 });
                 
                 currentGameId = gameRef.id;
@@ -1754,7 +1763,7 @@
                     
                     // Handle meeting called
                     if (gameData.status === "meeting") {
-                        startDiscussion();
+                        startMeeting();
                     }
                     
                     // Handle voting results
@@ -1802,7 +1811,7 @@
 
         // Show countdown sequence
         function showCountdown() {
-            countdownScreen.classList.add('active');
+            countdownScreen.style.display = 'flex';
             
             // Countdown from 3
             countdownDisplay.textContent = '3';
@@ -1878,14 +1887,15 @@
                 roles: roles,
                 totalTasks: totalTasks,
                 completedTasks: 0,
-                deadPlayers: []
+                deadPlayers: [],
+                votes: {}
             });
         }
 
         // Show role reveal animation
         function showRoleReveal() {
-            countdownScreen.classList.remove('active');
-            roleRevealScreen.classList.add('active');
+            countdownScreen.style.display = 'none';
+            roleRevealScreen.style.display = 'flex';
             
             // Animation sequence
             let switches = 0;
@@ -1945,8 +1955,8 @@
 
         // Start the game
         function startGame() {
-            roleRevealScreen.classList.remove('active');
-            gameScreen.classList.add('active');
+            roleRevealScreen.style.display = 'none';
+            gameScreen.style.display = 'flex';
             
             const user = auth.currentUser;
             if (!user || !gameData.roles) return;
@@ -1986,6 +1996,7 @@
                                     gameData.roles[auth.currentUser.uid].completed.includes(task);
                 
                 taskItem.innerHTML = `
+                    <img src="https://cdn-icons-png.flaticon.com/512/3663/3663378.png" class="task-icon" alt="Task">
                     <span class="task-name">Task ${task}</span>
                     <div class="task-status">${isCompleted ? '✓' : ''}</div>
                 `;
@@ -2006,7 +2017,7 @@
             });
             
             if (playerRole === 'imposter' && !actingAsCrewmate) {
-                taskList.innerHTML = '<h2 style="color: var(--red); margin-bottom: 1rem;">MONITORING CREW TASKS</h2>' + taskList.innerHTML;
+                taskList.innerHTML = '<h2 style="color: var(--red); margin-bottom: 1rem; grid-column: 1 / -1; text-align: center;">MONITORING CREW TASKS</h2>' + taskList.innerHTML;
             }
         }
 
@@ -2044,9 +2055,9 @@
         // Update tasks display
         function updateTasksDisplay() {
             const totalCompleted = gameData.completedTasks || 0;
-            gameTasksDisplay.textContent = `Tasks: ${totalCompleted}/${totalTasks}`;
+            gameTasksDisplay.querySelector('.task-progress').textContent = `${totalCompleted}/${totalTasks}`;
             
-            if (meetingScreen.classList.contains('active') || discussionScreen.classList.contains('active')) {
+            if (meetingScreen.style.display === 'flex') {
                 meetingTasksDisplay.textContent = `Tasks Completed: ${totalCompleted}/${totalTasks}`;
             }
             
@@ -2059,7 +2070,7 @@
             }
         }
 
-        // Universal Kill Button
+        // Kill Button
         killButton.addEventListener('click', () => {
             if (killCooldown || isDead) return;
             
@@ -2088,8 +2099,8 @@
                 playerItem.className = 'kill-player-item';
                 playerItem.dataset.playerId = playerId;
                 playerItem.innerHTML = `
-                    <img src="https://cdn-icons-png.flaticon.com/512/3663/3663378.png" alt="Crewmate">
-                    <span>${name}</span>
+                    <img src="https://cdn-icons-png.flaticon.com/512/3663/3663378.png" class="kill-player-avatar" alt="Crewmate">
+                    <span class="kill-player-name">${name}</span>
                 `;
                 
                 playerItem.addEventListener('click', () => {
@@ -2105,19 +2116,19 @@
                 killPlayerList.appendChild(playerItem);
             });
             
-            killConfirmScreen.classList.add('active');
+            killConfirmScreen.style.display = 'flex';
         }
 
         confirmKillBtn.addEventListener('click', async () => {
             if (!selectedPlayerToKill) return;
             
             // Show death animation
-            killConfirmScreen.classList.remove('active');
-            deathAnimation.classList.add('active');
+            killConfirmScreen.style.display = 'none';
+            deathAnimation.style.display = 'flex';
             
             // After animation, mark player as dead
             setTimeout(async () => {
-                deathAnimation.classList.remove('active');
+                deathAnimation.style.display = 'none';
                 
                 await db.collection("games").doc(currentGameId).update({
                     deadPlayers: firebase.firestore.FieldValue.arrayUnion(selectedPlayerToKill),
@@ -2126,8 +2137,7 @@
                 
                 // Start kill cooldown
                 killCooldown = true;
-                killButton.classList.add('disabled');
-                killButton.innerHTML = '<div class="cooldown-overlay">30s</div>';
+                killButton.innerHTML = '<div class="cooldown-overlay">30s</div>KILL';
                 
                 let cooldown = 30;
                 const cooldownInterval = setInterval(() => {
@@ -2137,7 +2147,6 @@
                     if (cooldown <= 0) {
                         clearInterval(cooldownInterval);
                         killCooldown = false;
-                        killButton.classList.remove('disabled');
                         killButton.innerHTML = 'KILL';
                     }
                 }, 1000);
@@ -2147,7 +2156,7 @@
         });
 
         cancelKillBtn.addEventListener('click', () => {
-            killConfirmScreen.classList.remove('active');
+            killConfirmScreen.style.display = 'none';
             selectedPlayerToKill = null;
         });
 
@@ -2157,76 +2166,26 @@
             
             if (confirm("Call emergency meeting?")) {
                 db.collection("games").doc(currentGameId).update({
-                    status: "meeting"
+                    status: "meeting",
+                    votes: {}
                 });
             }
         });
 
-        // Start discussion phase
-        function startDiscussion() {
-            meetingScreen.classList.remove('active');
-            discussionScreen.classList.add('active');
+        // Start meeting
+        function startMeeting() {
+            gameScreen.style.display = 'none';
+            meetingScreen.style.display = 'flex';
             
-            // Reset timer
-            discussionTimeLeft = 120;
-            updateDiscussionTimer();
+            // Reset voting timer
+            clearInterval(votingTimer);
+            votingTimeLeft = 120;
+            allPlayersVoted = false;
+            votingTimeDisplay.textContent = votingTimeLeft;
+            votingTimerProgress.style.width = '100%';
             
-            // Clear chat
-            discussionChat.innerHTML = '';
-            
-            // Start timer
-            if (discussionInterval) clearInterval(discussionInterval);
-            discussionInterval = setInterval(() => {
-                discussionTimeLeft--;
-                updateDiscussionTimer();
-                
-                if (discussionTimeLeft <= 0) {
-                    endDiscussion();
-                }
-            }, 1000);
-        }
-
-        function updateDiscussionTimer() {
-            const minutes = Math.floor(discussionTimeLeft / 60);
-            const seconds = discussionTimeLeft % 60;
-            discussionTimer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        function endDiscussion() {
-            clearInterval(discussionInterval);
-            discussionScreen.classList.remove('active');
-            showMeetingScreen();
-        }
-
-        // Send chat message
-        sendChatBtn.addEventListener('click', sendChatMessage);
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendChatMessage();
-        });
-
-        function sendChatMessage() {
-            const message = chatInput.value.trim();
-            if (!message) return;
-            
-            const user = auth.currentUser;
-            if (!user) return;
-            
-            const username = user.displayName || user.email.split('@')[0];
-            
-            const messageElement = document.createElement('div');
-            messageElement.className = 'chat-message';
-            messageElement.textContent = `${username}: ${message}`;
-            discussionChat.appendChild(messageElement);
-            
-            chatInput.value = '';
-            discussionChat.scrollTop = discussionChat.scrollHeight;
-        }
-
-        skipDiscussionBtn.addEventListener('click', endDiscussion);
-
-        // Show meeting screen for voting
-        function showMeetingScreen() {
-            meetingScreen.classList.add('active');
+            // Start countdown
+            votingTimer = setInterval(updateVotingTimer, 1000);
             
             // Populate player list for voting
             votePlayerList.innerHTML = '';
@@ -2244,10 +2203,11 @@
                 const playerItem = document.createElement('div');
                 playerItem.className = 'vote-player-item';
                 playerItem.innerHTML = `
-                    <img src="https://cdn-icons-png.flaticon.com/512/3663/3663378.png" alt="Player" style="width: 50px; height: 50px;">
-                    <span>${name}</span>
+                    <img src="https://cdn-icons-png.flaticon.com/512/3663/3663378.png" class="vote-player-avatar" alt="Player">
+                    <span class="vote-player-name">${name}</span>
                 `;
                 playerItem.dataset.playerId = playerId;
+                playerItem.dataset.playerName = name;
                 playerItem.addEventListener('click', () => {
                     // Clear previous selection
                     const selected = votePlayerList.querySelector('.selected');
@@ -2263,6 +2223,45 @@
             updateTasksDisplay();
         }
 
+        function updateVotingTimer() {
+            votingTimeLeft--;
+            votingTimeDisplay.textContent = votingTimeLeft;
+            votingTimerProgress.style.width = `${(votingTimeLeft / 120) * 100}%`;
+            
+            // Check if all living players have voted
+            const user = auth.currentUser;
+            if (!user || !gameData) return;
+            
+            const livingPlayers = gameData.players.filter(playerId => 
+                !(gameData.deadPlayers && gameData.deadPlayers.includes(playerId)) && 
+                playerId !== user.uid
+            );
+            
+            const votes = gameData.votes || {};
+            const votedPlayers = Object.keys(votes);
+            
+            if (livingPlayers.every(playerId => votedPlayers.includes(playerId))) {
+                allPlayersVoted = true;
+                clearInterval(votingTimer);
+                endVoting();
+            }
+            
+            if (votingTimeLeft <= 0) {
+                clearInterval(votingTimer);
+                endVoting();
+            }
+        }
+
+        function endVoting() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            // If current user hasn't voted yet, count as skip
+            if (!gameData.votes || !gameData.votes[user.uid]) {
+                votePlayer(null, "Skip");
+            }
+        }
+
         // Skip vote
         skipVoteBtn.addEventListener('click', () => {
             votePlayer(null, "Skip");
@@ -2274,20 +2273,52 @@
             if (!user) return;
             
             await db.collection("games").doc(currentGameId).update({
-                status: "voting_results",
-                votingResults: {
-                    votedPlayerId: playerId,
-                    votedPlayerName: playerName,
-                    voterId: user.uid,
-                    voterName: user.displayName || user.email.split('@')[0]
-                }
+                [`votes.${user.uid}`]: playerId
             });
+            
+            // Only proceed to results if all players have voted or time is up
+            const livingPlayers = gameData.players.filter(playerId => 
+                !(gameData.deadPlayers && gameData.deadPlayers.includes(playerId))
+            );
+            
+            const votes = gameData.votes || {};
+            const votedPlayers = Object.keys(votes);
+            
+            if (livingPlayers.every(playerId => votedPlayers.includes(playerId)) || allPlayersVoted) {
+                // Determine voting results
+                const voteCounts = {};
+                Object.values(votes).forEach(votedId => {
+                    voteCounts[votedId] = (voteCounts[votedId] || 0) + 1;
+                });
+                
+                const maxVotes = Math.max(...Object.values(voteCounts));
+                const winners = Object.keys(voteCounts).filter(k => voteCounts[k] === maxVotes);
+                
+                let votedPlayerId = null;
+                let votedPlayerName = "Skip";
+                
+                if (winners.length === 1 && winners[0] !== "null") {
+                    votedPlayerId = winners[0];
+                    votedPlayerName = gameData.playerNames[gameData.players.indexOf(votedPlayerId)];
+                }
+                
+                await db.collection("games").doc(currentGameId).update({
+                    status: "voting_results",
+                    votingResults: {
+                        votedPlayerId: votedPlayerId,
+                        votedPlayerName: votedPlayerName,
+                        voterId: user.uid,
+                        voterName: user.displayName || user.email.split('@')[0]
+                    },
+                    votes: {} // Reset votes for next meeting
+                });
+            }
         }
 
         // Show voting results
         function showVotingResults() {
-            meetingScreen.classList.remove('active');
-            resultsScreen.classList.add('active');
+            meetingScreen.style.display = 'none';
+            resultsScreen.style.display = 'flex';
             
             const results = gameData.votingResults;
             if (!results) return;
@@ -2339,7 +2370,7 @@
 
         // Continue after voting results
         continueGameBtn.addEventListener('click', async () => {
-            resultsScreen.classList.remove('active');
+            resultsScreen.style.display = 'none';
             
             // If someone was voted out, mark them as dead
             if (gameData.votingResults && gameData.votingResults.votedPlayerId) {
@@ -2372,20 +2403,20 @@
         // Show death screen
         function showDeathScreen() {
             isDead = true;
-            deathScreen.classList.add('active');
+            deathScreen.style.display = 'flex';
             
             const totalCompleted = gameData.completedTasks || 0;
             deathMessage.textContent = `Tasks completed: ${totalCompleted}/${totalTasks}`;
             
             setTimeout(() => {
-                deathScreen.classList.remove('active');
+                deathScreen.style.display = 'none';
             }, 3000);
         }
 
         // Show game over
         function showGameOver() {
-            gameScreen.classList.remove('active');
-            gameOverScreen.classList.add('active');
+            gameScreen.style.display = 'none';
+            gameOverScreen.style.display = 'flex';
             
             const winner = gameData.winner;
             const user = auth.currentUser;
@@ -2432,10 +2463,14 @@
             actingAsCrewmate = !actingAsCrewmate;
             
             if (actingAsCrewmate) {
-                roleToggleBtn.textContent = 'Return to Imposter';
+                roleToggleBtn.textContent = 'Act As Imposter';
+                roleToggleBtn.style.backgroundColor = 'rgba(255, 70, 85, 0.2)';
+                roleToggleBtn.style.borderColor = 'var(--red)';
                 killButton.style.display = 'none';
             } else {
                 roleToggleBtn.textContent = 'Act As Crewmate';
+                roleToggleBtn.style.backgroundColor = 'rgba(0, 247, 255, 0.2)';
+                roleToggleBtn.style.borderColor = 'var(--cyan)';
                 killButton.style.display = 'flex';
             }
             
@@ -2510,10 +2545,11 @@
                     deadPlayers: [],
                     completedTasks: 0,
                     votingResults: null,
-                    winner: null
+                    winner: null,
+                    votes: {}
                 });
                 
-                gameOverScreen.classList.remove('active');
+                gameOverScreen.style.display = 'none';
                 showView('lobby');
             } catch (error) {
                 alert("Error restarting game: " + error.message);
@@ -2528,18 +2564,23 @@
 
         // View management
         function showView(viewName) {
-            authView.classList.remove('active');
-            menuView.classList.remove('active');
-            lobbyView.classList.remove('active');
-            countdownScreen.classList.remove('active');
-            roleRevealScreen.classList.remove('active');
-            gameScreen.classList.remove('active');
-            meetingScreen.classList.remove('active');
-            resultsScreen.classList.remove('active');
-            deathScreen.classList.remove('active');
-            gameOverScreen.classList.remove('active');
-            killConfirmScreen.classList.remove('active');
-            discussionScreen.classList.remove('active');
+            // Hide all views
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            // Hide all special screens
+            countdownScreen.style.display = 'none';
+            roleRevealScreen.style.display = 'none';
+            gameScreen.style.display = 'none';
+            meetingScreen.style.display = 'none';
+            resultsScreen.style.display = 'none';
+            deathScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            killConfirmScreen.style.display = 'none';
+            
+            // Clear voting timer
+            clearInterval(votingTimer);
             
             // Hide all special buttons when changing views
             killButton.style.display = 'none';
