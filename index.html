@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Among Us Role Reveal</title>
   <style>
     body {
@@ -16,7 +16,6 @@
       background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       color: white;
     }
-
     .card {
       background: #1e1e2f;
       padding: 3rem 4rem;
@@ -26,24 +25,21 @@
       max-width: 500px;
       animation: fadeIn 1s ease-in-out;
     }
-
     @keyframes fadeIn {
       0% { opacity: 0; transform: scale(0.95); }
       100% { opacity: 1; transform: scale(1); }
     }
-
     h1 {
       font-size: 2.5rem;
       margin-bottom: 1.5rem;
       transition: all 0.3s ease;
     }
-
     .role {
       font-size: 2rem;
       margin-bottom: 2.5rem;
       transition: all 0.3s ease;
+      min-height: 60px;
     }
-
     .btn {
       padding: 12px 24px;
       font-size: 1.2rem;
@@ -54,8 +50,8 @@
       cursor: pointer;
       transition: background 0.3s, transform 0.2s;
       margin: 0.5rem;
+      min-width: 100px;
     }
-
     .btn:hover {
       background: #028a91;
       transform: scale(1.05);
@@ -66,8 +62,9 @@
 
   <div class="card">
     <h1 id="player-name">Ready?</h1>
-    <div class="role" id="role-text">Click confirm to reveal your role</div>
-    <button class="btn" id="confirm-btn" onclick="revealRole()">Confirm</button>
+    <div class="role" id="role-text"></div>
+    <button class="btn" id="yes-btn" onclick="showRole()" style="display:none">Yes</button>
+    <button class="btn" id="next-btn" onclick="nextPlayer()" style="display:none">Next</button>
     <button class="btn" id="replay-btn" onclick="resetGame()" style="display:none">Replay</button>
   </div>
 
@@ -80,33 +77,47 @@
       imposter = players[Math.floor(Math.random() * players.length)];
       currentIndex = 0;
 
-      document.getElementById("player-name").textContent = "Ready?";
-      const roleText = document.getElementById("role-text");
-      roleText.textContent = "Click confirm to reveal your role";
-      roleText.style.color = "white";
-      document.getElementById("confirm-btn").style.display = "inline-block";
+      document.getElementById("player-name").textContent = `Are you ${players[currentIndex]}? Ready to see your role?`;
+      document.getElementById("role-text").textContent = "";
+      document.getElementById("role-text").style.color = "white";
+
+      document.getElementById("yes-btn").style.display = "inline-block";
+      document.getElementById("next-btn").style.display = "none";
       document.getElementById("replay-btn").style.display = "none";
     }
 
-    function revealRole() {
-      const nameElement = document.getElementById("player-name");
-      const roleElement = document.getElementById("role-text");
+    function showRole() {
+      const player = players[currentIndex];
+      const isImposter = player === imposter;
+      const role = isImposter ? "Imposter" : "Crewmate";
+      const color = isImposter ? "#ff4d4d" : "#00ffff";
 
+      document.getElementById("player-name").textContent = "";
+      const roleText = document.getElementById("role-text");
+      roleText.textContent = `${player}, you are the ${role}`;
+      roleText.style.color = color;
+
+      document.getElementById("yes-btn").style.display = "none";
+      document.getElementById("next-btn").style.display = "inline-block";
+    }
+
+    function nextPlayer() {
+      currentIndex++;
       if (currentIndex < players.length) {
-        const currentPlayer = players[currentIndex];
-        const isImposter = currentPlayer === imposter;
-        const role = isImposter ? "Imposter" : "Crewmate";
-        const roleColor = isImposter ? "#ff4d4d" : "#00ffff";
+        document.getElementById("player-name").textContent = `Are you ${players[currentIndex]}? Ready to see your role?`;
+        document.getElementById("role-text").textContent = "";
+        document.getElementById("role-text").style.color = "white";
 
-        nameElement.textContent = currentPlayer;
-        roleElement.textContent = `${currentPlayer}, you are the ${role}`;
-        roleElement.style.color = roleColor;
-        currentIndex++;
+        document.getElementById("yes-btn").style.display = "inline-block";
+        document.getElementById("next-btn").style.display = "none";
       } else {
-        nameElement.textContent = "All roles revealed";
-        roleElement.textContent = "Start the game!";
-        roleElement.style.color = "white";
-        document.getElementById("confirm-btn").style.display = "none";
+        document.getElementById("player-name").textContent = "All roles revealed";
+        const roleText = document.getElementById("role-text");
+        roleText.textContent = "Start the game!";
+        roleText.style.color = "white";
+
+        document.getElementById("yes-btn").style.display = "none";
+        document.getElementById("next-btn").style.display = "none";
         document.getElementById("replay-btn").style.display = "inline-block";
       }
     }
@@ -115,7 +126,7 @@
       initializeGame();
     }
 
-    // Start game on load
+    // Start the game when page loads
     initializeGame();
   </script>
 
